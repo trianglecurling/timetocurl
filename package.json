@@ -1,0 +1,27 @@
+{
+  "name": "curltime",
+  "version": "1.0.0",
+  "description": "Client and server software to run a timer for curling matches.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trianglecurling/curltime.git"
+  },
+  "keywords": [
+    "curling",
+    "timer",
+    "web",
+    "typescript",
+    "nodejs",
+    "javascript"
+  ],
+  "author": "Trevor Gau",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/trianglecurling/curltime/issues"
+  },
+  "homepage": "https://github.com/trianglecurling/curltime#readme"
+}

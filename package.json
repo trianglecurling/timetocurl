@@ -4,7 +4,11 @@
   "description": "Client and server software to run a timer for curling matches.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc -p client/",
+    "watch": "tsc -w -p client/",
+    "run": "node index.js",
+    "mon": "nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -23,5 +27,14 @@
   "bugs": {
     "url": "https://github.com/trianglecurling/curltime/issues"
   },
-  "homepage": "https://github.com/trianglecurling/curltime#readme"
+  "homepage": "https://github.com/trianglecurling/curltime#readme",
+  "dependencies": {
+    "@types/socket.io-client": "^1.4.29",
+    "express": "^4.14.0",
+    "socket.io": "^1.7.2"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0",
+    "typescript": "^2.1.5"
+  }
 }

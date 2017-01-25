@@ -1,5 +1,5 @@
 {
-  "name": "curltime",
+  "name": "timetocurl",
   "version": "1.0.0",
   "description": "Client and server software to run a timer for curling matches.",
   "main": "index.js",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/trianglecurling/curltime.git"
+    "url": "git+https://github.com/trianglecurling/timetocurl.git"
   },
   "keywords": [
     "curling",
@@ -25,9 +25,9 @@
   "author": "Trevor Gau",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/trianglecurling/curltime/issues"
+    "url": "https://github.com/trianglecurling/timetocurl/issues"
   },
-  "homepage": "https://github.com/trianglecurling/curltime#readme",
+  "homepage": "https://github.com/trianglecurling/timetocurl#readme",
   "dependencies": {
     "@types/socket.io-client": "^1.4.29",
     "expect": "^1.20.2",

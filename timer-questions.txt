@@ -1,0 +1,5 @@
+Open questions:
+
+1. What happens after a timeout? Does the team who called the timeout have its clock resumed immediately?
+
+2. Why does CurlTime allow you to switch colors during a timeout?

@@ -98,12 +98,130 @@ class CurlTimer {
 	}
 }
 
+/**
+ * This class implements a state machine to keep track of a single curling game. The word 'state'
+ * is used to refer to an object that represents every piece of information needed to explain to
+ * a client how to display the current situation in a curling game. The word 'phase' is used to
+ * refer to the more traditional meaning of the word 'state' as part of a finite state machine.
+ * 
+ * State includes things like time remaining, the current end, timeouts, etc. Phase is simply a
+ * name for the current set of actions that are being taken (e.g. running a certain clock), but
+ * it also serves as the name of the node in an FSM - with phase transitions being defined by the
+ * name of the transition.
+ */
 class CurlingMachine {
 
 	constructor(options) {
 		this.options = options;
 		this.timer = new CurlTimer(options);
 		this.state = getInitialState();
+
+		this.nextPhaseMap = {
+			"pregame": {
+				"game-start-warmup": "warm-up",
+				"game-start-no-warmup": "between-ends",
+				"warmup-end": "null",
+				"between-end-end": "null",
+				"begin-thinking": "null",
+				"end-thinking": "null",
+				"end-end": "null",
+				"begin-timeout": "null",
+				"end-timeout": "null",
+				"technical": "null",
+				"end-technical": "null"
+			},
+			"warm-up": {
+				"game-start-warmup": "warm-up",
+				"game-start-no-warmup": "between-ends",
+				"warmup-end": "idle",
+				"between-end-end": "null",
+				"begin-thinking": "null",
+				"end-thinking": "null",
+				"end-end": "null",
+				"begin-timeout": "null",
+				"end-timeout": "null",
+				"technical": "technical",
+				"end-technical": "null"
+			},
+			"between-ends": {
+				"game-start-warmup": "warm-up",
+				"game-start-no-warmup": "between-ends",
+				"warmup-end": "null",
+				"between-end-end": "stone-moving",
+				"begin-thinking": "thinking",
+				"end-thinking": "null",
+				"end-end": "null",
+				"begin-timeout": "null",
+				"end-timeout": "null",
+				"technical": "technical",
+				"end-technical": "null"
+			},
+			"idle": {
+				"game-start-warmup": "between-ends",
+				"game-start-no-warmup": "between-ends",
+				"warmup-end": "null",
+				"between-end-end": "null",
+				"begin-thinking": "null",
+				"end-thinking": "null",
+				"end-end": "null",
+				"begin-timeout": "null",
+				"end-timeout": "null",
+				"technical": "technical",
+				"end-technical": "null"
+			},
+			"stone-moving": {
+				"game-start-warmup": "warm-up",
+				"game-start-no-warmup": "between-ends",
+				"warmup-end": "null",
+				"between-end-end": "null",
+				"begin-thinking": "thinking",
+				"end-thinking": "null",
+				"end-end": "between-ends",
+				"begin-timeout": "null",
+				"end-timeout": "null",
+				"technical": "technical",
+				"end-technical": "null"
+			},
+			"thinking": {
+				"game-start-warmup": "warm-up",
+				"game-start-no-warmup": "between-ends",
+				"warmup-end": "null",
+				"between-end-end": "null",
+				"begin-thinking": "thinking",
+				"end-thinking": "stone-moving",
+				"end-end": "between-ends",
+				"begin-timeout": "timeout",
+				"end-timeout": "null",
+				"technical": "technical",
+				"end-technical": "null"
+			},
+			"timeout": {
+				"game-start-warmup": "warm-up",
+				"game-start-no-warmup": "between-ends",
+				"warmup-end": "null",
+				"between-end-end": "null",
+				"begin-thinking": "null",
+				"end-thinking": "null",
+				"end-end": "null",
+				"begin-timeout": "null",
+				"end-timeout": "stone-moving",
+				"technical": "technical",
+				"end-technical": "null"
+			},
+			"technical": {
+				"game-start-warmup": "warm-up",
+				"game-start-no-warmup": "between-ends",
+				"warmup-end": "null",
+				"between-end-end": "null",
+				"begin-thinking": "null",
+				"end-thinking": "null",
+				"end-end": "null",
+				"begin-timeout": "null",
+				"end-timeout": "null",
+				"technical": "null",
+				"end-technical": "PRIOR-STATE"
+			}
+		};
 	}
 
 	getInitialState() {
@@ -126,7 +244,7 @@ class CurlingMachine {
 }
 
 /* State machine chart: 
-Given an initial state (left column) and an action (top row), one may locate the resulting state
+Given an initial state ("phase") (left column) and a transition (top row), one may locate the resulting state ("phase")
 
 +------------------+-----------------------+-------------------------+-------------+----------------------+-------------------+--------------+-----------------+------------------+----------------+-----------+----------------+
 | INITIAL STATE    | game-start-warmup     | game-start-no-warmup    | warmup-end  | between-end-end      | begin-thinking(t) | end-thinking | end-end         | begin-timeout(t) | end-timeout    | technical | end-technical  |
@@ -157,5 +275,6 @@ Given an initial state (left column) and an action (top row), one may locate the
     at which point we go back to the state before the technical action began.
 
 Note: Any state transition resulting in the `null` state shall be an error.
+Note: between-end-end means "the end of the time between curling ends", and "end-end" meands "the end of a curling end"
 
  */

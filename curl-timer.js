@@ -228,6 +228,7 @@ class CurlingMachine {
 		return {
 			end: null,
 			phase: "pregame",
+			phaseData: {},
 			timeRemaining: [this.options.thinkingTime, this.options.thinkingTime],
 			timeoutsRemaining: [this.options.numTimeouts, this.options.numTimeouts],
 			timeoutTimeRemaining: [this.options.timeoutTime, this.options.timeoutTime],
@@ -239,6 +240,50 @@ class CurlingMachine {
 	}
 
 	getNextState(action) {
+		const phase = this.nextPhaseMap[action.transition];
+		const end = this.getNextEnd(action);
+		const phaseData = this.getPhaseData(action);
+		const timeRemaining = this.timer.thinkingTimers.map(t => t.getTimeRemaining());
+		const timeoutTimeRemaining = this.timer.timeoutTimers.map(t => t.getTimeRemaining());
+		const currentlyThinking = this.getCurrentlyThinking(action);
+		const currentlyRunningTimeout = this.getCurrentlyRunningtimeout(action);
+		const betweenEndTimeRemaining = this.timer.interEndTimer.getTimeRemaining();
+		const currentlyRunningBetweenEnd = this.getCurrentlyRunningBetweenEnd(action);
+
+		return { 
+			phase, 
+			end, 
+			phaseData, 
+			timeRemaining, 
+			timeoutTimeRemaining, 
+			currentlyThinking, 
+			currentlyRunningTimeout, 
+			betweenEndTimeRemaining, 
+			currentlyRunningBetweenEnd 
+		};
+	}
+
+	getNextEnd(action) {
+		if (state.phase === "between-ends" && action.transition === "between-end-end") {
+			return state.end + 1;
+		} else {
+			return state.end;
+		}
+	}
+
+	getPhaseData(action) {
+
+	}
+
+	getCurrentlyThinking(action) {
+
+	}
+
+	getCurrentlyRunningtimeout(action) {
+
+	}
+	
+	getCurrentlyRunningBetweenEnd(action) {
 
 	}
 }
@@ -246,25 +291,25 @@ class CurlingMachine {
 /* State machine chart: 
 Given an initial state ("phase") (left column) and a transition (top row), one may locate the resulting state ("phase")
 
-+------------------+-----------------------+-------------------------+-------------+----------------------+-------------------+--------------+-----------------+------------------+----------------+-----------+----------------+
-| INITIAL STATE    | game-start-warmup     | game-start-no-warmup    | warmup-end  | between-end-end      | begin-thinking(t) | end-thinking | end-end         | begin-timeout(t) | end-timeout    | technical | end-technical  |
-+------------------+-----------------------+-------------------------+-------------+----------------------+-------------------+--------------+-----------------+------------------+----------------+-----------+----------------+
-| pregame          | warm-up               | between-ends            | null        | null                 | null              | null         | null            | null             | null           | null      | null           |
-+------------------+-----------------------+-------------------------+-------------+----------------------+-------------------+--------------+-----------------+------------------+----------------+-----------+----------------+
-| warm-up          | warm-up               | between-ends            | idle        | null                 | null              | null         | null            | null             | null           | technical | null           |
-+------------------+-----------------------+-------------------------+-------------+----------------------+-------------------+--------------+-----------------+------------------+----------------+-----------+----------------+
-| between-ends     | warm-up               | between-ends            | null        | stone-moving         | thinking(t)       | null         | null            | null             | null           | technical | null           |
-+------------------+-----------------------+-------------------------+-------------+----------------------+-------------------+--------------+-----------------+------------------+----------------+-----------+----------------+
-| idle             | between-ends          | between-ends            | null        | null                 | null              | null         | null            | null             | null           | technical | null           |
-+------------------+-----------------------+-------------------------+-------------+----------------------+-------------------+--------------+-----------------+------------------+----------------+-----------+----------------+
-| stone-moving     | warm-up               | between-ends            | null        | null                 | thinking(t)       | null         | between-ends    | null             | null           | technical | null           |
-+------------------+-----------------------+-------------------------+-------------+----------------------+-------------------+--------------+-----------------+------------------+----------------+-----------+----------------+
-| thinking         | warm-up               | between-ends            | null        | null                 | thinking(t)*      | stone-moving | between-ends*   | timeout(t)       | null           | technical | null           |
-+------------------+-----------------------+-------------------------+-------------+----------------------+-------------------+--------------+-----------------+------------------+----------------+-----------+----------------+
-| timeout          | warm-up               | between-ends            | null        | null                 | null              | null         | null            | null             | stone-moving** | technical | null           |
-+------------------+-----------------------+-------------------------+-------------+----------------------+-------------------+--------------+-----------------+------------------+----------------+-----------+----------------+
-| technical        | warm-up               | between-ends            | null        | null                 | null              | null         | null            | null             | null           | null      | PRIOR-STATE*** |
-+------------------+-----------------------+-------------------------+-------------+----------------------+-------------------+--------------+-----------------+------------------+----------------+-----------+----------------+
++------------------+-------------------+----------------------+------------+----------------------+-------------------+--------------+---------------+------------------+----------------+-----------+----------------+
+| INITIAL STATE    | game-start-warmup | game-start-no-warmup | warmup-end | between-end-end      | begin-thinking(t) | end-thinking | end-end       | begin-timeout(t) | end-timeout    | technical | end-technical  |
++------------------+-------------------+----------------------+------------+----------------------+-------------------+--------------+---------------+------------------+----------------+-----------+----------------+
+| pregame          | warm-up           | between-ends         | null       | null                 | null              | null         | null          | null             | null           | null      | null           |
++------------------+-------------------+----------------------+------------+----------------------+-------------------+--------------+---------------+------------------+----------------+-----------+----------------+
+| warm-up          | warm-up           | between-ends         | idle       | null                 | null              | null         | null          | null             | null           | technical | null           |
++------------------+-------------------+----------------------+------------+----------------------+-------------------+--------------+---------------+------------------+----------------+-----------+----------------+
+| between-ends     | warm-up           | between-ends         | null       | stone-moving         | thinking(t)       | null         | null          | null             | null           | technical | null           |
++------------------+-------------------+----------------------+------------+----------------------+-------------------+--------------+---------------+------------------+----------------+-----------+----------------+
+| idle             | between-ends      | between-ends         | null       | null                 | null              | null         | null          | null             | null           | technical | null           |
++------------------+-------------------+----------------------+------------+----------------------+-------------------+--------------+---------------+------------------+----------------+-----------+----------------+
+| stone-moving     | warm-up           | between-ends         | null       | null                 | thinking(t)       | null         | between-ends  | null             | null           | technical | null           |
++------------------+-------------------+----------------------+------------+----------------------+-------------------+--------------+---------------+------------------+----------------+-----------+----------------+
+| thinking         | warm-up           | between-ends         | null       | null                 | thinking(t)*      | stone-moving | between-ends* | timeout(t)       | null           | technical | null           |
++------------------+-------------------+----------------------+------------+----------------------+-------------------+--------------+---------------+------------------+----------------+-----------+----------------+
+| timeout          | warm-up           | between-ends         | null       | null                 | null              | null         | null          | null             | stone-moving** | technical | null           |
++------------------+-------------------+----------------------+------------+----------------------+-------------------+--------------+---------------+------------------+----------------+-----------+----------------+
+| technical        | warm-up           | between-ends         | null       | null                 | null              | null         | null          | null             | null           | null      | PRIOR-STATE*** |
++------------------+-------------------+----------------------+------------+----------------------+-------------------+--------------+---------------+------------------+----------------+-----------+----------------+
 
 *   It may be the case that Team A has not cleared the house after a shot, meaning Team A thinking time is running. When
     Team A then clears the house, we switch directly to Team B thinking (or the end of the end in the case it is the last rock).

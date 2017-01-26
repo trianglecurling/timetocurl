@@ -1,103 +1,5 @@
 const TimeMinder = require("./time-minder");
 
-class CurlTimer {
-	
-	constructor(options) {
-		this._options = options;
-		this.teams = [0, 1];
-		this.thinkingTimers = [
-			new TimeMinder(this.options.thinkingTime),
-			new TimeMinder(this.options.thinkingTime)
-		];
-		this.timeoutsRemaining = [
-			this.options.numTimeouts,
-			this.options.numTimeouts
-		];
-		this.timeoutTimers = [
-			new TimeMinder(this.options.timeoutTime),
-			new TimeMinder(this.options.timeoutTime)
-		];
-		this.currentTimerStartedAt = null;
-		this.phase = "pregame";
-	}
-
-	beforeEnd() {
-		this.phase = "beforeEnd";
-		this.interEndTimer = new TimeMinder(this.options.betweenEndTime, () => {
-			this.startEnd();
-		});
-		this.interEndTimer.start();
-	}
-
-	startEnd() {
-		this.phase = "inEnd";
-		this.end++;
-		this.currentRock = 0;
-	}
-
-	startGame() {
-		this.end = 0;
-		this.phase = "betweenEnds";
-	}
-
-	startTime(team) {
-		if (this.phase === "inEnd") {
-			this.currentRock++;
-			this.thinkingTimers[team].start();
-		}
-	}
-
-	stopTime(team) {
-		this.thinkingTimers[team].stop();
-	}
-
-	startTimeout(team) {
-		const whichTeamsThinking = this.teams.filter(t => this.thinkingTimers[t].isRunning());
-
-		if (whichTeamsThinking.length > 1) {
-			throw new Error("More than one team thinking?");
-		}
-
-		//  to begin a timeout, one of the clocks must be running if we're not already in a timeout
-		if (whichTeamsThinking.length > 1 || this.timeoutTimers.some(t => t.isRunning())) {
-
-			// Stop all thinking time and currently running timeouts
-			[...this.thinkingTimers, ...this.timeoutTimers].forEach(t => t.stop());
-
-			this.timeoutTimers[team] = new TimeMinder(this.options.timeoutTime, () => {
-				// When the timeout ends, decrement the # of remaining timeouts
-				this.timeoutsRemaining[team]--;
-			});
-
-			this.timeoutTimers[team].start();
-		}
-	}
-
-	// pause the currently running timeout
-	pauseTimeout() {
-		const runningTimeouts = this.timeoutTimers.filter(t => t.isRunning());
-
-		if (runningTimeouts.length === 1) {
-			runningTimeouts[0].stop();
-		}
-	}
-
-	setState(state) {
-		this.end = state.end;
-		this.phase = state.phase;
-
-	}
-
-	getState() {
-		return {
-			end: this.end,
-			phase: this.phase,
-			teamARemaining: this.teamATimer.getTimeRemaining(),
-			teamBRemaining: this.teamBTimer.getTimeRemaining(),
-		};
-	}
-}
-
 /**
  * This class implements a state machine to keep track of a single curling game. The word 'state'
  * is used to refer to an object that represents every piece of information needed to explain to
@@ -113,115 +15,25 @@ class CurlingMachine {
 
 	constructor(options) {
 		this.options = options;
-		this.timer = new CurlTimer(options);
-		this.state = getInitialState();
+		this.nextPhaseMap = require("./phase-map");
 
-		this.nextPhaseMap = {
-			"pregame": {
-				"game-start-warmup": "warm-up",
-				"game-start-no-warmup": "between-ends",
-				"warmup-end": "null",
-				"between-end-end": "null",
-				"begin-thinking": "null",
-				"end-thinking": "null",
-				"end-end": "null",
-				"begin-timeout": "null",
-				"end-timeout": "null",
-				"technical": "null",
-				"end-technical": "null"
-			},
-			"warm-up": {
-				"game-start-warmup": "warm-up",
-				"game-start-no-warmup": "between-ends",
-				"warmup-end": "idle",
-				"between-end-end": "null",
-				"begin-thinking": "null",
-				"end-thinking": "null",
-				"end-end": "null",
-				"begin-timeout": "null",
-				"end-timeout": "null",
-				"technical": "technical",
-				"end-technical": "null"
-			},
-			"between-ends": {
-				"game-start-warmup": "warm-up",
-				"game-start-no-warmup": "between-ends",
-				"warmup-end": "null",
-				"between-end-end": "stone-moving",
-				"begin-thinking": "thinking",
-				"end-thinking": "null",
-				"end-end": "null",
-				"begin-timeout": "null",
-				"end-timeout": "null",
-				"technical": "technical",
-				"end-technical": "null"
-			},
-			"idle": {
-				"game-start-warmup": "between-ends",
-				"game-start-no-warmup": "between-ends",
-				"warmup-end": "null",
-				"between-end-end": "null",
-				"begin-thinking": "null",
-				"end-thinking": "null",
-				"end-end": "null",
-				"begin-timeout": "null",
-				"end-timeout": "null",
-				"technical": "technical",
-				"end-technical": "null"
-			},
-			"stone-moving": {
-				"game-start-warmup": "warm-up",
-				"game-start-no-warmup": "between-ends",
-				"warmup-end": "null",
-				"between-end-end": "null",
-				"begin-thinking": "thinking",
-				"end-thinking": "null",
-				"end-end": "between-ends",
-				"begin-timeout": "null",
-				"end-timeout": "null",
-				"technical": "technical",
-				"end-technical": "null"
-			},
-			"thinking": {
-				"game-start-warmup": "warm-up",
-				"game-start-no-warmup": "between-ends",
-				"warmup-end": "null",
-				"between-end-end": "null",
-				"begin-thinking": "thinking",
-				"end-thinking": "stone-moving",
-				"end-end": "between-ends",
-				"begin-timeout": "timeout",
-				"end-timeout": "null",
-				"technical": "technical",
-				"end-technical": "null"
-			},
-			"timeout": {
-				"game-start-warmup": "warm-up",
-				"game-start-no-warmup": "between-ends",
-				"warmup-end": "null",
-				"between-end-end": "null",
-				"begin-thinking": "null",
-				"end-thinking": "null",
-				"end-end": "null",
-				"begin-timeout": "null",
-				"end-timeout": "stone-moving",
-				"technical": "technical",
-				"end-technical": "null"
-			},
-			"technical": {
-				"game-start-warmup": "warm-up",
-				"game-start-no-warmup": "between-ends",
-				"warmup-end": "null",
-				"between-end-end": "null",
-				"begin-thinking": "null",
-				"end-thinking": "null",
-				"end-end": "null",
-				"begin-timeout": "null",
-				"end-timeout": "null",
-				"technical": "null",
-				"end-technical": "PRIOR-STATE"
-			}
-		};
+		this.initialize();
+	}
+
+	initialize() {
+		this.state = getInitialState();
+		this.history = [this.state];
+		this.thinkingTimers = { };
+		this.timeoutsRemaining = { };
+
+		for (const team of this.options.teams) {
+			this.thinkingTimers[team] = new TimeMinder(this.options.thinkingTime, () => {
+
+			});
+
+			this.timeoutsRemaining[team] = this.options.numTimeouts;
+		}
+		
 	}
 
 	getInitialState() {
@@ -234,9 +46,83 @@ class CurlingMachine {
 			timeoutTimeRemaining: [this.options.timeoutTime, this.options.timeoutTime],
 			currentlyThinking: null,
 			currentlyRunningTimeout: null,
-			betweenEndTimeRemaining: this.options.betweenEndTime,
-			currentlyRunningBetweenEnd: false
+			betweenEndTimeRemaining: this.options.betweenEndTime
 		}
+	}
+
+	handleAction(action) {
+		let nextState = this.getNextState();
+		if (nextState === null) {
+			throw new Error(`Illegal phase transition ${action.transition} from ${this.state.phase}`);
+		}
+
+		if (nextState.phase === "PRIOR-STATE") {
+			if (this.history.length <= 1) {
+				throw new Error("No prior state to go back to.");
+			}
+			nextState = { ...this.history[this.history.length - 2] };
+		}
+
+		if (nextState.phase === "pregame") {
+			nextState.timer = null;
+		}
+
+		if (nextState.phase === "warm-up") {
+			nextState.timer = new TimeMinder(this.options.warmupTime, () => {
+				this.handleAction({
+					transition: "warmup-end"
+				});
+			});
+		}
+
+		if (nextState.phase === "between-ends") {
+			this.state.timer.pause();
+			nextState.timer = new TimeMinder(this.options.betweenEndTime, () => {
+				this.handleAction({
+					transition: "between-end-end"
+				});
+			});
+			nextState.timer.start();
+		}
+
+		if (nextState.phase === "idle") {
+			if (this.state.timer) {
+				this.state.timer.pause();
+			}
+			nextState.timer = null;
+		}
+
+		if (nextState.phase === "stone-moving") {
+			if (this.state.timer) {
+				this.state.timer.pause();
+			}
+			nextState.timer = null;
+		}
+
+		if (nextState.phase === "thinking") {
+			if (this.state.timer) {
+				this.state.timer.pause();
+			}
+			nextState.timer = this.thinkingTimers[action.data.team];
+			nextState.timer.start();
+		}
+
+		if (nextState.phase === "timeout") {
+			this.state.timer.pause();
+			nextState.timer = new TimeMinder(this.options.timeoutTime, () => {
+				this.handleAction("end-timeout");
+			});
+			nextState.timer.start();
+		}
+
+		if (nextState.phase === "technical") {
+			if (this.state.timer) {
+				this.state.timer.pause();
+			}
+		}
+
+		this.history.push(nextState);
+		this.state = nextState;
 	}
 
 	getNextState(action) {
@@ -248,7 +134,6 @@ class CurlingMachine {
 		const currentlyThinking = this.getCurrentlyThinking(action);
 		const currentlyRunningTimeout = this.getCurrentlyRunningtimeout(action);
 		const betweenEndTimeRemaining = this.timer.interEndTimer.getTimeRemaining();
-		const currentlyRunningBetweenEnd = this.getCurrentlyRunningBetweenEnd(action);
 
 		return { 
 			phase, 
@@ -258,8 +143,7 @@ class CurlingMachine {
 			timeoutTimeRemaining, 
 			currentlyThinking, 
 			currentlyRunningTimeout, 
-			betweenEndTimeRemaining, 
-			currentlyRunningBetweenEnd 
+			betweenEndTimeRemaining
 		};
 	}
 
@@ -272,19 +156,26 @@ class CurlingMachine {
 	}
 
 	getPhaseData(action) {
-
+		if (action.data.team) {
+			return { team: action.data.team };
+		}
+		return { };
 	}
 
 	getCurrentlyThinking(action) {
-
+		const nextPhase = this.nextPhaseMap[action.transition];
+		if (nextPhase === "thinking") {
+			return action.data.team;
+		}
+		return null;
 	}
 
 	getCurrentlyRunningtimeout(action) {
-
-	}
-	
-	getCurrentlyRunningBetweenEnd(action) {
-
+		const nextPhase = this.nextPhaseMap[action.transition];
+		if (nextPhase === "timeout") {
+			return action.data.team;
+		}
+		return null;
 	}
 }
 

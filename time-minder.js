@@ -9,9 +9,9 @@ class TimeMinder {
 	}
 
 	start() {
-		if (this.isRunning()) {
+		if (this.isRunning() || this.getTimeRemaining() <= 0) {
 			return;
-		} 
+		}
 		this.intervals.push({
 			start: new Date(),
 			end: null

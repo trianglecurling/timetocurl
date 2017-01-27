@@ -50,79 +50,96 @@ class CurlingMachine {
 		}
 	}
 
+	getFullState(newState) {
+		const nextState = { ...this.state };
+		Object.keys(newState).forEach(k => {
+			nextState[k] = newState[k];
+		});
+		return nextState;
+	}
+
 	handleAction(action) {
-		let nextState = this.getNextState();
-		if (nextState === null) {
-			throw new Error(`Illegal phase transition ${action.transition} from ${this.state.phase}`);
-		}
-
-		if (nextState.phase === "PRIOR-STATE") {
-			if (this.history.length <= 1) {
-				throw new Error("No prior state to go back to.");
+		let nextState;
+		if (action.state) {
+			nextState = this.getFullState(action.state);
+		} else if (action.transition) {
+			nextState = this.getNextState(action);
+			if (nextState === null) {
+				throw new Error(`Illegal phase transition ${action.transition} from ${this.state.phase}`);
 			}
-			nextState = { ...this.history[this.history.length - 2] };
-		}
 
-		if (nextState.phase === "pregame") {
-			nextState.timer = null;
-		}
+			if (nextState.phase === "PRIOR-STATE") {
+				if (this.history.length <= 1) {
+					throw new Error("No prior state to go back to.");
+				}
+				nextState = { ...this.history[this.history.length - 2] };
+			}
 
-		if (nextState.phase === "warm-up") {
-			nextState.timer = new TimeMinder(this.options.warmupTime, () => {
-				this.handleAction({
-					transition: "warmup-end"
+			if (nextState.phase === "pregame") {
+				nextState.timer = null;
+			}
+
+			if (nextState.phase === "warm-up") {
+				nextState.timer = new TimeMinder(this.options.warmupTime, () => {
+					this.handleAction({
+						transition: "warmup-end"
+					});
 				});
-			});
-		}
+			}
 
-		if (nextState.phase === "between-ends") {
-			this.state.timer.pause();
-			nextState.timer = new TimeMinder(this.options.betweenEndTime, () => {
-				this.handleAction({
-					transition: "between-end-end"
+			if (nextState.phase === "between-ends") {
+				this.state.timer.pause();
+				nextState.timer = new TimeMinder(this.options.betweenEndTime, () => {
+					this.handleAction({
+						transition: "between-end-end"
+					});
 				});
-			});
-			nextState.timer.start();
-		}
-
-		if (nextState.phase === "idle") {
-			if (this.state.timer) {
-				this.state.timer.pause();
+				nextState.timer.start();
 			}
-			nextState.timer = null;
-		}
 
-		if (nextState.phase === "stone-moving") {
-			if (this.state.timer) {
-				this.state.timer.pause();
+			if (nextState.phase === "idle") {
+				if (this.state.timer) {
+					this.state.timer.pause();
+				}
+				nextState.timer = null;
 			}
-			nextState.timer = null;
-		}
 
-		if (nextState.phase === "thinking") {
-			if (this.state.timer) {
-				this.state.timer.pause();
+			if (nextState.phase === "stone-moving") {
+				if (this.state.timer) {
+					this.state.timer.pause();
+				}
+				nextState.timer = null;
 			}
-			nextState.timer = this.thinkingTimers[action.data.team];
-			nextState.timer.start();
-		}
 
-		if (nextState.phase === "timeout") {
-			this.state.timer.pause();
-			nextState.timer = new TimeMinder(this.options.timeoutTime, () => {
-				this.handleAction("end-timeout");
-			});
-			nextState.timer.start();
-		}
-
-		if (nextState.phase === "technical") {
-			if (this.state.timer) {
-				this.state.timer.pause();
+			if (nextState.phase === "thinking") {
+				if (this.state.timer) {
+					this.state.timer.pause();
+				}
+				nextState.timer = this.thinkingTimers[action.data.team];
+				nextState.timer.start();
 			}
+
+			if (nextState.phase === "timeout") {
+				this.state.timer.pause();
+				nextState.timer = new TimeMinder(this.options.timeoutTime, () => {
+					this.handleAction("end-timeout");
+				});
+				nextState.timer.start();
+			}
+
+			if (nextState.phase === "technical") {
+				if (this.state.timer) {
+					this.state.timer.pause();
+				}
+			}
+		} else {
+			throw new Error("Unsupported action type");
 		}
 
-		this.history.push(nextState);
-		this.state = nextState;
+		if (nextState) {
+			this.history.push(this.state);
+			this.state = nextState;
+		}		
 	}
 
 	getNextState(action) {

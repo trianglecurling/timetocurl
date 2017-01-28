@@ -1,4 +1,14 @@
 const TimeMinder = require("./time-minder");
+const uuidV4 = require('uuid/v4');
+
+const defaultOptions = {
+	thinkingTime: 30 * 60,
+	timeoutTime: 60,
+	betweenEndTime: 60,
+	midGameBreakTime: 5 * 60,
+	teams: ["Yellow", "Red"],
+	warmupTime: 9 * 60
+};
 
 /**
  * This class implements a state machine to keep track of a single curling game. The word 'state'
@@ -14,14 +24,14 @@ const TimeMinder = require("./time-minder");
 class CurlingMachine {
 
 	constructor(options) {
-		this.options = options;
+		this.options = Object.assign({}, defaultOptions, options);
 		this.nextPhaseMap = require("./phase-map");
-
+		this.id = uuidV4();
 		this.initialize();
 	}
 
 	initialize() {
-		this.state = getInitialState();
+		this.state = this.getInitialState();
 		this.history = [this.state];
 		this.thinkingTimers = { };
 		this.timeoutsRemaining = { };
@@ -50,8 +60,17 @@ class CurlingMachine {
 		}
 	}
 
+	getSerializableState() {
+		// const state = { ...this.state };
+
+		const state = Object.assign({}, this.state);
+		delete state.timer;
+		return state;
+	}
+
 	getFullState(newState) {
-		const nextState = { ...this.state };
+		// const nextState = { ...this.state };
+		const nextState = Object.assign({}, this.state);
 		Object.keys(newState).forEach(k => {
 			nextState[k] = newState[k];
 		});
@@ -72,7 +91,8 @@ class CurlingMachine {
 				if (this.history.length <= 1) {
 					throw new Error("No prior state to go back to.");
 				}
-				nextState = { ...this.history[this.history.length - 2] };
+				//nextState = { ...this.history[this.history.length - 2] };
+				nextState = Object.assign({}, this.history[this.history.length - 2]);
 			}
 
 			if (nextState.phase === "pregame") {
@@ -195,6 +215,8 @@ class CurlingMachine {
 		return null;
 	}
 }
+
+module.exports = CurlingMachine;
 
 /* State machine chart: 
 Given an initial state ("phase") (left column) and a transition (top row), one may locate the resulting state ("phase")

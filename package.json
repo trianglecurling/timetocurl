@@ -32,7 +32,8 @@
     "@types/socket.io-client": "^1.4.29",
     "expect": "^1.20.2",
     "express": "^4.14.0",
-    "socket.io": "^1.7.2"
+    "socket.io": "^1.7.2",
+    "uuid": "^3.0.1"
   },
   "devDependencies": {
     "nodemon": "^1.11.0",

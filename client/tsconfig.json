@@ -1,13 +1,18 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "target": "es5",
-        "noImplicitAny": true,
-        "sourceMap": false,
-        "strictNullChecks": true,
-        "outDir": "bin"
-    },
-    "include": [
-        "app.ts"
-    ]
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "es5",
+		"lib": [
+			"dom",
+			"es5",
+			"es2015.promise"
+		],
+		"noImplicitAny": true,
+		"sourceMap": false,
+		"strictNullChecks": true,
+		"outDir": "bin"
+	},
+	"include": [
+		"app.ts"
+	]
 }

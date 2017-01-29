@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 	<head>
-		<title>Curl Time</title>
+		<title>Time to Curl</title>
 		
 		<!-- Icons and such -->
 		<link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
@@ -40,12 +40,30 @@
 					<h1>Time to Curl!</h1>
 				</div>
 			</div>
-			<div class="timers row">
+			<div class="timers row" id="timersContainer">
 
 			</div>
 			<div class="controls row">
 				<div class="col">
 					<button id="createTimer" class="btn btn-primary">Create New Timer</button>
+				</div>
+			</div>
+		</div>
+
+		<div id="timerTemplate">
+			<div class="timer">
+				<div class="thinking-time">
+					<h2>Thinking Time Remaining</h2>
+					<div class="team-1-thinking-time"></div>
+					<div class="team-2-thinking-time"></div>
+				</div>
+				<div class="controls">
+					<button class="start-team-a">Start A</button>
+					<button class="start-team-b">Start B</button>
+					<button class="timeout">Timeout</button>
+					<button class="technical">Technical Timeout</button>
+					<button class="stop-thinking">Stop Thinking</button>
+					<button class="begin-warmup">Begin warm-up</button>
 				</div>
 			</div>
 		</div>

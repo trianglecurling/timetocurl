@@ -14,6 +14,10 @@ function setupRoutes(app) {
 		res.sendFile(join(__dirname, "client/bin/app.js"));
 	});
 
+	app.get("/time-minder.js", (req, res) => {
+		res.sendFile(join(__dirname, "client/time-minder.js"));
+	});
+
 	app.get("/style.css", (req, res) => {
 		res.sendFile(join(__dirname, "client/style.css"));
 	});
@@ -43,12 +47,28 @@ const games = {};
 
 function handleAction(action, socket) {
 	if (action.request === "CREATE_TIMER") {
-		console.log("Creating timer.");
 		const curlingMachine = new CurlingMachine(action.options);
 		games[curlingMachine.id] = curlingMachine;
 		const response = {response: "CREATE_TIMER", token: action.token, data: curlingMachine.getSerializableState()};
-		console.log(`Emitting... ${JSON.stringify(response)}`);
 		socket.emit("response", JSON.stringify(response));
+	}
+
+	if (action.request === "GET_TIMER") {
+		const response = {response: "GET_TIMER", token: action.token, data: games[action.timerId]};
+		socket.emit("response", JSON.stringify(response));
+	}
+
+	if (action.request === "DELETE_TIMER") {
+		games[action.timerID].dispose();
+		const deleted = !!games[action.timerID] ? "ok" : "not found";
+		delete games[action.timerID];
+		socket.emit("response", JSON.stringify({response: "DELETE_TIMER", token: action.token, data: deleted}));
+	}
+
+	if (action.request === "QUERY_TIMER") {
+		const machine = games[action.timerID];
+
+		// Query timer.
 	}
 }
 

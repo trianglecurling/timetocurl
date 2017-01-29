@@ -13,6 +13,7 @@ var TimeToCurl = (function () {
         this.socket = io();
         this.requests = {};
         this.requestResolvers = {};
+        this.machines = [];
         this.socket.on("response", function (result) {
             var response;
             try {
@@ -31,13 +32,6 @@ var TimeToCurl = (function () {
             }
         });
     };
-    // private handleResponse(data: SocketResponse<any>) {
-    // 	if (data.response === "CREATE_TIMER") {
-    // 		this.handleCreateTimer(data.data);
-    // 	}
-    // }
-    TimeToCurl.prototype.handleCreateTimer = function (curlingMachineState) {
-    };
     TimeToCurl.prototype.setUpEvents = function () {
         var _this = this;
         document.addEventListener("DOMContentLoaded", function () {
@@ -47,6 +41,7 @@ var TimeToCurl = (function () {
                     options: {}
                 }).then(function (response) {
                     console.log("New curling machine added: " + JSON.stringify(response.data, null, 4));
+                    _this.addCurlingMachine(response.data);
                 });
             });
         });
@@ -60,6 +55,42 @@ var TimeToCurl = (function () {
             _this.requestResolvers[token] = resolve;
         });
     };
+    TimeToCurl.prototype.addCurlingMachine = function (state) {
+        this.machines.push(new CurlingMachineUI(state, document.getElementById("timersContainer")));
+    };
     return TimeToCurl;
+}());
+var CurlingMachineUI = (function () {
+    function CurlingMachineUI(initialState, container) {
+        this.container = container;
+        this.elements = {};
+        this.state = initialState;
+        this.initUI();
+    }
+    CurlingMachineUI.prototype.initUI = function () {
+        var template = document.getElementById("timerTemplate").children.item(0);
+        var newUI = template.cloneNode(true);
+        this.initElements(newUI);
+        this.elements["team-1-thinking-time"].textContent = this.secondsToStr(this.state.timeRemaining["Yellow"]);
+        this.elements["team-2-thinking-time"].textContent = this.secondsToStr(this.state.timeRemaining["Red"]);
+        this.container.appendChild(newUI);
+    };
+    CurlingMachineUI.prototype.initElements = function (elem) {
+        if (elem.className) {
+            this.elements[elem.className] = elem;
+        }
+        if (elem.children) {
+            for (var i = 0; i < elem.children.length; ++i) {
+                this.initElements(elem.children.item(i));
+            }
+        }
+    };
+    CurlingMachineUI.prototype.secondsToStr = function (seconds) {
+        var m = Math.floor(seconds / 60);
+        var s = seconds % 60;
+        var slz = s < 10 ? "0" + String(s) : String(s);
+        return m + ":" + slz;
+    };
+    return CurlingMachineUI;
 }());
 new TimeToCurl().init();

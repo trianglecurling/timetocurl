@@ -47,16 +47,25 @@ class CurlingMachine {
 	}
 
 	getInitialState() {
+		const timeRemaining = {};
+		const timeoutsRemaining = {};
+		const timeoutTimeRemaining = {};
+		for (const team of this.options.teams) {
+			timeRemaining[team] = this.options.thinkingTime;
+			timeoutsRemaining[team] = this.options.numTimeouts;
+			timeoutTimeRemaining[team] = this.options.timeoutTime;
+		}
 		return {
 			end: null,
 			phase: "pregame",
 			phaseData: {},
-			timeRemaining: [this.options.thinkingTime, this.options.thinkingTime],
-			timeoutsRemaining: [this.options.numTimeouts, this.options.numTimeouts],
-			timeoutTimeRemaining: [this.options.timeoutTime, this.options.timeoutTime],
+			timeRemaining,
+			timeoutsRemaining,
+			timeoutTimeRemaining ,
 			currentlyThinking: null,
 			currentlyRunningTimeout: null,
-			betweenEndTimeRemaining: this.options.betweenEndTime
+			betweenEndTimeRemaining: this.options.betweenEndTime,
+			id: this.id
 		}
 	}
 
@@ -171,6 +180,7 @@ class CurlingMachine {
 		const currentlyThinking = this.getCurrentlyThinking(action);
 		const currentlyRunningTimeout = this.getCurrentlyRunningtimeout(action);
 		const betweenEndTimeRemaining = this.timer.interEndTimer.getTimeRemaining();
+		const id = this.id;
 
 		return { 
 			phase, 
@@ -180,7 +190,8 @@ class CurlingMachine {
 			timeoutTimeRemaining, 
 			currentlyThinking, 
 			currentlyRunningTimeout, 
-			betweenEndTimeRemaining
+			betweenEndTimeRemaining,
+			id
 		};
 	}
 

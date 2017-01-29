@@ -12,3 +12,11 @@ body {
 	font: 13px Helvetica, Arial; 
 	background-color: #f4f4f4;
 }
+
+#timerTemplate {
+	display: none;
+}
+
+.timer {
+	margin: 20px;
+}

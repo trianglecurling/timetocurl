@@ -54,21 +54,44 @@ function handleAction(action, socket) {
 	}
 
 	if (action.request === "GET_TIMER") {
-		const response = {response: "GET_TIMER", token: action.token, data: games[action.timerId]};
-		socket.emit("response", JSON.stringify(response));
+		const game = games[action.options.timerId];
+		if (game) {
+			const response = {response: "GET_TIMER", token: action.token, data: game.getSerializableState()};
+			console.log("GET_TIMER response: " + require("util").inspect(response));
+			socket.emit("response", JSON.stringify(response));
+		} else {
+			socket.emit("response", "game not found");
+		}
 	}
 
 	if (action.request === "DELETE_TIMER") {
-		games[action.timerID].dispose();
-		const deleted = !!games[action.timerID] ? "ok" : "not found";
-		delete games[action.timerID];
+		games[action.options.timerId].dispose();
+		const deleted = !!games[action.options.timerId] ? "ok" : "not found";
+		delete games[action.options.timerId];
 		socket.emit("response", JSON.stringify({response: "DELETE_TIMER", token: action.token, data: deleted}));
 	}
 
 	if (action.request === "QUERY_TIMER") {
-		const machine = games[action.timerID];
+		const machine = games[action.options.timerId];
 
-		// Query timer.
+		if (machine) {
+			if (action.options.state) {
+				machine.handleAction({
+					state: action.options.state
+				});
+				socket.emit("response", JSON.stringify({response: "QUERY_TIMER", token: action.token, data: "ok"}));
+			} else if (action.options.transition) {
+				machine.handleAction({
+					transition: action.options.transition,
+					data: action.options.data
+				});
+				socket.emit("response", JSON.stringify({response: "QUERY_TIMER", token: action.token, data: "ok"}));
+			} else {
+				socket.emit("response", JSON.stringify({response: "QUERY_TIMER", token: action.token, data: "no action given"}));
+			}
+		} else {
+			socket.emit("response", JSON.stringify({response: "QUERY_TIMER", token: action.token, data: "unknown machine"}));
+		}
 	}
 }
 

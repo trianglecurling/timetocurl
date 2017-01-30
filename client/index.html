@@ -31,6 +31,7 @@
 		<!-- This app -->
 		<link rel="stylesheet" href="/style.css">
 		<script src="/socket.io/socket.io.js"></script>
+		<script src="/time-minder.js"></script>
 		<script src="/app.js"></script>
 	</head>
 	<body>
@@ -52,18 +53,22 @@
 
 		<div id="timerTemplate">
 			<div class="timer">
-				<div class="thinking-time">
+				<div class="thinking-time-container">
 					<h2>Thinking Time Remaining</h2>
-					<div class="team-1-thinking-time"></div>
-					<div class="team-2-thinking-time"></div>
+					<div class="thinking-time"></div>
+					<div class="thinking-time"></div>
 				</div>
 				<div class="controls">
-					<button class="start-team-a">Start A</button>
-					<button class="start-team-b">Start B</button>
-					<button class="timeout">Timeout</button>
-					<button class="technical">Technical Timeout</button>
-					<button class="stop-thinking">Stop Thinking</button>
-					<button class="begin-warmup">Begin warm-up</button>
+					<button data-action="game-start-warmup" class="btn">Start game (with warmup)</button>
+					<button data-action="game-start-no-warmup" class="btn">Start game (no warmup)</button>
+					<button data-action="begin-warmup" class="btn">Begin warm-up</button>
+					<button data-action="begin-thinking" class="btn">Start Yellow Thinking</button>
+					<button data-action="begin-thinking" class="btn">Start Red Thinking</button>
+					<button data-action="end-thinking" class="btn">Stop Thinking</button>
+					<button data-action="begin-timeout" class="btn">Timeout</button>
+					<button data-action="end-timeout" class="btn">End Timeout</button>
+					<button data-action="technical" class="btn">Technical Timeout</button>
+					<button data-action="end-technical" class="btn">End Technical</button>
 				</div>
 			</div>
 		</div>

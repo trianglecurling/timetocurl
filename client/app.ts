@@ -12,19 +12,19 @@ interface IMap<TVal> {
 }
 
 interface TimerOptions {
-	thinkingTime?: number;
-	numTimeouts?: number;
-	timeoutTime?: number;
-	betweenEndTime?: number;
-	midGameBreakTime?: number;
-	teams?: string[];
-	warmupTime?: number;
+	thinkingTime: number;
+	numTimeouts: number;
+	timeoutTime: number;
+	betweenEndTime: number;
+	midGameBreakTime: number;
+	teams: string[];
+	warmupTime: number;
 }
 
 interface SocketAction<TOptions> {
 	request: string;
 	options: TOptions;
-	token: string;
+	token?: string;
 }
 
 interface SocketResponse<TData> {
@@ -43,9 +43,27 @@ interface CurlingMachineState {
 	currentlyThinking: string | null;
 	currentlyRunningTimeout: string | null;
 	betweenEndTimeRemaining: number;
+	id: string;
 }
 
-function uuid() {
+interface StateAndOptions {
+	state: CurlingMachineState;
+	options: TimerOptions;
+}
+
+function getDisplayedTimers(): string[] {
+	const hash = window.location.hash;
+	if (hash.length > 0) {
+		return hash.substr(1).split(";")
+	}
+	return [];
+}
+
+function setTimersInHash(ids: string[]) {
+	window.location.hash = `#${ids.join(";")}`;
+}
+
+function uuid(): string {
 	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
 		var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
 		return v.toString(16);
@@ -56,14 +74,16 @@ class TimeToCurl {
 	private socket: SocketIOClient.Socket;
 	private requests: {[key: string]: any};
 	private requestResolvers: {[key: string]: (value?: any | PromiseLike<any>) => void};
-	private machines: CurlingMachineUI[];
+	private machines: IMap<CurlingMachineUI>;
+	private machineOrder: IMap<number>;
 
 	public init() {
 		this.setUpEvents();
 		this.socket = io();
 		this.requests = {};
 		this.requestResolvers = {};
-		this.machines = [];
+		this.machines = {};
+		this.machineOrder = {};
 
 		this.socket.on("response", (result: string) => {
 			let response: SocketResponse<any>;
@@ -81,25 +101,39 @@ class TimeToCurl {
 				console.warn(`Unexpected data from the server: ${result}`);
 			}
 		});
+
+		this.loadTimers(getDisplayedTimers());
+	}
+
+	private async loadTimers(ids: string[]) {
+		for (const timerId of ids) {
+			const timer = await this.emitAction<{timerId: string}, StateAndOptions>(<SocketAction<{timerId: string}>>{
+				request: "GET_TIMER",
+				options: { timerId }
+			});
+			if (this.machines[timerId]) {
+				this.machines[timerId].setNewState(timer.data.state);
+			} else {
+				this.addCurlingMachine(timer.data);
+			}
+		}
 	}
 
 	private setUpEvents() {
 		document.addEventListener("DOMContentLoaded", () => {
-			document.getElementById("createTimer")!.addEventListener("click", () => {
-				this.emitAction<TimerOptions, CurlingMachineState>(<SocketAction<TimerOptions>>{
+			document.getElementById("createTimer")!.addEventListener("click", async () => {
+				const response = await this.emitAction<Partial<TimerOptions>, StateAndOptions>(<SocketAction<Partial<TimerOptions>>>{
 					request: "CREATE_TIMER",
 					options: {
 
 					}
-				}).then(response => {
-					console.log(`New curling machine added: ${JSON.stringify(response.data, null, 4)}`);
-					this.addCurlingMachine(response.data);
 				});
+				this.addCurlingMachine(response.data);
 			});
 		});
 	}
 
-	private emitAction<TAction, TResponse>(action: SocketAction<TAction>): PromiseLike<SocketResponse<TResponse>> {
+	public emitAction<TAction, TResponse>(action: SocketAction<TAction>): PromiseLike<SocketResponse<TResponse>> {
 		return new Promise<SocketResponse<TResponse>>((resolve, reject) => {
 			const token = uuid();
 			action.token = token;
@@ -108,18 +142,29 @@ class TimeToCurl {
 		});
 	}
 
-	private addCurlingMachine(state: CurlingMachineState) {
-		this.machines.push(new CurlingMachineUI(state, document.getElementById("timersContainer")!));
+	private addCurlingMachine(cm: StateAndOptions) {
+		this.machines[cm.state.id] = new CurlingMachineUI(cm, document.getElementById("timersContainer")!, this);
+		const displayedTimers = getDisplayedTimers();
+		if (displayedTimers.indexOf(cm.state.id) === -1) {
+			displayedTimers.push(cm.state.id)
+		}
+		setTimersInHash(displayedTimers);
 	}
 }
 
 class CurlingMachineUI {
 	private state: CurlingMachineState;
-	private elements: { [key: string]: Element };
+	private options: TimerOptions;
+	private elements: { [key: string]: Element[] };
+	private thinkingButtons: IMap<HTMLButtonElement>;
+	private thinkingTimeText: IMap<HTMLElement>;
 
-	constructor(initialState: CurlingMachineState, private container: Element) {
+	constructor(initParams: StateAndOptions, private container: Element, private application: TimeToCurl) {
 		this.elements = {};
-		this.state = initialState;
+		this.thinkingButtons = {};
+		this.thinkingTimeText = {};
+		this.state = initParams.state;
+		this.options = initParams.options;
 		this.initUI();
 	}
 
@@ -128,15 +173,59 @@ class CurlingMachineUI {
 		const newUI = template.cloneNode(true) as Element;
 		this.initElements(newUI);
 
-		this.elements["team-1-thinking-time"].textContent = this.secondsToStr(this.state.timeRemaining["Yellow"])
-		this.elements["team-2-thinking-time"].textContent = this.secondsToStr(this.state.timeRemaining["Red"])
+		for (const teamId of Object.keys(this.thinkingButtons)) {
+			this.thinkingButtons[teamId].addEventListener("click", () => {
+				this.application.emitAction<any, any>({
+					request: "QUERY_TIMER",
+					options: {
+						transition: "begin-thinking",
+						data: teamId
+					}
+				});
+			});
+		}
+
+		this.setNewState(this.state);
 		this.container.appendChild(newUI);
 	}
 
-	private initElements(elem: Element) {
-		if (elem.className) {
-			this.elements[elem.className] = elem;
+	public getState() {
+		return { ...this.state };
+	}
+
+	public dispose() {
+
+	}
+
+	public setNewState(state: CurlingMachineState) {
+		for (const teamId of this.options.teams) {
+			this.thinkingTimeText[teamId].textContent = this.secondsToStr(this.state.timeRemaining[teamId]);
 		}
+	}
+
+	private initElements(elem: Element) {
+		let key = "";
+		const elemData = (elem as HTMLElement).dataset["action"];
+		if (elemData) {
+			key = elemData;
+		}
+		else if (elem.classList.length === 1) {
+			key = elem.className;
+		}
+		if (!this.elements[key]) {
+			this.elements[key] = [];
+		} 
+		this.elements[key].push(elem);
+
+		for (let i = 0; i < this.options.teams.length; ++i) {
+			if (this.elements["begin-thinking"] && this.elements["begin-thinking"][i]) {
+				this.thinkingButtons[this.options.teams[i]] = this.elements["begin-thinking"][i] as HTMLButtonElement;
+			}
+			if (this.elements["thinking-time"] && this.elements["thinking-time"][i]) {
+				this.thinkingTimeText[this.options.teams[i]] = this.elements["thinking-time"][i] as HTMLButtonElement;
+			}
+		}
+
 		if (elem.children) {
 			for (let i = 0; i < elem.children.length; ++i) {
 				this.initElements(elem.children.item(i));

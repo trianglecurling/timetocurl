@@ -28,6 +28,7 @@ class CurlingMachine {
 		this.nextPhaseMap = require("./phase-map");
 		this.id = uuidV4();
 		this.initialize();
+		this.allTimers = [];
 	}
 
 	initialize() {
@@ -44,6 +45,24 @@ class CurlingMachine {
 			this.timeoutsRemaining[team] = this.options.numTimeouts;
 		}
 		
+	}
+
+	dispose() {
+		for (const timer of this.allTimers) {
+			timer.dispose();
+		}
+	}
+
+	createTimer(duration, onComplete) {
+		const timer = new TimeMinder(duration, onComplete);
+		this.allTimers.push(timer);
+
+		// No timer is allowed to last longer than a day.
+		setTimeout(() => {
+			timer.dispose();
+		}, 86400 * 1000, timer);
+
+		return timer;
 	}
 
 	getInitialState() {
@@ -74,7 +93,7 @@ class CurlingMachine {
 
 		const state = Object.assign({}, this.state);
 		delete state.timer;
-		return state;
+		return { state, options: this.options };
 	}
 
 	getFullState(newState) {
@@ -109,7 +128,7 @@ class CurlingMachine {
 			}
 
 			if (nextState.phase === "warm-up") {
-				nextState.timer = new TimeMinder(this.options.warmupTime, () => {
+				nextState.timer = this.createTimer(this.options.warmupTime, () => {
 					this.handleAction({
 						transition: "warmup-end"
 					});
@@ -118,7 +137,7 @@ class CurlingMachine {
 
 			if (nextState.phase === "between-ends") {
 				this.state.timer.pause();
-				nextState.timer = new TimeMinder(this.options.betweenEndTime, () => {
+				nextState.timer = this.createTimer(this.options.betweenEndTime, () => {
 					this.handleAction({
 						transition: "between-end-end"
 					});
@@ -150,7 +169,7 @@ class CurlingMachine {
 
 			if (nextState.phase === "timeout") {
 				this.state.timer.pause();
-				nextState.timer = new TimeMinder(this.options.timeoutTime, () => {
+				nextState.timer = this.createTimer(this.options.timeoutTime, () => {
 					this.handleAction("end-timeout");
 				});
 				nextState.timer.start();

@@ -8,6 +8,10 @@ class TimeMinder {
 		this.onComplete = onComplete;
 	}
 
+	dispose() {
+		clearTimeout(this.timeout);
+	}
+
 	start() {
 		if (this.isRunning() || this.getTimeRemaining() <= 0) {
 			return;
@@ -47,6 +51,7 @@ class TimeMinder {
 	isRunning() {
 		return this.intervals.length && this.intervals[this.intervals.length - 1].end === null;
 	}
+
 }
 
 module.exports = TimeMinder;

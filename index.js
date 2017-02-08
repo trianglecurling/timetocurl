@@ -1,3 +1,4 @@
+require("./polyfills");
 const express = require("express");
 const app = express();
 const http = require("http").Server(app);
@@ -28,9 +29,7 @@ app.use(express.static('client/icons'))
 
 setupRoutes(app);
 
-io.on("connection", (socket) => {
-	console.log("A client connected");
-	
+io.on("connection", (socket) => {	
 	socket.on("action", (message) => {
 		let payload;
 		try {
@@ -46,6 +45,7 @@ io.on("connection", (socket) => {
 const games = {};
 
 function handleAction(action, socket) {
+	console.log("Action: " + action.request);
 	if (action.request === "CREATE_TIMER") {
 		const curlingMachine = new CurlingMachine(action.options);
 		games[curlingMachine.id] = curlingMachine;
@@ -72,6 +72,7 @@ function handleAction(action, socket) {
 	}
 
 	if (action.request === "QUERY_TIMER") {
+		console.log("Query timer: " + JSON.stringify(action, null, 4));
 		const machine = games[action.options.timerId];
 
 		if (machine) {
@@ -81,6 +82,7 @@ function handleAction(action, socket) {
 				});
 				socket.emit("response", JSON.stringify({response: "QUERY_TIMER", token: action.token, data: "ok"}));
 			} else if (action.options.transition) {
+				console.log("Transition: " + action.options.transition);
 				machine.handleAction({
 					transition: action.options.transition,
 					data: action.options.data

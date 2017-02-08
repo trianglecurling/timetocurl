@@ -175,14 +175,19 @@ class CurlingMachineUI {
 
 		for (const teamId of Object.keys(this.thinkingButtons)) {
 			this.thinkingButtons[teamId].addEventListener("click", () => {
-				this.application.emitAction<any, any>({
-					request: "QUERY_TIMER",
-					options: {
-						transition: "begin-thinking",
-						data: teamId
-					}
-				});
+				this.sendPhaseTransition("begin-thinking", {team: teamId});
 			});
+		}
+
+		for (const action in this.elements) {
+			if (this.elements[action].length === 1) {
+				const elem = this.elements[action][0];
+				if (elem.tagName.toLowerCase() === "button" && (elem as HTMLElement).dataset["action"]) {
+					elem.addEventListener("click", () => {
+						this.sendPhaseTransition(action);
+					});
+				}
+			}
 		}
 
 		this.setNewState(this.state);
@@ -200,6 +205,20 @@ class CurlingMachineUI {
 	public setNewState(state: CurlingMachineState) {
 		for (const teamId of this.options.teams) {
 			this.thinkingTimeText[teamId].textContent = this.secondsToStr(this.state.timeRemaining[teamId]);
+		}
+	}
+
+	private async sendPhaseTransition(transition: string, data?: any) {
+		const result = await this.application.emitAction<{}, string>({
+			request: "QUERY_TIMER",
+			options: {
+				transition: transition,
+				data: data,
+				timerId: this.state.id
+			}
+		});
+		if (result.data !== "ok") {
+			throw new Error("Error querying timer w/ phase transition " + transition + ".");
 		}
 	}
 

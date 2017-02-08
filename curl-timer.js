@@ -10,6 +10,8 @@ const defaultOptions = {
 	warmupTime: 9 * 60
 };
 
+const LENGTH_OF_A_SECOND = 100; // 250ms for debugging
+
 /**
  * This class implements a state machine to keep track of a single curling game. The word 'state'
  * is used to refer to an object that represents every piece of information needed to explain to
@@ -27,8 +29,8 @@ class CurlingMachine {
 		this.options = Object.assign({}, defaultOptions, options);
 		this.nextPhaseMap = require("./phase-map");
 		this.id = uuidV4();
-		this.initialize();
 		this.allTimers = [];
+		this.initialize();
 	}
 
 	initialize() {
@@ -38,10 +40,7 @@ class CurlingMachine {
 		this.timeoutsRemaining = { };
 
 		for (const team of this.options.teams) {
-			this.thinkingTimers[team] = new TimeMinder(this.options.thinkingTime, () => {
-
-			});
-
+			this.thinkingTimers[team] = this.createTimer(this.options.thinkingTime);
 			this.timeoutsRemaining[team] = this.options.numTimeouts;
 		}
 		
@@ -54,7 +53,7 @@ class CurlingMachine {
 	}
 
 	createTimer(duration, onComplete) {
-		const timer = new TimeMinder(duration, onComplete);
+		const timer = new TimeMinder(duration * LENGTH_OF_A_SECOND, onComplete);
 		this.allTimers.push(timer);
 
 		// No timer is allowed to last longer than a day.
@@ -91,7 +90,7 @@ class CurlingMachine {
 	getSerializableState() {
 		// const state = { ...this.state };
 
-		const state = Object.assign({}, this.state);
+		const state = this.getCurrentState();
 		delete state.timer;
 		return { state, options: this.options };
 	}
@@ -107,6 +106,7 @@ class CurlingMachine {
 
 	handleAction(action) {
 		let nextState;
+		action.data = action.data || { };
 		if (action.state) {
 			nextState = this.getFullState(action.state);
 		} else if (action.transition) {
@@ -136,7 +136,7 @@ class CurlingMachine {
 			}
 
 			if (nextState.phase === "between-ends") {
-				this.state.timer.pause();
+				this.state.timer && this.state.timer.pause();
 				nextState.timer = this.createTimer(this.options.betweenEndTime, () => {
 					this.handleAction({
 						transition: "between-end-end"
@@ -190,35 +190,50 @@ class CurlingMachine {
 		}		
 	}
 
+	getCurrentState() {
+		const state = Object.assign({}, this.state);
+
+		const timeRemaining = Object.assign({}, this.thinkingTimers);
+		Object.keys(timeRemaining).forEach(team => 
+			timeRemaining[team] = timeRemaining[team].getTimeRemaining() / LENGTH_OF_A_SECOND);
+
+		const timeoutTimeRemaining = Object.assign({}, this.timeoutTimers);
+		Object.keys(timeoutTimeRemaining).forEach(team => 
+			timeoutTimeRemaining[team] = timeoutTimeRemaining[team].getTimeRemaining() / LENGTH_OF_A_SECOND);
+
+		const betweenEndTimeRemaining = this.state.phase === "between-ends" ? this.state.timer.getTimeRemaining() : null;
+
+		state.timeRemaining = timeRemaining;
+		state.timeoutTimeRemaining = timeoutTimeRemaining;
+		state.betweenEndTimeRemaining = betweenEndTimeRemaining;
+		return state;
+	}
+
 	getNextState(action) {
-		const phase = this.nextPhaseMap[action.transition];
+		const currentState = this.getCurrentState();
+		const phase = this.nextPhaseMap[this.state.phase][action.transition];
 		const end = this.getNextEnd(action);
 		const phaseData = this.getPhaseData(action);
-		const timeRemaining = this.timer.thinkingTimers.map(t => t.getTimeRemaining());
-		const timeoutTimeRemaining = this.timer.timeoutTimers.map(t => t.getTimeRemaining());
 		const currentlyThinking = this.getCurrentlyThinking(action);
 		const currentlyRunningTimeout = this.getCurrentlyRunningtimeout(action);
-		const betweenEndTimeRemaining = this.timer.interEndTimer.getTimeRemaining();
+		
 		const id = this.id;
 
-		return { 
+		return Object.assign(currentState, { 
 			phase, 
 			end, 
 			phaseData, 
-			timeRemaining, 
-			timeoutTimeRemaining, 
 			currentlyThinking, 
 			currentlyRunningTimeout, 
-			betweenEndTimeRemaining,
 			id
-		};
+		});
 	}
 
 	getNextEnd(action) {
-		if (state.phase === "between-ends" && action.transition === "between-end-end") {
-			return state.end + 1;
+		if (this.state.phase === "between-ends" && action.transition === "between-end-end") {
+			return this.state.end + 1;
 		} else {
-			return state.end;
+			return this.state.end;
 		}
 	}
 

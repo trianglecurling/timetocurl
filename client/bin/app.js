@@ -176,19 +176,27 @@ var CurlingMachineUI = (function () {
         this.initElements(newUI);
         var _loop_1 = function (teamId) {
             this_1.thinkingButtons[teamId].addEventListener("click", function () {
-                _this.application.emitAction({
-                    request: "QUERY_TIMER",
-                    options: {
-                        transition: "begin-thinking",
-                        data: teamId
-                    }
-                });
+                _this.sendPhaseTransition("begin-thinking", { team: teamId });
             });
         };
         var this_1 = this;
         for (var _i = 0, _a = Object.keys(this.thinkingButtons); _i < _a.length; _i++) {
             var teamId = _a[_i];
             _loop_1(teamId);
+        }
+        var _loop_2 = function (action) {
+            if (this_2.elements[action].length === 1) {
+                var elem = this_2.elements[action][0];
+                if (elem.tagName.toLowerCase() === "button" && elem.dataset["action"]) {
+                    elem.addEventListener("click", function () {
+                        _this.sendPhaseTransition(action);
+                    });
+                }
+            }
+        };
+        var this_2 = this;
+        for (var action in this.elements) {
+            _loop_2(action);
         }
         this.setNewState(this.state);
         this.container.appendChild(newUI);
@@ -203,6 +211,29 @@ var CurlingMachineUI = (function () {
             var teamId = _a[_i];
             this.thinkingTimeText[teamId].textContent = this.secondsToStr(this.state.timeRemaining[teamId]);
         }
+    };
+    CurlingMachineUI.prototype.sendPhaseTransition = function (transition, data) {
+        return __awaiter(this, void 0, void 0, function () {
+            var result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.application.emitAction({
+                            request: "QUERY_TIMER",
+                            options: {
+                                transition: transition,
+                                data: data,
+                                timerId: this.state.id
+                            }
+                        })];
+                    case 1:
+                        result = _a.sent();
+                        if (result.data !== "ok") {
+                            throw new Error("Error querying timer w/ phase transition " + transition + ".");
+                        }
+                        return [2 /*return*/];
+                }
+            });
+        });
     };
     CurlingMachineUI.prototype.initElements = function (elem) {
         var key = "";

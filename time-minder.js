@@ -5,11 +5,13 @@ class TimeMinder {
 	constructor(totalTime, onComplete) {
 		this.totalTime = totalTime;
 		this.intervals = [];
+		this.intervalHandles = [];
 		this.onComplete = onComplete;
 	}
 
 	dispose() {
 		clearTimeout(this.timeout);
+		this.intervalHandles.forEach(h => clearInterval(h));
 	}
 
 	start() {
@@ -22,8 +24,24 @@ class TimeMinder {
 		});
 		this.timeout = setTimeout(() => {
 			this.intervals[this.intervals.length - 1].end = new Date();
-			this.onComplete(this.intervals);
+			if (this.onComplete) {
+				this.onComplete(this.intervals);
+			}
 		}, this.getTimeRemaining());
+	}
+
+	every(ms, callback, runWhenPaused = false) {		
+		if (runWhenPaused) {
+			const clear = (handle) => {
+				clearInterval(handle);
+			};
+			const handle = setInterval(() => {
+				callback(this.getTimeRemaining(), clearInterval.bind(null, handle));
+			}, ms);
+			this.intervalHandles.push(handle);
+		} else {
+			
+		}
 	}
 
 	getTimeSpent() {

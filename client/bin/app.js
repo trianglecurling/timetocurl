@@ -57,6 +57,10 @@ function uuid() {
         return v.toString(16);
     });
 }
+function roundPrecision(num, decimalPlaces) {
+    var power = Math.pow(10, decimalPlaces);
+    return Math.round(num * power) / power;
+}
 var TimeToCurl = (function () {
     function TimeToCurl() {
     }
@@ -264,7 +268,7 @@ var CurlingMachineUI = (function () {
     };
     CurlingMachineUI.prototype.secondsToStr = function (seconds) {
         var m = Math.floor(seconds / 60);
-        var s = seconds % 60;
+        var s = roundPrecision(seconds, 0) % 60;
         var slz = s < 10 ? "0" + String(s) : String(s);
         return m + ":" + slz;
     };

@@ -10,7 +10,7 @@ const defaultOptions = {
 	warmupTime: 9 * 60
 };
 
-const LENGTH_OF_A_SECOND = 100; // 250ms for debugging
+const LENGTH_OF_A_SECOND = 100; // for debugging
 
 /**
  * This class implements a state machine to keep track of a single curling game. The word 'state'
@@ -185,6 +185,7 @@ class CurlingMachine {
 		}
 
 		if (nextState) {
+			nextState.phaseData = action.data;
 			this.history.push(this.state);
 			this.state = nextState;
 		}		

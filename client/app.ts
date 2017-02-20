@@ -1,4 +1,5 @@
 declare class TimeMinder {
+	constructor(totalTime: number, onComplete?: (timerData: any) => void);
 	public start(): void;
 	public getTimeSpent(): number;
 	public getTimeRemaining(): number;
@@ -68,6 +69,11 @@ function uuid(): string {
 		var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
 		return v.toString(16);
 	});
+}
+
+function roundPrecision(num: number, decimalPlaces: number) {
+	const power = Math.pow(10, decimalPlaces);
+	return Math.round(num * power) / power;
 }
 
 class TimeToCurl {
@@ -203,9 +209,20 @@ class CurlingMachineUI {
 	}
 
 	public setNewState(state: CurlingMachineState) {
+		this.state = state;
+		this.clearTimers();
 		for (const teamId of this.options.teams) {
 			this.thinkingTimeText[teamId].textContent = this.secondsToStr(this.state.timeRemaining[teamId]);
+			if (this.state.phase === "thinking") {
+				const thinkingTeam = this.state.phaseData["team"];
+				const timer = new TimeMinder(this.state.timeRemaining[thinkingTeam]);
+				
+			}
 		}
+	}
+
+	private clearTimers() {
+
 	}
 
 	private async sendPhaseTransition(transition: string, data?: any) {
@@ -254,9 +271,9 @@ class CurlingMachineUI {
 
 	private secondsToStr(seconds: number) {
 		const m = Math.floor(seconds / 60);
-		const s = seconds % 60;
+		const s = roundPrecision(seconds, 0) % 60;
 		const slz = s < 10 ? "0" + String(s) : String(s);
-		return `${m}:${slz}`
+		return `${m}:${slz}`;
 	}
 }
 

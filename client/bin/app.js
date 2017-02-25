@@ -211,10 +211,18 @@ var CurlingMachineUI = (function () {
     CurlingMachineUI.prototype.dispose = function () {
     };
     CurlingMachineUI.prototype.setNewState = function (state) {
+        this.state = state;
+        this.clearTimers();
         for (var _i = 0, _a = this.options.teams; _i < _a.length; _i++) {
             var teamId = _a[_i];
             this.thinkingTimeText[teamId].textContent = this.secondsToStr(this.state.timeRemaining[teamId]);
+            if (this.state.phase === "thinking") {
+                var thinkingTeam = this.state.phaseData["team"];
+                var timer = new TimeMinder(this.state.timeRemaining[thinkingTeam]);
+            }
         }
+    };
+    CurlingMachineUI.prototype.clearTimers = function () {
     };
     CurlingMachineUI.prototype.sendPhaseTransition = function (transition, data) {
         return __awaiter(this, void 0, void 0, function () {

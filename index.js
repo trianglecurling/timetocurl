@@ -5,11 +5,16 @@ const http = require("http").Server(app);
 const io = require("socket.io")(http);
 const { join } = require("path");
 const CurlingMachine = require("./curl-timer");
+const Settings = require("./settings");
 
 function setupRoutes(app) {
 	app.get("/", (req, res) => {
 		res.sendFile(join(__dirname, "client/index.html"));
 	});
+
+	app.get("/settings.js", (req, res) => {
+		res.send("var _settings = " + JSON.stringify(Settings) + ";");
+	})
 
 	app.get("/app.js", (req, res) => {
 		res.sendFile(join(__dirname, "client/bin/app.js"));

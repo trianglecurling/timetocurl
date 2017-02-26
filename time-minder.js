@@ -1,23 +1,38 @@
-const { setTimeout, clearTimeout } = require("timers");
+const { setTimeout, clearTimeout, setInterval, clearInterval } = require("timers");
+const { ManagedTimer } = require("./managed-timer");
 const { inspect } = require("util");
 
 class TimeMinder {
 	constructor(totalTime, onComplete) {
 		this.totalTime = totalTime;
 		this.intervals = [];
-		this.intervalHandles = [];
 		this.onComplete = onComplete;
+		this.startupTasks = [];
+		this.started = false;
+		this.disposed = false;
+		this.tickTimers = [];
 	}
 
 	dispose() {
 		clearTimeout(this.timeout);
-		this.intervalHandles.forEach(h => clearInterval(h));
+		for (const timer of this.tickTimers) {
+			timer.timer.cancel();
+		}
+		this.disposed = true;
 	}
 
 	start() {
 		if (this.isRunning() || this.getTimeRemaining() <= 0) {
 			return;
 		}
+		this.started = true;
+		this.unpause();
+		for (const task of this.startupTasks) {
+			task.call(this);
+		}
+	}
+
+	unpause() {
 		this.intervals.push({
 			start: new Date(),
 			end: null
@@ -27,21 +42,28 @@ class TimeMinder {
 			if (this.onComplete) {
 				this.onComplete(this.intervals);
 			}
+			for (const timer of this.tickTimers) {
+				timer.timer.cancel();
+			}
 		}, this.getTimeRemaining());
+		
+		// Unpause all tick timers that were paused
+		for (const timer of this.tickTimers) {
+			if (!timer.runWhenPaused) {
+				timer.timer.unpause();
+			}
+		}
 	}
 
-	every(ms, callback, runWhenPaused = false) {		
-		if (runWhenPaused) {
-			const clear = (handle) => {
-				clearInterval(handle);
-			};
-			const handle = setInterval(() => {
-				callback(this.getTimeRemaining(), clearInterval.bind(null, handle));
-			}, ms);
-			this.intervalHandles.push(handle);
-		} else {
-			
+	every(ms, callback, runWhenPaused = false) {
+		if (!this.started) {
+			this.startupTasks.push(this.every.bind(this, ms, callback, runWhenPaused));
+			return;
 		}
+
+		const timer = new ManagedTimer(callback, ms, true, setTimeout, clearTimeout, setInterval, clearInterval);
+		timer.start();
+		this.tickTimers.push({timer, runWhenPaused});
 	}
 
 	getTimeSpent() {
@@ -64,6 +86,13 @@ class TimeMinder {
 
 		// People running around with chainsaws is not Leah's thing.
 		this.intervals[this.intervals.length - 1].end = new Date();
+
+		// Pause all tick timers that don't run when paused.
+		for (const timer of this.tickTimers) {
+			if (!timer.runWhenPaused) {
+				timer.timer.pause();
+			}
+		}
 	}
 
 	isRunning() {

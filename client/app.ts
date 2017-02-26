@@ -6,6 +6,11 @@ declare class TimeMinder {
 	public getTotalTimeSinceStart(): number;
 	public pause(): void;
 	public isRunning(): boolean;
+	public every(ms: number, callback: () => void, runWhenPaused: boolean): void;
+}
+
+declare var _settings: {
+	lengthOfSecond: number;
 }
 
 interface IMap<TVal> {
@@ -215,8 +220,13 @@ class CurlingMachineUI {
 			this.thinkingTimeText[teamId].textContent = this.secondsToStr(this.state.timeRemaining[teamId]);
 			if (this.state.phase === "thinking") {
 				const thinkingTeam = this.state.phaseData["team"];
-				const timer = new TimeMinder(this.state.timeRemaining[thinkingTeam]);
-				
+				const timer = new TimeMinder(this.state.timeRemaining[thinkingTeam] * _settings.lengthOfSecond);
+				timer.every(_settings.lengthOfSecond / 10, () => {
+					this.thinkingTimeText[teamId].textContent = this.secondsToStr(timer.getTimeRemaining() / _settings.lengthOfSecond);
+				}, false);
+				if (thinkingTeam === teamId) {
+					timer.start();
+				}
 			}
 		}
 	}

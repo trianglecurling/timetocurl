@@ -89,6 +89,16 @@ var TimeToCurl = (function () {
                 console.warn("Unexpected data from the server: " + result);
             }
         });
+        this.socket.on("statechange", function (message) {
+            var receivedMessage = JSON.parse(message);
+            switch (receivedMessage.message) {
+                case "SET_STATE":
+                    _this.machines[receivedMessage.machineId].setNewState(receivedMessage.data.state);
+                    break;
+                default:
+                    throw new Error("Received an action that we didn't know how to handle... " + message);
+            }
+        });
         this.loadTimers(getDisplayedTimers());
     };
     TimeToCurl.prototype.loadTimers = function (ids) {
@@ -213,18 +223,25 @@ var CurlingMachineUI = (function () {
     CurlingMachineUI.prototype.setNewState = function (state) {
         var _this = this;
         this.state = state;
-        this.clearTimers();
+        this.clearTimer();
         var _loop_3 = function (teamId) {
             this_3.thinkingTimeText[teamId].textContent = this_3.secondsToStr(this_3.state.timeRemaining[teamId]);
             if (this_3.state.phase === "thinking") {
                 var thinkingTeam = this_3.state.phaseData["team"];
-                var timer_1 = new TimeMinder(this_3.state.timeRemaining[thinkingTeam] * _settings.lengthOfSecond);
-                timer_1.every(_settings.lengthOfSecond / 10, function () {
-                    _this.thinkingTimeText[teamId].textContent = _this.secondsToStr(timer_1.getTimeRemaining() / _settings.lengthOfSecond);
-                }, false);
                 if (thinkingTeam === teamId) {
+                    var timer_1 = new TimeMinder(this_3.state.timeRemaining[thinkingTeam] * _settings.lengthOfSecond);
+                    timer_1.every(_settings.lengthOfSecond / 10, function () {
+                        _this.thinkingTimeText[teamId].textContent = _this.secondsToStr(timer_1.getTimeRemaining() / _settings.lengthOfSecond);
+                    }, false);
                     timer_1.start();
+                    this_3.runningTimer = timer_1;
                 }
+            }
+            if (this_3.state.phase === "warm-up") {
+                var timer_2 = new TimeMinder(this_3.state.warmupTimeRemaining * _settings.lengthOfSecond);
+                timer_2.every(_settings.lengthOfSecond / 10, function () {
+                    _this.warmupTimeText.textContent = _this.secondsToStr(timer_2.getTimeRemaining() / _settings.lengthOfSecond);
+                }, false);
             }
         };
         var this_3 = this;
@@ -233,7 +250,10 @@ var CurlingMachineUI = (function () {
             _loop_3(teamId);
         }
     };
-    CurlingMachineUI.prototype.clearTimers = function () {
+    CurlingMachineUI.prototype.clearTimer = function () {
+        if (this.runningTimer) {
+            this.runningTimer.dispose();
+        }
     };
     CurlingMachineUI.prototype.sendPhaseTransition = function (transition, data) {
         return __awaiter(this, void 0, void 0, function () {
@@ -277,6 +297,9 @@ var CurlingMachineUI = (function () {
             }
             if (this.elements["thinking-time"] && this.elements["thinking-time"][i]) {
                 this.thinkingTimeText[this.options.teams[i]] = this.elements["thinking-time"][i];
+            }
+            if (this.elements["warmup-time"] && this.elements["warmup-time"][i]) {
+                this.warmupTimeText = this.elements["warmup-time"][i];
             }
         }
         if (elem.children) {

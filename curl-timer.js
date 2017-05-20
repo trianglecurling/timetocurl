@@ -25,12 +25,13 @@ const LENGTH_OF_A_SECOND = 100; // for debugging
  */
 class CurlingMachine {
 
-	constructor(options) {
+	constructor(options, onStateChange) {
 		this.options = Object.assign({}, defaultOptions, options);
 		this.nextPhaseMap = require("./phase-map");
 		this.id = uuidV4();
-		this.allTimers = [];
+		this.allTimers = {};
 		this.initialize();
+		this.onStateChange = onStateChange;
 	}
 
 	initialize() {
@@ -47,14 +48,16 @@ class CurlingMachine {
 	}
 
 	dispose() {
-		for (const timer of this.allTimers) {
-			timer.dispose();
+		for (const timer of Object.keys(this.allTimers)) {
+			this.allTimers[timer].dispose();
 		}
 	}
 
 	createTimer(duration, onComplete) {
+		console.log("Starting timer for " + duration * LENGTH_OF_A_SECOND + " ms.");
+		const timerId = uuidV4();
 		const timer = new TimeMinder(duration * LENGTH_OF_A_SECOND, onComplete);
-		this.allTimers.push(timer);
+		this.allTimers[timerId] = timer;
 
 		// No timer is allowed to last longer than a day.
 		setTimeout(() => {
@@ -128,11 +131,14 @@ class CurlingMachine {
 			}
 
 			if (nextState.phase === "warm-up") {
+				console.log("starting warmup");
 				nextState.timer = this.createTimer(this.options.warmupTime, () => {
+					console.log("warmup is over");
 					this.handleAction({
 						transition: "warmup-end"
 					});
 				});
+				nextState.timer.start();
 			}
 
 			if (nextState.phase === "between-ends") {
@@ -188,7 +194,8 @@ class CurlingMachine {
 			nextState.phaseData = action.data;
 			this.history.push(this.state);
 			this.state = nextState;
-		}		
+			this.onStateChange();
+		}
 	}
 
 	getCurrentState() {
@@ -204,9 +211,12 @@ class CurlingMachine {
 
 		const betweenEndTimeRemaining = this.state.phase === "between-ends" ? this.state.timer.getTimeRemaining() : null;
 
+		const warmupTimeRemaining = this.state.phase === "warm-up" ? this.state.timer.getTimeRemaining() : null;
+
 		state.timeRemaining = timeRemaining;
 		state.timeoutTimeRemaining = timeoutTimeRemaining;
 		state.betweenEndTimeRemaining = betweenEndTimeRemaining;
+		state.warmupTimeRemaining = warmupTimeRemaining;
 		return state;
 	}
 

@@ -39,7 +39,7 @@
 		<div id="main" class="container-fluid">
 			<div class="row">
 				<div class="col">
-					<h1>Time to Curl!</h1>
+					<h1><a href="/">Time to Curl!</a></h1>
 				</div>
 			</div>
 			<div class="timers row" id="timersContainer">
@@ -54,22 +54,26 @@
 
 		<div id="timerTemplate">
 			<div class="timer">
+				<div class="warmup-time-container">
+					<h2>Warmup Time Remaining</h2>
+					<div class="warmup-time"></div>
+				</div>
 				<div class="thinking-time-container">
 					<h2>Thinking Time Remaining</h2>
 					<div class="thinking-time"></div>
 					<div class="thinking-time"></div>
 				</div>
 				<div class="controls">
-					<button data-action="game-start-warmup" class="btn">Start game (with warmup)</button>
-					<button data-action="game-start-no-warmup" class="btn">Start game (no warmup)</button>
-					<button data-action="begin-warmup" class="btn">Begin warm-up</button>
-					<button data-action="begin-thinking" class="btn">Start Yellow Thinking</button>
-					<button data-action="begin-thinking" class="btn">Start Red Thinking</button>
-					<button data-action="end-thinking" class="btn">Stop Thinking</button>
-					<button data-action="begin-timeout" class="btn">Timeout</button>
-					<button data-action="end-timeout" class="btn">End Timeout</button>
-					<button data-action="technical" class="btn">Technical Timeout</button>
-					<button data-action="end-technical" class="btn">End Technical</button>
+					<button data-action="game-start-warmup" class="btn btn-secondary">Start game (with warmup)</button>
+					<button data-action="game-start-no-warmup" class="btn btn-secondary">Start game (no warmup)</button>
+					<button data-action="begin-warmup" class="btn btn-secondary">Begin warm-up</button>
+					<button data-action="begin-thinking" class="btn btn-secondary">Start Yellow Thinking</button>
+					<button data-action="begin-thinking" class="btn btn-secondary">Start Red Thinking</button>
+					<button data-action="end-thinking" class="btn btn-secondary">Stop Thinking</button>
+					<button data-action="begin-timeout" class="btn btn-secondary">Timeout</button>
+					<button data-action="end-timeout" class="btn btn-secondary">End Timeout</button>
+					<button data-action="technical" class="btn btn-secondary">Technical Timeout</button>
+					<button data-action="end-technical" class="btn btn-secondary">End Technical</button>
 				</div>
 			</div>
 		</div>

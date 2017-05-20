@@ -20,3 +20,7 @@ body {
 .timer {
 	margin: 20px;
 }
+
+button {
+	cursor: pointer;
+}

@@ -7,6 +7,7 @@ declare class TimeMinder {
 	public pause(): void;
 	public isRunning(): boolean;
 	public every(ms: number, callback: () => void, runWhenPaused: boolean): void;
+	public dispose(): void;
 }
 
 declare var _settings: {
@@ -49,12 +50,19 @@ interface CurlingMachineState {
 	currentlyThinking: string | null;
 	currentlyRunningTimeout: string | null;
 	betweenEndTimeRemaining: number;
+	warmupTimeRemaining: number;
 	id: string;
 }
 
 interface StateAndOptions {
 	state: CurlingMachineState;
 	options: TimerOptions;
+}
+
+interface ActionMessage {
+	machineId: string;
+	message: string;
+	data: any;
 }
 
 function getDisplayedTimers(): string[] {
@@ -110,6 +118,17 @@ class TimeToCurl {
 				this.requestResolvers[response.token].call(this, response);
 			} else {
 				console.warn(`Unexpected data from the server: ${result}`);
+			}
+		});
+
+		this.socket.on("statechange", (message: string) => {
+			const receivedMessage = JSON.parse(message) as ActionMessage;
+			switch (receivedMessage.message) {
+				case "SET_STATE":
+					this.machines[receivedMessage.machineId].setNewState(receivedMessage.data.state);
+					break;
+				default:
+					throw new Error("Received an action that we didn't know how to handle... " + message);
 			}
 		});
 
@@ -169,6 +188,8 @@ class CurlingMachineUI {
 	private elements: { [key: string]: Element[] };
 	private thinkingButtons: IMap<HTMLButtonElement>;
 	private thinkingTimeText: IMap<HTMLElement>;
+	private warmupTimeText: HTMLElement;
+	private runningTimer: TimeMinder;
 
 	constructor(initParams: StateAndOptions, private container: Element, private application: TimeToCurl) {
 		this.elements = {};
@@ -215,24 +236,34 @@ class CurlingMachineUI {
 
 	public setNewState(state: CurlingMachineState) {
 		this.state = state;
-		this.clearTimers();
+		this.clearTimer();
 		for (const teamId of this.options.teams) {
 			this.thinkingTimeText[teamId].textContent = this.secondsToStr(this.state.timeRemaining[teamId]);
 			if (this.state.phase === "thinking") {
 				const thinkingTeam = this.state.phaseData["team"];
-				const timer = new TimeMinder(this.state.timeRemaining[thinkingTeam] * _settings.lengthOfSecond);
-				timer.every(_settings.lengthOfSecond / 10, () => {
-					this.thinkingTimeText[teamId].textContent = this.secondsToStr(timer.getTimeRemaining() / _settings.lengthOfSecond);
-				}, false);
 				if (thinkingTeam === teamId) {
+					const timer = new TimeMinder(this.state.timeRemaining[thinkingTeam] * _settings.lengthOfSecond);
+					timer.every(_settings.lengthOfSecond / 10, () => {
+						this.thinkingTimeText[teamId].textContent = this.secondsToStr(timer.getTimeRemaining() / _settings.lengthOfSecond);
+					}, false);
 					timer.start();
+					this.runningTimer = timer;
 				}
+			}
+			
+			if (this.state.phase === "warm-up") {
+				const timer = new TimeMinder(this.state.warmupTimeRemaining * _settings.lengthOfSecond);
+				timer.every(_settings.lengthOfSecond / 10, () => {
+					this.warmupTimeText.textContent = this.secondsToStr(timer.getTimeRemaining() / _settings.lengthOfSecond);
+				}, false);
 			}
 		}
 	}
 
-	private clearTimers() {
-
+	private clearTimer() {
+		if (this.runningTimer) {
+			this.runningTimer.dispose();
+		}
 	}
 
 	private async sendPhaseTransition(transition: string, data?: any) {
@@ -268,7 +299,10 @@ class CurlingMachineUI {
 				this.thinkingButtons[this.options.teams[i]] = this.elements["begin-thinking"][i] as HTMLButtonElement;
 			}
 			if (this.elements["thinking-time"] && this.elements["thinking-time"][i]) {
-				this.thinkingTimeText[this.options.teams[i]] = this.elements["thinking-time"][i] as HTMLButtonElement;
+				this.thinkingTimeText[this.options.teams[i]] = this.elements["thinking-time"][i] as HTMLElement;
+			}
+			if (this.elements["warmup-time"] && this.elements["warmup-time"][i]) {
+				this.warmupTimeText = this.elements["warmup-time"][i] as HTMLElement;
 			}
 		}
 

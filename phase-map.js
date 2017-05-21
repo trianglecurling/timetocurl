@@ -86,7 +86,7 @@ module.exports = {
 		"end-thinking": "null",
 		"end-end": "null",
 		"begin-timeout": "null",
-		"end-timeout": "stone-moving",
+		"end-timeout": "thinking",
 		"technical": "technical",
 		"end-technical": "null"
 	},

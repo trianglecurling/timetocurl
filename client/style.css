@@ -24,3 +24,7 @@ body {
 button {
 	cursor: pointer;
 }
+div.debug {
+	white-space: pre;
+	font-family: Consolas, Courier New, Courier, monospace;
+}

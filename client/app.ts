@@ -46,7 +46,6 @@ interface CurlingMachineState {
 	phaseData: {[key: string]: string};
 	timeRemaining: IMap<number>;
 	timeoutsRemaining: IMap<number>;
-	timeoutTimeRemaining: IMap<number>;
 	currentlyThinking: string | null;
 	currentlyRunningTimeout: string | null;
 	betweenEndTimeRemaining: number;
@@ -189,7 +188,10 @@ class CurlingMachineUI {
 	private thinkingButtons: IMap<HTMLButtonElement>;
 	private thinkingTimeText: IMap<HTMLElement>;
 	private warmupTimeText: HTMLElement;
+	private timeoutTimeText: HTMLElement;
+	private betweenEndTimeText: HTMLElement;
 	private runningTimer: TimeMinder;
+	private debugElement: HTMLElement;
 
 	constructor(initParams: StateAndOptions, private container: Element, private application: TimeToCurl) {
 		this.elements = {};
@@ -235,6 +237,7 @@ class CurlingMachineUI {
 	}
 
 	public setNewState(state: CurlingMachineState) {
+		this.debugElement.textContent = JSON.stringify(state, null, 4);
 		this.state = state;
 		this.clearTimer();
 		for (const teamId of this.options.teams) {
@@ -256,6 +259,23 @@ class CurlingMachineUI {
 				timer.every(_settings.lengthOfSecond / 10, () => {
 					this.warmupTimeText.textContent = this.secondsToStr(timer.getTimeRemaining() / _settings.lengthOfSecond);
 				}, false);
+				timer.start();
+			}
+
+			if (this.state.phase === "between-ends") {
+				const timer = new TimeMinder(this.state.betweenEndTimeRemaining * _settings.lengthOfSecond);
+				timer.every(_settings.lengthOfSecond / 10, () => {
+					this.betweenEndTimeText.textContent = this.secondsToStr(timer.getTimeRemaining() / _settings.lengthOfSecond);
+				}, false);
+				timer.start();
+			}
+
+			if (this.state.phase === "timeout") {
+				const timer = new TimeMinder(this.options.timeoutTime * _settings.lengthOfSecond);
+				timer.every(_settings.lengthOfSecond / 10, () => {
+					this.timeoutTimeText.textContent = this.secondsToStr(timer.getTimeRemaining() / _settings.lengthOfSecond);
+				}, false);
+				timer.start();
 			}
 		}
 	}
@@ -301,9 +321,18 @@ class CurlingMachineUI {
 			if (this.elements["thinking-time"] && this.elements["thinking-time"][i]) {
 				this.thinkingTimeText[this.options.teams[i]] = this.elements["thinking-time"][i] as HTMLElement;
 			}
-			if (this.elements["warmup-time"] && this.elements["warmup-time"][i]) {
-				this.warmupTimeText = this.elements["warmup-time"][i] as HTMLElement;
-			}
+		}
+		if (this.elements["warmup-time"] && this.elements["warmup-time"][0]) {
+			this.warmupTimeText = this.elements["warmup-time"][0] as HTMLElement;
+		}
+		if (this.elements["between-end-time"] && this.elements["between-end-time"][0]) {
+			this.betweenEndTimeText = this.elements["between-end-time"][0] as HTMLElement;
+		}
+		if (this.elements["debug"] && this.elements["debug"][0]) {
+			this.debugElement = this.elements["debug"][0] as HTMLElement;
+		}
+		if (this.elements["timeout-time"] && this.elements["timeout-time"][0]) {
+			this.timeoutTimeText = this.elements["timeout-time"][0] as HTMLElement;
 		}
 
 		if (elem.children) {

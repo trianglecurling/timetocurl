@@ -4,6 +4,7 @@ const uuidV4 = require('uuid/v4');
 const defaultOptions = {
 	thinkingTime: 30 * 60,
 	timeoutTime: 60,
+	numTimeouts: 1,
 	betweenEndTime: 60,
 	midGameBreakTime: 5 * 60,
 	teams: ["Yellow", "Red"],
@@ -38,6 +39,7 @@ class CurlingMachine {
 		this.state = this.getInitialState();
 		this.history = [this.state];
 		this.thinkingTimers = { };
+
 		this.timeoutsRemaining = { };
 
 		for (const team of this.options.teams) {
@@ -70,11 +72,9 @@ class CurlingMachine {
 	getInitialState() {
 		const timeRemaining = {};
 		const timeoutsRemaining = {};
-		const timeoutTimeRemaining = {};
 		for (const team of this.options.teams) {
 			timeRemaining[team] = this.options.thinkingTime;
 			timeoutsRemaining[team] = this.options.numTimeouts;
-			timeoutTimeRemaining[team] = this.options.timeoutTime;
 		}
 		return {
 			end: null,
@@ -82,7 +82,6 @@ class CurlingMachine {
 			phaseData: {},
 			timeRemaining,
 			timeoutsRemaining,
-			timeoutTimeRemaining ,
 			currentlyThinking: null,
 			currentlyRunningTimeout: null,
 			betweenEndTimeRemaining: this.options.betweenEndTime,
@@ -123,7 +122,7 @@ class CurlingMachine {
 					throw new Error("No prior state to go back to.");
 				}
 				//nextState = { ...this.history[this.history.length - 2] };
-				nextState = Object.assign({}, this.history[this.history.length - 2]);
+				nextState = Object.assign({}, this.history[this.history.length - 1]);
 			}
 
 			if (nextState.phase === "pregame") {
@@ -169,15 +168,23 @@ class CurlingMachine {
 				if (this.state.timer) {
 					this.state.timer.pause();
 				}
-				nextState.timer = this.thinkingTimers[action.data.team];
+				nextState.currentlyThinking = nextState.phaseData.team;
+				nextState.timer = this.thinkingTimers[nextState.phaseData.team];
 				nextState.timer.start();
 			}
 
 			if (nextState.phase === "timeout") {
 				this.state.timer.pause();
+				const whoseTimeout = this.state.currentlyThinking;
 				nextState.timer = this.createTimer(this.options.timeoutTime, () => {
-					this.handleAction("end-timeout");
+					this.handleAction({
+						transition: "end-timeout",
+						data: {
+							team: whoseTimeout
+						}
+					});
 				});
+				this.timeoutsRemaining[whoseTimeout]--;
 				nextState.timer.start();
 			}
 
@@ -191,7 +198,6 @@ class CurlingMachine {
 		}
 
 		if (nextState) {
-			nextState.phaseData = action.data;
 			this.history.push(this.state);
 			this.state = nextState;
 			this.onStateChange();
@@ -205,16 +211,14 @@ class CurlingMachine {
 		Object.keys(timeRemaining).forEach(team => 
 			timeRemaining[team] = timeRemaining[team].getTimeRemaining() / LENGTH_OF_A_SECOND);
 
-		const timeoutTimeRemaining = Object.assign({}, this.timeoutTimers);
-		Object.keys(timeoutTimeRemaining).forEach(team => 
-			timeoutTimeRemaining[team] = timeoutTimeRemaining[team].getTimeRemaining() / LENGTH_OF_A_SECOND);
+		const timeoutsRemaining = Object.assign({}, this.timeoutsRemaining);
 
-		const betweenEndTimeRemaining = this.state.phase === "between-ends" ? this.state.timer.getTimeRemaining() : null;
+		const betweenEndTimeRemaining = this.state.phase === "between-ends" ? this.state.timer.getTimeRemaining() / LENGTH_OF_A_SECOND : null;
 
-		const warmupTimeRemaining = this.state.phase === "warm-up" ? this.state.timer.getTimeRemaining() : null;
+		const warmupTimeRemaining = this.state.phase === "warm-up" ? this.state.timer.getTimeRemaining() / LENGTH_OF_A_SECOND : null;
 
 		state.timeRemaining = timeRemaining;
-		state.timeoutTimeRemaining = timeoutTimeRemaining;
+		state.timeoutsRemaining = timeoutsRemaining;
 		state.betweenEndTimeRemaining = betweenEndTimeRemaining;
 		state.warmupTimeRemaining = warmupTimeRemaining;
 		return state;
@@ -236,7 +240,8 @@ class CurlingMachine {
 			phaseData, 
 			currentlyThinking, 
 			currentlyRunningTimeout, 
-			id
+			id,
+			phaseData: Object.assign({}, action.data)
 		});
 	}
 

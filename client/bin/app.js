@@ -222,6 +222,7 @@ var CurlingMachineUI = (function () {
     };
     CurlingMachineUI.prototype.setNewState = function (state) {
         var _this = this;
+        this.debugElement.textContent = JSON.stringify(state, null, 4);
         this.state = state;
         this.clearTimer();
         var _loop_3 = function (teamId) {
@@ -242,6 +243,21 @@ var CurlingMachineUI = (function () {
                 timer_2.every(_settings.lengthOfSecond / 10, function () {
                     _this.warmupTimeText.textContent = _this.secondsToStr(timer_2.getTimeRemaining() / _settings.lengthOfSecond);
                 }, false);
+                timer_2.start();
+            }
+            if (this_3.state.phase === "between-ends") {
+                var timer_3 = new TimeMinder(this_3.state.betweenEndTimeRemaining * _settings.lengthOfSecond);
+                timer_3.every(_settings.lengthOfSecond / 10, function () {
+                    _this.betweenEndTimeText.textContent = _this.secondsToStr(timer_3.getTimeRemaining() / _settings.lengthOfSecond);
+                }, false);
+                timer_3.start();
+            }
+            if (this_3.state.phase === "timeout") {
+                var timer_4 = new TimeMinder(this_3.options.timeoutTime * _settings.lengthOfSecond);
+                timer_4.every(_settings.lengthOfSecond / 10, function () {
+                    _this.timeoutTimeText.textContent = _this.secondsToStr(timer_4.getTimeRemaining() / _settings.lengthOfSecond);
+                }, false);
+                timer_4.start();
             }
         };
         var this_3 = this;
@@ -298,9 +314,18 @@ var CurlingMachineUI = (function () {
             if (this.elements["thinking-time"] && this.elements["thinking-time"][i]) {
                 this.thinkingTimeText[this.options.teams[i]] = this.elements["thinking-time"][i];
             }
-            if (this.elements["warmup-time"] && this.elements["warmup-time"][i]) {
-                this.warmupTimeText = this.elements["warmup-time"][i];
-            }
+        }
+        if (this.elements["warmup-time"] && this.elements["warmup-time"][0]) {
+            this.warmupTimeText = this.elements["warmup-time"][0];
+        }
+        if (this.elements["between-end-time"] && this.elements["between-end-time"][0]) {
+            this.betweenEndTimeText = this.elements["between-end-time"][0];
+        }
+        if (this.elements["debug"] && this.elements["debug"][0]) {
+            this.debugElement = this.elements["debug"][0];
+        }
+        if (this.elements["timeout-time"] && this.elements["timeout-time"][0]) {
+            this.timeoutTimeText = this.elements["timeout-time"][0];
         }
         if (elem.children) {
             for (var i = 0; i < elem.children.length; ++i) {

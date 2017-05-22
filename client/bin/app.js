@@ -337,8 +337,9 @@ var CurlingMachineUI = (function () {
         }
     };
     CurlingMachineUI.prototype.secondsToStr = function (seconds) {
-        var m = Math.floor(seconds / 60);
-        var s = roundPrecision(seconds, 0) % 60;
+        var clampedSeconds = Math.max(0, seconds);
+        var m = Math.floor(clampedSeconds / 60);
+        var s = roundPrecision(clampedSeconds, 0) % 60;
         var slz = s < 10 ? "0" + String(s) : String(s);
         return m + ":" + slz;
     };

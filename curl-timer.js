@@ -184,7 +184,9 @@ class CurlingMachine {
 				if (this.state.timer) {
 					this.state.timer.pause();
 				}
-				const whoseTimeout = this.state.currentlyThinking;
+				const whoseTimeout = nextState.currentlyRunningTimeout || this.state.currentlyThinking;
+				console.log("next phase is timeout: " + whoseTimeout);
+				nextState.currentlyRunningTimeout = whoseTimeout;
 				if (nextState.timer) {
 					nextState.timer.unpause();
 				} else {
@@ -239,20 +241,18 @@ class CurlingMachine {
 	getNextState(action) {
 		const currentState = this.getCurrentState();
 		delete currentState.timer;
+		delete currentState.currentlyRunningTimeout;
+		delete currentState.currentlyThinking;
 		const phase = this.nextPhaseMap[this.state.phase][action.transition];
 		const end = this.getNextEnd(action);
 		const phaseData = this.getPhaseData(action);
-		const currentlyThinking = this.getCurrentlyThinking(action);
-		const currentlyRunningTimeout = this.getCurrentlyRunningtimeout(action);
 		
 		const id = this.id;
 
 		return Object.assign(currentState, { 
 			phase, 
 			end, 
-			phaseData, 
-			currentlyThinking, 
-			currentlyRunningTimeout, 
+			phaseData,
 			id,
 			phaseData: Object.assign({}, action.data)
 		});
@@ -271,22 +271,6 @@ class CurlingMachine {
 			return { team: action.data.team };
 		}
 		return { };
-	}
-
-	getCurrentlyThinking(action) {
-		const nextPhase = this.nextPhaseMap[action.transition];
-		if (nextPhase === "thinking") {
-			return action.data.team;
-		}
-		return null;
-	}
-
-	getCurrentlyRunningtimeout(action) {
-		const nextPhase = this.nextPhaseMap[action.transition];
-		if (nextPhase === "timeout") {
-			return action.data.team;
-		}
-		return null;
 	}
 }
 

@@ -346,8 +346,9 @@ class CurlingMachineUI {
 	}
 
 	private secondsToStr(seconds: number) {
-		const m = Math.floor(seconds / 60);
-		const s = roundPrecision(seconds, 0) % 60;
+		const clampedSeconds = Math.max(0, seconds);
+		const m = Math.floor(clampedSeconds / 60);
+		const s = roundPrecision(clampedSeconds, 0) % 60;
 		const slz = s < 10 ? "0" + String(s) : String(s);
 		return `${m}:${slz}`;
 	}

@@ -1,13 +1,13 @@
 declare class TimeMinder {
 	constructor(totalTime: number, onComplete?: (timerData: any) => void);
-	public start(): void;
-	public getTimeSpent(): number;
-	public getTimeRemaining(): number;
-	public getTotalTimeSinceStart(): number;
-	public pause(): void;
-	public isRunning(): boolean;
-	public every(ms: number, callback: () => void, runWhenPaused: boolean): void;
 	public dispose(): void;
+	public every(ms: number, callback: () => void, runWhenPaused: boolean): void;
+	public getTimeRemaining(): number;
+	public getTimeSpent(): number;
+	public getTotalTimeSinceStart(): number;
+	public isRunning(): boolean;
+	public pause(): void;
+	public start(): void;
 }
 
 declare var _settings: {
@@ -19,12 +19,12 @@ interface IMap<TVal> {
 }
 
 interface TimerOptions {
-	thinkingTime: number;
-	numTimeouts: number;
-	timeoutTime: number;
 	betweenEndTime: number;
 	midGameBreakTime: number;
+	numTimeouts: number;
 	teams: string[];
+	thinkingTime: number;
+	timeoutTime: number;
 	warmupTime: number;
 }
 
@@ -35,33 +35,34 @@ interface SocketAction<TOptions> {
 }
 
 interface SocketResponse<TData> {
+	data: TData;
 	response: string;
 	token: string;
-	data: TData;
 }
 
 interface CurlingMachineState {
+	betweenEndTimeRemaining: number;
+	currentlyRunningTimeout: string | null;
+	currentlyThinking: string | null;
 	end: number | null;
+	id: string;
 	phase: string;
 	phaseData: {[key: string]: string};
-	timeRemaining: IMap<number>;
 	timeoutsRemaining: IMap<number>;
-	currentlyThinking: string | null;
-	currentlyRunningTimeout: string | null;
-	betweenEndTimeRemaining: number;
+	timeoutTimeRemaining: number;
+	timeRemaining: IMap<number>;
 	warmupTimeRemaining: number;
-	id: string;
 }
 
 interface StateAndOptions {
-	state: CurlingMachineState;
 	options: TimerOptions;
+	state: CurlingMachineState;
 }
 
 interface ActionMessage {
+	data: any;
 	machineId: string;
 	message: string;
-	data: any;
 }
 
 function getDisplayedTimers(): string[] {
@@ -253,30 +254,32 @@ class CurlingMachineUI {
 					this.runningTimer = timer;
 				}
 			}
-			
-			if (this.state.phase === "warm-up") {
-				const timer = new TimeMinder(this.state.warmupTimeRemaining * _settings.lengthOfSecond);
-				timer.every(_settings.lengthOfSecond / 10, () => {
-					this.warmupTimeText.textContent = this.secondsToStr(timer.getTimeRemaining() / _settings.lengthOfSecond);
-				}, false);
-				timer.start();
-			}
+		}
+		if (this.state.phase === "warm-up") {
+			const timer = new TimeMinder(this.state.warmupTimeRemaining * _settings.lengthOfSecond);
+			timer.every(_settings.lengthOfSecond / 10, () => {
+				this.warmupTimeText.textContent = this.secondsToStr(timer.getTimeRemaining() / _settings.lengthOfSecond);
+			}, false);
+			timer.start();
+			this.runningTimer = timer;
+		}
 
-			if (this.state.phase === "between-ends") {
-				const timer = new TimeMinder(this.state.betweenEndTimeRemaining * _settings.lengthOfSecond);
-				timer.every(_settings.lengthOfSecond / 10, () => {
-					this.betweenEndTimeText.textContent = this.secondsToStr(timer.getTimeRemaining() / _settings.lengthOfSecond);
-				}, false);
-				timer.start();
-			}
+		if (this.state.phase === "between-ends") {
+			const timer = new TimeMinder(this.state.betweenEndTimeRemaining * _settings.lengthOfSecond);
+			timer.every(_settings.lengthOfSecond / 10, () => {
+				this.betweenEndTimeText.textContent = this.secondsToStr(timer.getTimeRemaining() / _settings.lengthOfSecond);
+			}, false);
+			timer.start();
+			this.runningTimer = timer;
+		}
 
-			if (this.state.phase === "timeout") {
-				const timer = new TimeMinder(this.options.timeoutTime * _settings.lengthOfSecond);
-				timer.every(_settings.lengthOfSecond / 10, () => {
-					this.timeoutTimeText.textContent = this.secondsToStr(timer.getTimeRemaining() / _settings.lengthOfSecond);
-				}, false);
-				timer.start();
-			}
+		if (this.state.phase === "timeout") {
+			const timer = new TimeMinder(this.state.timeoutTimeRemaining * _settings.lengthOfSecond);
+			timer.every(_settings.lengthOfSecond / 10, () => {
+				this.timeoutTimeText.textContent = this.secondsToStr(timer.getTimeRemaining() / _settings.lengthOfSecond);
+			}, false);
+			timer.start();
+			this.runningTimer = timer;
 		}
 	}
 

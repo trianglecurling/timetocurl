@@ -238,32 +238,35 @@ var CurlingMachineUI = (function () {
                     this_3.runningTimer = timer_1;
                 }
             }
-            if (this_3.state.phase === "warm-up") {
-                var timer_2 = new TimeMinder(this_3.state.warmupTimeRemaining * _settings.lengthOfSecond);
-                timer_2.every(_settings.lengthOfSecond / 10, function () {
-                    _this.warmupTimeText.textContent = _this.secondsToStr(timer_2.getTimeRemaining() / _settings.lengthOfSecond);
-                }, false);
-                timer_2.start();
-            }
-            if (this_3.state.phase === "between-ends") {
-                var timer_3 = new TimeMinder(this_3.state.betweenEndTimeRemaining * _settings.lengthOfSecond);
-                timer_3.every(_settings.lengthOfSecond / 10, function () {
-                    _this.betweenEndTimeText.textContent = _this.secondsToStr(timer_3.getTimeRemaining() / _settings.lengthOfSecond);
-                }, false);
-                timer_3.start();
-            }
-            if (this_3.state.phase === "timeout") {
-                var timer_4 = new TimeMinder(this_3.options.timeoutTime * _settings.lengthOfSecond);
-                timer_4.every(_settings.lengthOfSecond / 10, function () {
-                    _this.timeoutTimeText.textContent = _this.secondsToStr(timer_4.getTimeRemaining() / _settings.lengthOfSecond);
-                }, false);
-                timer_4.start();
-            }
         };
         var this_3 = this;
         for (var _i = 0, _a = this.options.teams; _i < _a.length; _i++) {
             var teamId = _a[_i];
             _loop_3(teamId);
+        }
+        if (this.state.phase === "warm-up") {
+            var timer_2 = new TimeMinder(this.state.warmupTimeRemaining * _settings.lengthOfSecond);
+            timer_2.every(_settings.lengthOfSecond / 10, function () {
+                _this.warmupTimeText.textContent = _this.secondsToStr(timer_2.getTimeRemaining() / _settings.lengthOfSecond);
+            }, false);
+            timer_2.start();
+            this.runningTimer = timer_2;
+        }
+        if (this.state.phase === "between-ends") {
+            var timer_3 = new TimeMinder(this.state.betweenEndTimeRemaining * _settings.lengthOfSecond);
+            timer_3.every(_settings.lengthOfSecond / 10, function () {
+                _this.betweenEndTimeText.textContent = _this.secondsToStr(timer_3.getTimeRemaining() / _settings.lengthOfSecond);
+            }, false);
+            timer_3.start();
+            this.runningTimer = timer_3;
+        }
+        if (this.state.phase === "timeout") {
+            var timer_4 = new TimeMinder(this.state.timeoutTimeRemaining * _settings.lengthOfSecond);
+            timer_4.every(_settings.lengthOfSecond / 10, function () {
+                _this.timeoutTimeText.textContent = _this.secondsToStr(timer_4.getTimeRemaining() / _settings.lengthOfSecond);
+            }, false);
+            timer_4.start();
+            this.runningTimer = timer_4;
         }
     };
     CurlingMachineUI.prototype.clearTimer = function () {

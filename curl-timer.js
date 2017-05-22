@@ -121,7 +121,6 @@ class CurlingMachine {
 				if (this.history.length <= 1) {
 					throw new Error("No prior state to go back to.");
 				}
-				//nextState = { ...this.history[this.history.length - 2] };
 				nextState = Object.assign({}, this.history[this.history.length - 1]);
 			}
 
@@ -131,23 +130,31 @@ class CurlingMachine {
 
 			if (nextState.phase === "warm-up") {
 				console.log("starting warmup");
-				nextState.timer = this.createTimer(this.options.warmupTime, () => {
-					console.log("warmup is over");
-					this.handleAction({
-						transition: "warmup-end"
+				if (nextState.timer) {
+					nextState.timer.unpause();
+				} else {
+					nextState.timer = this.createTimer(this.options.warmupTime, () => {
+						console.log("warmup is over");
+						this.handleAction({
+							transition: "warmup-end"
+						});
 					});
-				});
-				nextState.timer.start();
+					nextState.timer.start();
+				}
 			}
 
 			if (nextState.phase === "between-ends") {
 				this.state.timer && this.state.timer.pause();
-				nextState.timer = this.createTimer(this.options.betweenEndTime, () => {
-					this.handleAction({
-						transition: "between-end-end"
+				if (nextState.timer) {
+					nextState.timer.unpause();
+				} else {
+					nextState.timer = this.createTimer(this.options.betweenEndTime, () => {
+						this.handleAction({
+							transition: "between-end-end"
+						});
 					});
-				});
-				nextState.timer.start();
+					nextState.timer.start();
+				}
 			}
 
 			if (nextState.phase === "idle") {
@@ -174,18 +181,24 @@ class CurlingMachine {
 			}
 
 			if (nextState.phase === "timeout") {
-				this.state.timer.pause();
+				if (this.state.timer) {
+					this.state.timer.pause();
+				}
 				const whoseTimeout = this.state.currentlyThinking;
-				nextState.timer = this.createTimer(this.options.timeoutTime, () => {
-					this.handleAction({
-						transition: "end-timeout",
-						data: {
-							team: whoseTimeout
-						}
+				if (nextState.timer) {
+					nextState.timer.unpause();
+				} else {
+					nextState.timer = this.createTimer(this.options.timeoutTime, () => {
+						this.handleAction({
+							transition: "end-timeout",
+							data: {
+								team: whoseTimeout
+							}
+						});
 					});
-				});
-				this.timeoutsRemaining[whoseTimeout]--;
-				nextState.timer.start();
+					this.timeoutsRemaining[whoseTimeout]--;
+					nextState.timer.start();
+				}
 			}
 
 			if (nextState.phase === "technical") {
@@ -207,25 +220,25 @@ class CurlingMachine {
 	getCurrentState() {
 		const state = Object.assign({}, this.state);
 
+		const betweenEndTimeRemaining = this.state.phase === "between-ends" ? this.state.timer.getTimeRemaining() / LENGTH_OF_A_SECOND : null;
+		const timeoutsRemaining = Object.assign({}, this.timeoutsRemaining);
+		const timeoutTimeRemaining = this.state.phase === "timeout" ? this.state.timer.getTimeRemaining() / LENGTH_OF_A_SECOND : null;
+		const warmupTimeRemaining = this.state.phase === "warm-up" ? this.state.timer.getTimeRemaining() / LENGTH_OF_A_SECOND : null;
 		const timeRemaining = Object.assign({}, this.thinkingTimers);
 		Object.keys(timeRemaining).forEach(team => 
 			timeRemaining[team] = timeRemaining[team].getTimeRemaining() / LENGTH_OF_A_SECOND);
 
-		const timeoutsRemaining = Object.assign({}, this.timeoutsRemaining);
-
-		const betweenEndTimeRemaining = this.state.phase === "between-ends" ? this.state.timer.getTimeRemaining() / LENGTH_OF_A_SECOND : null;
-
-		const warmupTimeRemaining = this.state.phase === "warm-up" ? this.state.timer.getTimeRemaining() / LENGTH_OF_A_SECOND : null;
-
-		state.timeRemaining = timeRemaining;
-		state.timeoutsRemaining = timeoutsRemaining;
 		state.betweenEndTimeRemaining = betweenEndTimeRemaining;
+		state.timeoutsRemaining = timeoutsRemaining;
+		state.timeoutTimeRemaining = timeoutTimeRemaining;
+		state.timeRemaining = timeRemaining;
 		state.warmupTimeRemaining = warmupTimeRemaining;
 		return state;
 	}
 
 	getNextState(action) {
 		const currentState = this.getCurrentState();
+		delete currentState.timer;
 		const phase = this.nextPhaseMap[this.state.phase][action.transition];
 		const end = this.getNextEnd(action);
 		const phaseData = this.getPhaseData(action);

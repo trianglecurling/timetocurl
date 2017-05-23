@@ -77,15 +77,16 @@ class CurlingMachine {
 			timeoutsRemaining[team] = this.options.numTimeouts;
 		}
 		return {
+			betweenEndTimeRemaining: this.options.betweenEndTime,
+			currentlyRunningTimeout: null,
+			currentlyThinking: null,
 			end: null,
+			id: this.id,
+			legalActions: this.getLegalActions("pregame"),
 			phase: "pregame",
 			phaseData: {},
-			timeRemaining,
 			timeoutsRemaining,
-			currentlyThinking: null,
-			currentlyRunningTimeout: null,
-			betweenEndTimeRemaining: this.options.betweenEndTime,
-			id: this.id
+			timeRemaining
 		}
 	}
 
@@ -172,8 +173,10 @@ class CurlingMachine {
 			}
 
 			if (nextState.phase === "thinking") {
-				if (this.state.timer) {
+				if (this.state.phase === "thinking" && this.state.timer) {
 					this.state.timer.pause();
+				} else if (this.state.timer) {
+					this.state.timer.dispose();
 				}
 				nextState.currentlyThinking = nextState.phaseData.team;
 				nextState.timer = this.thinkingTimers[nextState.phaseData.team];
@@ -254,8 +257,19 @@ class CurlingMachine {
 			end, 
 			phaseData,
 			id,
-			phaseData: Object.assign({}, action.data)
+			phaseData: Object.assign({}, action.data),
+			legalActions: this.getLegalActions(phase)
 		});
+	}
+
+	getLegalActions(phase) {
+		const actions = [];
+		for (const action in this.nextPhaseMap[phase]) {
+			if (this.nextPhaseMap[phase][action]) {
+				actions.push(action);
+			}
+		}
+		return actions;
 	}
 
 	getNextEnd(action) {

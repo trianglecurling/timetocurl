@@ -198,20 +198,14 @@ var CurlingMachineUI = (function () {
             var teamId = _a[_i];
             _loop_1(teamId);
         }
-        var _loop_2 = function (action) {
-            if (this_2.elements[action].length === 1) {
-                var elem = this_2.elements[action][0];
-                if (elem.tagName.toLowerCase() === "button" && elem.dataset["action"]) {
-                    elem.addEventListener("click", function () {
-                        _this.sendPhaseTransition(action);
-                    });
-                }
+        this.forEachAction(function (elem, action) {
+            if (action === "begin-thinking") {
+                return;
             }
-        };
-        var this_2 = this;
-        for (var action in this.elements) {
-            _loop_2(action);
-        }
+            elem.addEventListener("click", function () {
+                _this.sendPhaseTransition(action);
+            });
+        });
         this.setNewState(this.state);
         this.container.appendChild(newUI);
     };
@@ -224,27 +218,41 @@ var CurlingMachineUI = (function () {
         var _this = this;
         this.debugElement.textContent = JSON.stringify(state, null, 4);
         this.state = state;
+        // Enable buttons for legal actions only
+        this.forEachAction(function (elem, action) {
+            if (_this.state.legalActions.indexOf(action) >= 0) {
+                elem.disabled = false;
+            }
+            else {
+                elem.disabled = true;
+            }
+        });
         this.clearTimer();
-        var _loop_3 = function (teamId) {
-            this_3.thinkingTimeText[teamId].textContent = this_3.secondsToStr(this_3.state.timeRemaining[teamId]);
-            if (this_3.state.phase === "thinking") {
-                var thinkingTeam = this_3.state.phaseData["team"];
+        var _loop_2 = function (teamId) {
+            this_2.thinkingTimeText[teamId].textContent = this_2.secondsToStr(this_2.state.timeRemaining[teamId]);
+            if (this_2.state.phase === "thinking") {
+                var thinkingTeam = this_2.state.phaseData["team"];
                 if (thinkingTeam === teamId) {
-                    var timer_1 = new TimeMinder(this_3.state.timeRemaining[thinkingTeam] * _settings.lengthOfSecond);
+                    this_2.thinkingButtons[teamId].disabled = true;
+                    var timer_1 = new TimeMinder(this_2.state.timeRemaining[thinkingTeam] * _settings.lengthOfSecond);
                     timer_1.every(_settings.lengthOfSecond / 10, function () {
                         _this.thinkingTimeText[teamId].textContent = _this.secondsToStr(timer_1.getTimeRemaining() / _settings.lengthOfSecond);
                     }, false);
                     timer_1.start();
-                    this_3.runningTimer = timer_1;
+                    this_2.runningTimer = timer_1;
+                }
+                else {
+                    this_2.thinkingButtons[teamId].disabled = false;
                 }
             }
         };
-        var this_3 = this;
+        var this_2 = this;
         for (var _i = 0, _a = this.options.teams; _i < _a.length; _i++) {
             var teamId = _a[_i];
-            _loop_3(teamId);
+            _loop_2(teamId);
         }
         if (this.state.phase === "warm-up") {
+            this.elements["warmup-time-container"][0].classList.remove("irrelevant");
             var timer_2 = new TimeMinder(this.state.warmupTimeRemaining * _settings.lengthOfSecond);
             timer_2.every(_settings.lengthOfSecond / 10, function () {
                 _this.warmupTimeText.textContent = _this.secondsToStr(timer_2.getTimeRemaining() / _settings.lengthOfSecond);
@@ -252,7 +260,11 @@ var CurlingMachineUI = (function () {
             timer_2.start();
             this.runningTimer = timer_2;
         }
+        else if (this.state.phase !== "pregame" && this.state.phase !== "technical") {
+            this.elements["warmup-time-container"][0].classList.add("irrelevant");
+        }
         if (this.state.phase === "between-ends") {
+            this.elements["between-end-time-container"][0].classList.remove("irrelevant");
             var timer_3 = new TimeMinder(this.state.betweenEndTimeRemaining * _settings.lengthOfSecond);
             timer_3.every(_settings.lengthOfSecond / 10, function () {
                 _this.betweenEndTimeText.textContent = _this.secondsToStr(timer_3.getTimeRemaining() / _settings.lengthOfSecond);
@@ -260,13 +272,31 @@ var CurlingMachineUI = (function () {
             timer_3.start();
             this.runningTimer = timer_3;
         }
+        else if (this.state.phase !== "technical") {
+            this.elements["between-end-time-container"][0].classList.add("irrelevant");
+        }
         if (this.state.phase === "timeout") {
+            this.elements["timeout-time-container"][0].classList.remove("irrelevant");
             var timer_4 = new TimeMinder(this.state.timeoutTimeRemaining * _settings.lengthOfSecond);
             timer_4.every(_settings.lengthOfSecond / 10, function () {
                 _this.timeoutTimeText.textContent = _this.secondsToStr(timer_4.getTimeRemaining() / _settings.lengthOfSecond);
             }, false);
             timer_4.start();
             this.runningTimer = timer_4;
+        }
+        else if (this.state.phase !== "technical") {
+            this.elements["timeout-time-container"][0].classList.add("irrelevant");
+        }
+    };
+    CurlingMachineUI.prototype.forEachAction = function (callback) {
+        for (var action in this.elements) {
+            for (var _i = 0, _a = this.elements[action]; _i < _a.length; _i++) {
+                var elem = _a[_i];
+                var actionAttr = elem.dataset["action"];
+                if (elem.tagName.toLowerCase() === "button" && actionAttr) {
+                    callback.call(null, elem, actionAttr);
+                }
+            }
         }
     };
     CurlingMachineUI.prototype.clearTimer = function () {

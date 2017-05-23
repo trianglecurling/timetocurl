@@ -24,6 +24,9 @@ body {
 button {
 	cursor: pointer;
 }
+.irrelevant {
+	opacity: 0.2;
+}
 div.debug {
 	white-space: pre;
 	font-family: Consolas, Courier New, Courier, monospace;

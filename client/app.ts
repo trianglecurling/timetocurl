@@ -46,6 +46,7 @@ interface CurlingMachineState {
 	currentlyThinking: string | null;
 	end: number | null;
 	id: string;
+	legalActions: string[];
 	phase: string;
 	phaseData: {[key: string]: string};
 	timeoutsRemaining: IMap<number>;
@@ -214,16 +215,14 @@ class CurlingMachineUI {
 			});
 		}
 
-		for (const action in this.elements) {
-			if (this.elements[action].length === 1) {
-				const elem = this.elements[action][0];
-				if (elem.tagName.toLowerCase() === "button" && (elem as HTMLElement).dataset["action"]) {
-					elem.addEventListener("click", () => {
-						this.sendPhaseTransition(action);
-					});
-				}
+		this.forEachAction((elem, action) => {
+			if (action === "begin-thinking") {
+				return;
 			}
-		}
+			elem.addEventListener("click", () => {
+				this.sendPhaseTransition(action);
+			});
+		});
 
 		this.setNewState(this.state);
 		this.container.appendChild(newUI);
@@ -240,46 +239,79 @@ class CurlingMachineUI {
 	public setNewState(state: CurlingMachineState) {
 		this.debugElement.textContent = JSON.stringify(state, null, 4);
 		this.state = state;
+
+		// Enable buttons for legal actions only
+		this.forEachAction((elem, action) => {
+			if (this.state.legalActions.indexOf(action) >= 0) {
+				elem.disabled = false;
+			} else {
+				elem.disabled = true;
+			}
+		});
+
 		this.clearTimer();
 		for (const teamId of this.options.teams) {
 			this.thinkingTimeText[teamId].textContent = this.secondsToStr(this.state.timeRemaining[teamId]);
 			if (this.state.phase === "thinking") {
 				const thinkingTeam = this.state.phaseData["team"];
 				if (thinkingTeam === teamId) {
+					this.thinkingButtons[teamId].disabled = true;
 					const timer = new TimeMinder(this.state.timeRemaining[thinkingTeam] * _settings.lengthOfSecond);
 					timer.every(_settings.lengthOfSecond / 10, () => {
 						this.thinkingTimeText[teamId].textContent = this.secondsToStr(timer.getTimeRemaining() / _settings.lengthOfSecond);
 					}, false);
 					timer.start();
 					this.runningTimer = timer;
+				} else {
+					this.thinkingButtons[teamId].disabled = false;
 				}
 			}
 		}
 		if (this.state.phase === "warm-up") {
+			this.elements["warmup-time-container"][0].classList.remove("irrelevant");
 			const timer = new TimeMinder(this.state.warmupTimeRemaining * _settings.lengthOfSecond);
 			timer.every(_settings.lengthOfSecond / 10, () => {
 				this.warmupTimeText.textContent = this.secondsToStr(timer.getTimeRemaining() / _settings.lengthOfSecond);
 			}, false);
 			timer.start();
 			this.runningTimer = timer;
+		} else if (this.state.phase !== "pregame" && this.state.phase !== "technical") {
+			this.elements["warmup-time-container"][0].classList.add("irrelevant");
 		}
 
 		if (this.state.phase === "between-ends") {
+			this.elements["between-end-time-container"][0].classList.remove("irrelevant");
 			const timer = new TimeMinder(this.state.betweenEndTimeRemaining * _settings.lengthOfSecond);
 			timer.every(_settings.lengthOfSecond / 10, () => {
 				this.betweenEndTimeText.textContent = this.secondsToStr(timer.getTimeRemaining() / _settings.lengthOfSecond);
 			}, false);
 			timer.start();
 			this.runningTimer = timer;
+		} else if (this.state.phase !== "technical") {
+			this.elements["between-end-time-container"][0].classList.add("irrelevant");
 		}
 
 		if (this.state.phase === "timeout") {
+			this.elements["timeout-time-container"][0].classList.remove("irrelevant");
 			const timer = new TimeMinder(this.state.timeoutTimeRemaining * _settings.lengthOfSecond);
 			timer.every(_settings.lengthOfSecond / 10, () => {
 				this.timeoutTimeText.textContent = this.secondsToStr(timer.getTimeRemaining() / _settings.lengthOfSecond);
 			}, false);
 			timer.start();
 			this.runningTimer = timer;
+		} else if (this.state.phase !== "technical") {
+			this.elements["timeout-time-container"][0].classList.add("irrelevant");
+		}
+	}
+
+	private forEachAction(callback: (elem: HTMLButtonElement, action: string) => void) {
+		for (const action in this.elements) {
+			for (const elem of this.elements[action]) {
+				const actionAttr = (elem as HTMLElement).dataset["action"];
+				if (elem.tagName.toLowerCase() === "button" && actionAttr) {
+					callback.call(null, elem, actionAttr);
+				}
+			}
 		}
 	}
 

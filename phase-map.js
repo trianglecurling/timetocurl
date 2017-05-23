@@ -13,8 +13,8 @@ module.exports = {
 		"end-technical": null
 	},
 	"warm-up": {
-		"game-start-warmup": "warm-up",
-		"game-start-no-warmup": "between-ends",
+		"game-start-warmup": null,
+		"game-start-no-warmup": null,
 		"warmup-end": "idle",
 		"between-end-end": null,
 		"begin-thinking": null,
@@ -26,8 +26,8 @@ module.exports = {
 		"end-technical": null
 	},
 	"between-ends": {
-		"game-start-warmup": "warm-up",
-		"game-start-no-warmup": "between-ends",
+		"game-start-warmup": null,
+		"game-start-no-warmup": null,
 		"warmup-end": null,
 		"between-end-end": "stone-moving",
 		"begin-thinking": "thinking",
@@ -52,8 +52,8 @@ module.exports = {
 		"end-technical": null
 	},
 	"stone-moving": {
-		"game-start-warmup": "warm-up",
-		"game-start-no-warmup": "between-ends",
+		"game-start-warmup": null,
+		"game-start-no-warmup": null,
 		"warmup-end": null,
 		"between-end-end": null,
 		"begin-thinking": "thinking",
@@ -65,8 +65,8 @@ module.exports = {
 		"end-technical": null
 	},
 	"thinking": {
-		"game-start-warmup": "warm-up",
-		"game-start-no-warmup": "between-ends",
+		"game-start-warmup": null,
+		"game-start-no-warmup": null,
 		"warmup-end": null,
 		"between-end-end": null,
 		"begin-thinking": "thinking",
@@ -78,8 +78,8 @@ module.exports = {
 		"end-technical": null
 	},
 	"timeout": {
-		"game-start-warmup": "warm-up",
-		"game-start-no-warmup": "between-ends",
+		"game-start-warmup": null,
+		"game-start-no-warmup": null,
 		"warmup-end": null,
 		"between-end-end": null,
 		"begin-thinking": null,
@@ -91,8 +91,8 @@ module.exports = {
 		"end-technical": null
 	},
 	"technical": {
-		"game-start-warmup": "warm-up",
-		"game-start-no-warmup": "between-ends",
+		"game-start-warmup": null,
+		"game-start-no-warmup": null,
 		"warmup-end": null,
 		"between-end-end": null,
 		"begin-thinking": null,

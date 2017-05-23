@@ -5,6 +5,7 @@ const http = require("http").Server(app);
 const io = require("socket.io")(http);
 const { join } = require("path");
 const CurlingMachine = require("./curl-timer");
+const sass = require("node-sass");
 const Settings = require("./settings");
 
 function setupRoutes(app) {
@@ -25,7 +26,19 @@ function setupRoutes(app) {
 	});
 
 	app.get("/style.css", (req, res) => {
-		res.sendFile(join(__dirname, "client/style.css"));
+		sass.render({
+			file: join(__dirname, "client/style.scss")
+		}, (err, result) => {
+			res.setHeader("Content-Type", "text/css");
+			if (err) {
+				console.log(err);
+
+				// obvious error is obvious
+				res.send("body{background-color:pink}");
+			} else {
+				res.send(result.css.toString());
+			}
+		});
 	});
 }
 

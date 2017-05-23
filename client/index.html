@@ -47,7 +47,7 @@
 		</div>
 
 		<div id="timerTemplate">
-			<div class="timer">
+			<div class="timer classic">
 				<div class="warmup-time-container">
 					<h2>Warmup time remaining</h2>
 					<div class="warmup-time"></div>
@@ -66,16 +66,21 @@
 					<div class="timeout-time"></div>
 				</div>
 				<div class="controls">
-					<button data-action="game-start-warmup" class="btn btn-secondary">Begin Warmup</button>
-					<button data-action="game-start-no-warmup" class="btn btn-secondary">Begin pre-game countdown</button>
-					<button data-action="begin-thinking" class="btn btn-secondary">Start yellow thinking</button>
-					<button data-action="begin-thinking" class="btn btn-secondary">Start red thinking</button>
-					<button data-action="end-thinking" class="btn btn-secondary">Stop thinking</button>
-					<button data-action="end-end" class="btn btn-secondary">Between ends</button>
-					<button data-action="begin-timeout" class="btn btn-secondary">Timeout</button>
-					<!--<button data-action="end-timeout" class="btn btn-secondary">End timeout</button>-->
-					<button data-action="technical" class="btn btn-secondary">Technical timeout</button>
-					<button data-action="end-technical" class="btn btn-secondary">End technical</button>
+					<button id="game-start-warmup" data-action="game-start-warmup" class="btn">Begin Warmup</button>
+					<button id="game-start-no-warmup" data-action="game-start-no-warmup" class="btn">Begin pre-game countdown</button>
+					<button id="yellow-begin-thinking" data-action="begin-thinking" class="btn">Start yellow thinking</button>
+					<button id="red-begin-thinking" data-action="begin-thinking" class="btn">Start red thinking</button>
+					<button id="end-yellow-thinking" data-action="end-thinking" class="btn">Stop thinking</button>
+					<button id="end-red-thinking" data-action="end-thinking" class="btn">Stop thinking</button>
+					<button id="end-end" data-action="end-end" class="btn">Between ends</button>
+					<button id="begin-timeout" data-action="begin-timeout" class="btn">Timeout</button>
+					<button id="begin-mid-game-break" data-action="begin-mid-game-break" class="btn">Mid game break</button>
+					<!--<button id="end-timeout" data-action="end-timeout" class="btn">End timeout</button>-->
+					<button id="begin-extra-end" data-action="begin-extra-end" class="btn">Extra End</button>
+					<button id="technical" data-action="technical" class="btn">Technical timeout</button>
+					<button id="end-technical" data-action="end-technical" class="btn">End technical</button>
+					<button id="adjust-time" class="btn">Adjust time</button>
+					<button id="reset" class="btn">Reset</button>
 				</div>
 				<div class="debug"></div>
 			</div>

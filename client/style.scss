@@ -10,7 +10,7 @@ html {
 
 body { 
 	font: 13px Helvetica, Arial; 
-	background-color: #f4f4f4;
+	background-color: #f8f8f8;
 	position: absolute;
 	top: 0;
 	bottom: 0;
@@ -18,11 +18,90 @@ body {
 	right: 0;
 }
 
+button {
+	cursor: pointer;
+}
+
+header {
+	display: flex;
+	align-items: center;
+	margin-bottom: 10px;
+
+	h1 {
+		margin: 10px;
+		margin-right: 16px;
+		a {
+			color: #333;
+			text-decoration: none;
+		}
+	}
+
+	border-bottom: 1px solid #ccc;
+	background-color: #e6e6e6;
+
+	.timer-name {
+		width: 125px;
+		margin-right: 6px;
+		height: 28px;
+		font-size: 22px;
+	}
+
+	button {
+		$button-color: #43a047;
+		background-color: $button-color;
+		border: 1px solid darken($button-color, 30%);
+		padding-left: 6px;
+		padding-right: 6px;
+		border-radius: 3px;
+		color: #fff;
+		height: 28px;
+
+		&:hover {
+			background-color: darken($button-color, 6%);
+		}
+		&:active,&:focus {
+			background-color: darken($button-color, 10%);
+			outline: 0;
+		}
+	}
+
+	.view-settings-container {
+		margin: 4px 10px 4px auto;
+		text-align: right;
+
+		.theme-selector-container {
+			margin-bottom: 4px;
+			select {
+				min-width: 150px;
+			}
+		}
+
+		.debug-toggle-container {
+			display: flex;
+			align-items: center;
+			justify-content: flex-end;
+		}
+
+		label {
+			margin-right: 8px;
+		}
+	}
+}
+
+main {
+	height: 100%;
+}
+
+#timersContainer {
+	height: 100%;
+}
+
 #timerTemplate {
 	display: none;
 }
 
-.timer.classic {
+
+body.classic .timer {
 
 	$btn-red-top: #febfbf;
 	$btn-red-bot: #f0b1ab;
@@ -53,19 +132,68 @@ body {
 	width: 100%;
 	height: 100%;
 
+	&.pregame .thinking-time-container {
+		display: none;
+	}
+
 	:disabled {
 		opacity: 0.4;
+	}
+
+	.irrelevant {
+		display: none;
+	}
+
+	.timer-container {
+		height: 100%;
+	}
+
+	.timer-title {
+		margin-left: 10px;
+		font-size: 22px;
+
+		&:hover {
+			color: #1565c0;
+			cursor: pointer;
+		}
+	}
+
+	.timer-container {
+		display: flex;
+	}
+
+	.thinking-time-container {
+		order: 5;
+
+		h2 {
+			display: none;
+		}
+	}
+
+	.debug {
+		position: fixed;
+		bottom: 10px;
+		right: 10px;
+
+		transition: all 0.4s;
+
+		&.hidden {
+			bottom: -25%;
+			opacity: 0;
+		}
 	}
 
 	.controls {
 		text-transform: capitalize;
 		width: 100px;
+		height: 100%;
 		display: flex;
 		flex-direction: column;
+		order: -1;
 
 		button {
 			font-size: 16px;
-			height: 100px;
+			height: 10%;
 			border: 1px solid #666;
 
 			&:hover {
@@ -82,12 +210,22 @@ body {
 			&:disabled {
 				display: none;
 			}
+			position: absolute;
+			top: 25%;
+			left: calc(50% - 150px);
+			height: 100px;
+			width: 300px;
 		}
 
 		#game-start-no-warmup {
 			&:disabled {
 				display: none;
 			}
+			position: absolute;
+			height: 100px;
+			width: 300px;
+			top: calc(25% + 110px);
+			left: calc(50% - 150px);
 		}
 
 		#yellow-begin-thinking {
@@ -182,12 +320,6 @@ body {
 	}
 }
 
-button {
-	cursor: pointer;
-}
-.irrelevant {
-	opacity: 0.2;
-}
 div.debug {
 	white-space: pre;
 	font-family: Consolas, Courier New, Courier, monospace;

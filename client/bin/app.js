@@ -137,13 +137,17 @@ var TimeToCurl = (function () {
         var _this = this;
         document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("createTimer").addEventListener("click", function () { return __awaiter(_this, void 0, void 0, function () {
-                var response;
+                var timerName, response;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
-                        case 0: return [4 /*yield*/, this.emitAction({
-                                request: "CREATE_TIMER",
-                                options: {}
-                            })];
+                        case 0:
+                            timerName = document.getElementById("timerName").value || "Timer";
+                            return [4 /*yield*/, this.emitAction({
+                                    request: "CREATE_TIMER",
+                                    options: {
+                                        name: timerName
+                                    }
+                                })];
                         case 1:
                             response = _a.sent();
                             this.addCurlingMachine(response.data);
@@ -151,7 +155,27 @@ var TimeToCurl = (function () {
                     }
                 });
             }); });
+            document.getElementById("showDebug").addEventListener("change", _this.onDebugToggled);
+            document.getElementById("themeSelector").addEventListener("change", _this.onThemeChanged);
+            _this.onThemeChanged();
+            _this.onDebugToggled();
         });
+    };
+    TimeToCurl.prototype.onDebugToggled = function () {
+        var showDebug = document.getElementById("showDebug");
+        var debugElements = document.getElementsByClassName("debug");
+        for (var i = 0; i < debugElements.length; ++i) {
+            var elem = debugElements.item(i);
+            elem.classList[showDebug.checked ? "remove" : "add"]("hidden");
+        }
+    };
+    TimeToCurl.prototype.onThemeChanged = function () {
+        var selector = document.getElementById("themeSelector");
+        this.setTheme(selector.value);
+    };
+    TimeToCurl.prototype.setTheme = function (themeName) {
+        this.currentTheme = themeName;
+        document.body.className = this.currentTheme;
     };
     TimeToCurl.prototype.emitAction = function (action) {
         var _this = this;
@@ -260,7 +284,7 @@ var CurlingMachineUI = (function () {
             timer_2.start();
             this.runningTimer = timer_2;
         }
-        else if (this.state.phase !== "pregame" && this.state.phase !== "technical") {
+        else if (this.state.phase !== "technical") {
             this.elements["warmup-time-container"][0].classList.add("irrelevant");
         }
         if (this.state.phase === "between-ends") {
@@ -287,6 +311,11 @@ var CurlingMachineUI = (function () {
         else if (this.state.phase !== "technical") {
             this.elements["timeout-time-container"][0].classList.add("irrelevant");
         }
+        // Title
+        this.titleElement.textContent = this.state.timerName;
+        this.rootTimerElement.classList.remove(this.rootTimerElement.dataset["phase"]);
+        this.rootTimerElement.dataset["phase"] = this.state.phase;
+        this.rootTimerElement.classList.add(this.rootTimerElement.dataset["phase"]);
     };
     CurlingMachineUI.prototype.forEachAction = function (callback) {
         for (var action in this.elements) {
@@ -328,6 +357,7 @@ var CurlingMachineUI = (function () {
         });
     };
     CurlingMachineUI.prototype.initElements = function (elem) {
+        var _this = this;
         var key = "";
         var elemData = elem.dataset["action"];
         if (elemData) {
@@ -348,6 +378,9 @@ var CurlingMachineUI = (function () {
                 this.thinkingTimeText[this.options.teams[i]] = this.elements["thinking-time"][i];
             }
         }
+        if (this.elements["timer"] && this.elements["timer"][0]) {
+            this.rootTimerElement = this.elements["timer"][0];
+        }
         if (this.elements["warmup-time"] && this.elements["warmup-time"][0]) {
             this.warmupTimeText = this.elements["warmup-time"][0];
         }
@@ -359,6 +392,19 @@ var CurlingMachineUI = (function () {
         }
         if (this.elements["timeout-time"] && this.elements["timeout-time"][0]) {
             this.timeoutTimeText = this.elements["timeout-time"][0];
+        }
+        if (this.elements["timer-title"] && this.elements["timer-title"][0]) {
+            this.titleElement = this.elements["timer-title"][0];
+        }
+        if (this.elements["timer-container"] && this.elements["timer-container"][0]) {
+            this.timerContainerElement = this.elements["timer-container"][0];
+            // set up click-to-scroll
+            this.titleElement.addEventListener("click", function () {
+                _this.timerContainerElement.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+            });
         }
         if (elem.children) {
             for (var i = 0; i < elem.children.length; ++i) {

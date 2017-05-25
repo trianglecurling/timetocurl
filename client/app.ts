@@ -52,6 +52,7 @@ interface CurlingMachineState {
 	timeoutsRemaining: IMap<number>;
 	timeoutTimeRemaining: number;
 	timeRemaining: IMap<number>;
+	timerName: string;
 	warmupTimeRemaining: number;
 }
 
@@ -96,6 +97,7 @@ class TimeToCurl {
 	private requestResolvers: {[key: string]: (value?: any | PromiseLike<any>) => void};
 	private machines: IMap<CurlingMachineUI>;
 	private machineOrder: IMap<number>;
+	private currentTheme: string;
 
 	public init() {
 		this.setUpEvents();
@@ -153,15 +155,39 @@ class TimeToCurl {
 	private setUpEvents() {
 		document.addEventListener("DOMContentLoaded", () => {
 			document.getElementById("createTimer")!.addEventListener("click", async () => {
+				const timerName = (document.getElementById("timerName") as HTMLInputElement).value || "Timer";
 				const response = await this.emitAction<Partial<TimerOptions>, StateAndOptions>(<SocketAction<Partial<TimerOptions>>>{
 					request: "CREATE_TIMER",
 					options: {
-
+						name: timerName
 					}
 				});
 				this.addCurlingMachine(response.data);
 			});
+			document.getElementById("showDebug")!.addEventListener("change", this.onDebugToggled);
+			document.getElementById("themeSelector")!.addEventListener("change", this.onThemeChanged);
+			this.onThemeChanged();
+			this.onDebugToggled();
 		});
+	}
+
+	private onDebugToggled() {
+		const showDebug = document.getElementById("showDebug")! as HTMLInputElement;
+		const debugElements = document.getElementsByClassName("debug");
+		for (let i = 0; i < debugElements.length; ++i) {
+			const elem = debugElements.item(i);
+			elem.classList[showDebug.checked ? "remove" : "add"]("hidden");
+		}
+	}
+
+	private onThemeChanged() {
+		const selector = document.getElementById("themeSelector") as HTMLSelectElement;
+		this.setTheme(selector.value);
+	}
+
+	public setTheme(themeName: string) {
+		this.currentTheme = themeName;
+		document.body.className = this.currentTheme;
 	}
 
 	public emitAction<TAction, TResponse>(action: SocketAction<TAction>): PromiseLike<SocketResponse<TResponse>> {
@@ -184,16 +210,19 @@ class TimeToCurl {
 }
 
 class CurlingMachineUI {
-	private state: CurlingMachineState;
-	private options: TimerOptions;
+	private betweenEndTimeText: HTMLElement;
+	private debugElement: HTMLElement;
 	private elements: { [key: string]: Element[] };
+	private options: TimerOptions;
+	private rootTimerElement: HTMLElement;
+	private runningTimer: TimeMinder;
+	private state: CurlingMachineState;
 	private thinkingButtons: IMap<HTMLButtonElement>;
 	private thinkingTimeText: IMap<HTMLElement>;
-	private warmupTimeText: HTMLElement;
 	private timeoutTimeText: HTMLElement;
-	private betweenEndTimeText: HTMLElement;
-	private runningTimer: TimeMinder;
-	private debugElement: HTMLElement;
+	private timerContainerElement: HTMLElement;
+	private titleElement: HTMLElement;
+	private warmupTimeText: HTMLElement;
 
 	constructor(initParams: StateAndOptions, private container: Element, private application: TimeToCurl) {
 		this.elements = {};
@@ -275,7 +304,7 @@ class CurlingMachineUI {
 			}, false);
 			timer.start();
 			this.runningTimer = timer;
-		} else if (this.state.phase !== "pregame" && this.state.phase !== "technical") {
+		} else if (this.state.phase !== "technical") {
 			this.elements["warmup-time-container"][0].classList.add("irrelevant");
 		}
 
@@ -302,6 +331,12 @@ class CurlingMachineUI {
 		} else if (this.state.phase !== "technical") {
 			this.elements["timeout-time-container"][0].classList.add("irrelevant");
 		}
+
+		// Title
+		this.titleElement.textContent = this.state.timerName;
+		this.rootTimerElement.classList.remove(this.rootTimerElement.dataset["phase"]);
+		this.rootTimerElement.dataset["phase"] = this.state.phase;
+		this.rootTimerElement.classList.add(this.rootTimerElement.dataset["phase"]);
 	}
 
 	private forEachAction(callback: (elem: HTMLButtonElement, action: string) => void) {
@@ -357,6 +392,9 @@ class CurlingMachineUI {
 				this.thinkingTimeText[this.options.teams[i]] = this.elements["thinking-time"][i] as HTMLElement;
 			}
 		}
+		if (this.elements["timer"] && this.elements["timer"][0]) {
+			this.rootTimerElement = this.elements["timer"][0] as HTMLElement;
+		}
 		if (this.elements["warmup-time"] && this.elements["warmup-time"][0]) {
 			this.warmupTimeText = this.elements["warmup-time"][0] as HTMLElement;
 		}
@@ -368,6 +406,20 @@ class CurlingMachineUI {
 		}
 		if (this.elements["timeout-time"] && this.elements["timeout-time"][0]) {
 			this.timeoutTimeText = this.elements["timeout-time"][0] as HTMLElement;
+		}
+		if (this.elements["timer-title"] && this.elements["timer-title"][0]) {
+			this.titleElement = this.elements["timer-title"][0] as HTMLElement;
+		}
+		if (this.elements["timer-container"] && this.elements["timer-container"][0]) {
+			this.timerContainerElement = this.elements["timer-container"][0] as HTMLElement;
+
+			// set up click-to-scroll
+			this.titleElement.addEventListener("click", () => {
+				this.timerContainerElement.scrollIntoView({
+					behavior: "smooth",
+					block: "start"
+				});
+			});
 		}
 
 		if (elem.children) {

@@ -8,10 +8,12 @@ const defaultOptions = {
 	betweenEndTime: 60,
 	midGameBreakTime: 5 * 60,
 	teams: ["Yellow", "Red"],
-	warmupTime: 9 * 60
+	warmupTime: 9 * 60,
+	timerName: "Timer"
 };
 
 const LENGTH_OF_A_SECOND = 100; // for debugging
+const MACHINE_ID_SEED = Math.floor(Math.random() * 1000 + 1001);
 
 /**
  * This class implements a state machine to keep track of a single curling game. The word 'state'
@@ -29,7 +31,7 @@ class CurlingMachine {
 	constructor(options, onStateChange) {
 		this.options = Object.assign({}, defaultOptions, options);
 		this.nextPhaseMap = require("./phase-map");
-		this.id = uuidV4();
+		this.id = String(CurlingMachine.nextMachineId++);
 		this.allTimers = {};
 		this.initialize();
 		this.onStateChange = onStateChange;
@@ -86,7 +88,8 @@ class CurlingMachine {
 			phase: "pregame",
 			phaseData: {},
 			timeoutsRemaining,
-			timeRemaining
+			timeRemaining,
+			timerName: this.options.timerName
 		}
 	}
 
@@ -287,6 +290,8 @@ class CurlingMachine {
 		return { };
 	}
 }
+
+CurlingMachine.nextMachineId = MACHINE_ID_SEED;
 
 module.exports = CurlingMachine;
 

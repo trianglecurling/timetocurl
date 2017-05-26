@@ -164,16 +164,55 @@ body.classic .timer {
 
 	.thinking-time-container {
 		order: 5;
+		width: 100%;
 
 		h2 {
 			display: none;
 		}
+
+		.thinking-times {
+			height: 100%;
+			display: flex;
+			align-items: center;
+			flex-direction: column;
+
+			.spacer {
+				height: 4%;
+				width: 100%;
+				font-size: 4vmin;
+				text-align: center;
+
+				&::after {
+					content: "It's time to curl!";
+				}
+			}
+
+			.thinking-time {
+				height: 48%;
+				width: 100%;
+				font-size: 34vmin;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-weight: bold;
+
+				&:first-child {
+					color: #fff;
+					background-color: $red-bg;
+				}
+				&:last-child {
+					background-color: $yel-bg;
+				}
+			}
+		}
+
 	}
 
 	.debug {
 		position: fixed;
 		bottom: 10px;
 		right: 10px;
+		background-color: rgba(248, 248, 248, 0.7);
 
 		transition: all 0.4s;
 
@@ -231,7 +270,7 @@ body.classic .timer {
 		#yellow-begin-thinking {
 			order: 50;
 			background: linear-gradient(to bottom, $btn-yel-top 0%, $btn-yel-bot 100%);
-			&:hover {
+			&:hover:not(:disabled) {
 				background: linear-gradient(to bottom, $btn-yel-top-hov 0%, $btn-yel-bot-hov 100%);
 			}
 		}
@@ -239,7 +278,7 @@ body.classic .timer {
 		#red-begin-thinking {
 			order: 20;
 			background: linear-gradient(to bottom, $btn-red-top 0%, $btn-red-bot 100%);
-			&:hover {
+			&:hover:not(:disabled) {
 				background: linear-gradient(to bottom, $btn-red-top-hov 0%, $btn-red-bot-hov 100%);
 			}
 		}
@@ -247,7 +286,7 @@ body.classic .timer {
 		#end-red-thinking {
 			order: 21;
 			background: linear-gradient(to bottom, $btn-red-top 0%, $btn-red-bot 100%);
-			&:hover {
+			&:hover:not(:disabled) {
 				background: linear-gradient(to bottom, $btn-red-top-hov 0%, $btn-red-bot-hov 100%);
 			}
 		}
@@ -255,7 +294,7 @@ body.classic .timer {
 		#end-yellow-thinking {
 			order: 51;
 			background: linear-gradient(to bottom, $btn-yel-top 0%, $btn-yel-bot 100%);
-			&:hover {
+			&:hover:not(:disabled) {
 				background: linear-gradient(to bottom, $btn-yel-top-hov 0%, $btn-yel-bot-hov 100%);
 			}
 		}
@@ -263,7 +302,7 @@ body.classic .timer {
 		#end-end {
 			order: 22;
 			background: linear-gradient(to bottom, $btn-grn-top 0%, $btn-grn-bot 100%);
-			&:hover {
+			&:hover:not(:disabled) {
 				background: linear-gradient(to bottom, $btn-grn-top-hov 0%, $btn-grn-bot-hov 100%);
 			}
 		}
@@ -271,7 +310,7 @@ body.classic .timer {
 		#begin-timeout {
 			order: 23;
 			background: linear-gradient(to bottom, $btn-blu-top 0%, $btn-blu-bot 100%);
-			&:hover {
+			&:hover:not(:disabled) {
 				background: linear-gradient(to bottom, $btn-blu-top-hov 0%, $btn-blu-bot-hov 100%);
 			}
 		}
@@ -289,7 +328,7 @@ body.classic .timer {
 		#adjust-time {
 			order: 70;
 			background: linear-gradient(to bottom, $btn-gry-top 0%, $btn-gry-bot 100%);
-			&:hover {
+			&:hover:not(:disabled) {
 				background: linear-gradient(to bottom, $btn-gry-top-hov 0%, $btn-gry-bot-hov 100%);
 			}
 		}
@@ -297,7 +336,7 @@ body.classic .timer {
 		#begin-extra-end {
 			order: 1;
 			background: linear-gradient(to bottom, $btn-gry-top 0%, $btn-gry-bot 100%);
-			&:hover {
+			&:hover:not(:disabled) {
 				background: linear-gradient(to bottom, $btn-gry-top-hov 0%, $btn-gry-bot-hov 100%);
 			}
 		}
@@ -305,7 +344,7 @@ body.classic .timer {
 		#begin-mid-game-break {
 			order: 24;
 			background: linear-gradient(to bottom, $btn-grn-top 0%, $btn-grn-bot 100%);
-			&:hover {
+			&:hover:not(:disabled) {
 				background: linear-gradient(to bottom, $btn-grn-top-hov 0%, $btn-grn-bot-hov 100%);
 			}
 		}
@@ -313,7 +352,7 @@ body.classic .timer {
 		#reset {
 			order: 75;
 			background: linear-gradient(to bottom, $btn-gry-top 0%, $btn-gry-bot 100%);
-			&:hover {
+			&:hover:not(:disabled) {
 				background: linear-gradient(to bottom, $btn-gry-top-hov 0%, $btn-gry-bot-hov 100%);
 			}
 		}

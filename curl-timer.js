@@ -7,7 +7,7 @@ const defaultOptions = {
 	numTimeouts: 1,
 	betweenEndTime: 60,
 	midGameBreakTime: 5 * 60,
-	teams: ["Yellow", "Red"],
+	teams: ["Red", "Yellow"],
 	warmupTime: 9 * 60,
 	timerName: "Timer"
 };

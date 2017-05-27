@@ -24,7 +24,6 @@
 
 		<!-- This app -->
 		<link rel="stylesheet" href="/style.css">
-		<script src="/settings.js"></script>
 		<script src="/socket.io/socket.io.js"></script>
 		<script src="/time-minder.js"></script>
 		<script src="/app.js"></script>
@@ -44,6 +43,8 @@
 				<div class="debug-toggle-container">
 					<label for="showDebug">Show debug data</label>
 					<input type="checkbox" id="showDebug" checked="checked" />
+					<label for="speedyClocks" title="Changes won't take effect until new timers start.">Speedy clocks</label>
+					<input type="checkbox" id="speedyClocks" checked="checked" title="Changes won't take effect until new timers start." />
 				</div>
 			</div>
 		</header>
@@ -51,30 +52,30 @@
 			<div id="timersContainer"></div>
 		</main>
 		<div id="timerTemplate">
-			<div class="timer">
-				<div class="timer-title"></div>
-				<div class="timer-container">
-					<div class="warmup-time-container">
+			<div class="timer" data-key="timer">
+				<div class="timer-title" data-key="timer-title"></div>
+				<div class="timer-container" data-key="timer-container">
+					<div class="warmup-time-container" data-key="warmup-time-container">
 						<h2>Warmup time remaining</h2>
-						<div class="warmup-time"></div>
+						<div class="warmup-time time-value" data-key="warmup-time"></div>
 					</div>
-					<div class="thinking-time-container">
+					<div class="thinking-time-container" data-key="thinking-time-container">
 						<h2>Thinking time remaining</h2>
 						<div class="thinking-times">
-							<div class="thinking-time"></div>
-							<div class="spacer"></div>
-							<div class="thinking-time"></div>
+							<div class="thinking-time time-value" data-key="thinking-time"></div>
+							<div class="spacer" data-key="spacer"></div>
+							<div class="thinking-time time-value" data-key="thinking-time"></div>
 						</div>
 					</div>
-					<div class="between-end-time-container">
+					<div class="between-end-time-container" data-key="between-end-time-container">
 						<h2>Between Ends</h2>
-						<div class="between-end-time"></div>
+						<div class="between-end-time time-value" data-key="between-end-time"></div>
 					</div>
-					<div class="timeout-time-container">
+					<div class="timeout-time-container" data-key="timeout-time-container">
 						<h2>Timeout time remaining</h2>
-						<div class="timeout-time"></div>
+						<div class="timeout-time time-value" data-key="timeout-time"></div>
 					</div>
-					<div class="controls">
+					<div class="controls" data-key="controls">
 						<button id="game-start-warmup" data-action="game-start-warmup" class="btn">Begin Warmup</button>
 						<button id="game-start-no-warmup" data-action="game-start-no-warmup" class="btn">Begin pre-game countdown</button>
 						<button id="red-begin-thinking" data-action="begin-thinking" class="btn">Start red thinking</button>
@@ -91,7 +92,7 @@
 						<button id="adjust-time" class="btn">Adjust time</button>
 						<button id="reset" class="btn">Reset</button>
 					</div>
-					<div class="debug"></div>
+					<div class="debug" data-key="debug"></div>
 				</div>
 			</div>
 		</div>

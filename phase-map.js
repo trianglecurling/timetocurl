@@ -9,6 +9,7 @@ module.exports = {
 		"end-end": null,
 		"begin-timeout": null,
 		"end-timeout": null,
+		"cancel-timer": null,
 		"technical": null,
 		"end-technical": null
 	},
@@ -22,6 +23,7 @@ module.exports = {
 		"end-end": null,
 		"begin-timeout": null,
 		"end-timeout": null,
+		"cancel-timer": "PRIOR-STATE",
 		"technical": "technical",
 		"end-technical": null
 	},
@@ -35,6 +37,7 @@ module.exports = {
 		"end-end": null,
 		"begin-timeout": null,
 		"end-timeout": null,
+		"cancel-timer": "PRIOR-STATE",
 		"technical": "technical",
 		"end-technical": null
 	},
@@ -48,6 +51,7 @@ module.exports = {
 		"end-end": null,
 		"begin-timeout": null,
 		"end-timeout": null,
+		"cancel-timer": null,
 		"technical": "technical",
 		"end-technical": null
 	},
@@ -61,6 +65,7 @@ module.exports = {
 		"end-end": "between-ends",
 		"begin-timeout": null,
 		"end-timeout": null,
+		"cancel-timer": null,
 		"technical": "technical",
 		"end-technical": null
 	},
@@ -74,6 +79,7 @@ module.exports = {
 		"end-end": "between-ends",
 		"begin-timeout": "timeout",
 		"end-timeout": null,
+		"cancel-timer": null,
 		"technical": "technical",
 		"end-technical": null
 	},
@@ -87,6 +93,7 @@ module.exports = {
 		"end-end": null,
 		"begin-timeout": null,
 		"end-timeout": "thinking",
+		"cancel-timer": "PRIOR-STATE",
 		"technical": "technical",
 		"end-technical": null
 	},
@@ -100,6 +107,7 @@ module.exports = {
 		"end-end": null,
 		"begin-timeout": null,
 		"end-timeout": null,
+		"cancel-timer": null,
 		"technical": null,
 		"end-technical": "PRIOR-STATE"
 	}

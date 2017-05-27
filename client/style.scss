@@ -18,7 +18,7 @@ body {
 	right: 0;
 }
 
-button {
+button,label {
 	cursor: pointer;
 }
 
@@ -80,6 +80,10 @@ header {
 			display: flex;
 			align-items: center;
 			justify-content: flex-end;
+
+			label {
+				margin-left: 16px;
+			}
 		}
 
 		label {
@@ -102,6 +106,7 @@ main {
 
 
 body.classic .timer {
+	position: relative;
 
 	$btn-red-top: #febfbf;
 	$btn-red-bot: #f0b1ab;
@@ -128,6 +133,11 @@ body.classic .timer {
 	$red-bg: #c00000;
 	$yel-bg: #ffff00;
 	$yel-border: #f8b330;
+	$misc-timer-grn: #80ff80;
+	$misc-timer-gry: #c0c0c0;
+	$misc-timer-cancel-gry-top: #e0e0e0;
+	$misc-timer-cancel-gry-bot: #b0afc2;
+	$misc-timer-cancel-border: #1b4f7f;
 
 	width: 100%;
 	height: 100%;
@@ -146,6 +156,19 @@ body.classic .timer {
 
 	.timer-container {
 		height: 100%;
+		position: relative;
+	}
+
+	.time-value {
+		font-weight: bold;
+		.char {
+			width: 12vmin;
+			text-align: center;
+
+			&.digit {
+				width: 18vmin;
+			}
+		}
 	}
 
 	.timer-title {
@@ -155,6 +178,30 @@ body.classic .timer {
 		&:hover {
 			color: #1565c0;
 			cursor: pointer;
+		}
+	}
+
+	.between-end-time-container,.warmup-time-container {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		left: 0;
+		top: 0;
+		background-color: $misc-timer-gry;
+		z-index: 2;
+
+		.between-end-time,.warmup-time {
+			position: absolute;
+			width: 75%;
+			height: 40%;
+			top: 30%;
+			left: 12.5%;
+			background-color: $misc-timer-grn;
+			border: 2px solid #333;
+			font-size: 32vmin;
+			display: flex;
+			align-items: center;
+			justify-content: center;
 		}
 	}
 
@@ -181,6 +228,7 @@ body.classic .timer {
 				width: 100%;
 				font-size: 4vmin;
 				text-align: center;
+				border: 2px solid #c0c0c0;
 
 				&::after {
 					content: "It's time to curl!";
@@ -208,11 +256,40 @@ body.classic .timer {
 
 	}
 
+	&.between-ends .thinking-time-container,&.warm-up .thinking-time-container {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		left: 0;
+		top: 0;
+		z-index: 3;
+		pointer-events: none;
+		.spacer {
+			display: none;
+		}
+		.thinking-time {
+			pointer-events: all;
+			position: absolute;
+			width: 50%;
+			left: 25%;
+			height: 20%;
+			font-size: 18vmin;
+
+			&:first-child {
+				top: 9%;
+			}
+			&:last-child {
+				top: 71%;
+			}
+		}
+	}
+
 	.debug {
 		position: fixed;
 		bottom: 10px;
 		right: 10px;
 		background-color: rgba(248, 248, 248, 0.7);
+		z-index: 5;
 
 		transition: all 0.4s;
 
@@ -362,4 +439,5 @@ body.classic .timer {
 div.debug {
 	white-space: pre;
 	font-family: Consolas, Courier New, Courier, monospace;
+	pointer-events: none;
 }

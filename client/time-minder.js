@@ -40,6 +40,12 @@ class ManagedTimer {
 		this.startedAt = Date.now();
 		this.elapsed = 0;
 	}
+
+	setTimeRemaining(ms) {
+		this.pause();
+		this.elapsed = this.ms - ms;
+		this.unpause();
+	}
 	
 	cancel() {
 		if (this.clear) {
@@ -55,7 +61,6 @@ class ManagedTimer {
 	unpause() {
 		this.startedAt = Date.now();
 		const handle = this.st(() => {
-			console.log("test");
 			this._invoke();
 			if (this.recurring) {
 				this._start();
@@ -138,7 +143,12 @@ class TimeMinder {
 	}
 
 	getTimeSpent() {
-		return this.intervals.map(i => ((i.end && i.end.getTime()) || Date.now()) - i.start.getTime()).reduce((prev, current) => current + prev, 0);
+		return this.intervals.map(i => {
+			if (typeof i.adjustment !== undefined) {
+				return i.adjustment;
+			}
+			return ((i.end && i.end.getTime()) || Date.now()) - i.start.getTime();
+		}).reduce((prev, current) => current + prev, 0);
 	}
 
 	getTimeRemaining() {
@@ -147,6 +157,12 @@ class TimeMinder {
 
 	getTotalTimeSinceStart() {
 		return Date.now() - this.intervals[0].start.getTime();
+	}
+
+	setTimeRemaining(ms) {
+		this.pause();
+		this.intervals.push({adjustment: ms - this.getTimeRemaining()});
+		this.unpause();
 	}
 
 	pause() {

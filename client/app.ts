@@ -10,16 +10,13 @@ declare class TimeMinder {
 	public start(): void;
 }
 
-declare var _settings: {
-	lengthOfSecond: number;
-}
-
 interface IMap<TVal> {
 	[key: string]: TVal;
 }
 
 interface TimerOptions {
 	betweenEndTime: number;
+	lengthOfSecond: number;
 	midGameBreakTime: number;
 	numTimeouts: number;
 	teams: string[];
@@ -91,6 +88,30 @@ function roundPrecision(num: number, decimalPlaces: number) {
 	return Math.round(num * power) / power;
 }
 
+function forceMonospace(element: Node) {
+	for (let i = 0; i < element.childNodes.length; i++) {
+		const child = element.childNodes[i];
+
+		if (child.nodeType === Node.TEXT_NODE) {
+			const $wrapper = document.createDocumentFragment();
+
+			for (i = 0; i < child.nodeValue!.length; i++) {
+				const $char = document.createElement("span");
+				const val = child.nodeValue!.charAt(i);
+				const charCode = val.charCodeAt(0);
+				$char.className = "char" + (charCode >= 48 && charCode < 58 ? " digit" : "");
+				$char.textContent = val;
+
+				$wrapper.appendChild($char);
+			}
+
+			element.replaceChild($wrapper, child);
+		} else if (child.nodeType === Node.ELEMENT_NODE) {
+			forceMonospace(child);
+		}
+	}
+}
+
 class TimeToCurl {
 	private socket: SocketIOClient.Socket;
 	private requests: {[key: string]: any};
@@ -98,6 +119,7 @@ class TimeToCurl {
 	private machines: IMap<CurlingMachineUI>;
 	private machineOrder: IMap<number>;
 	private currentTheme: string;
+	private lengthOfSecond: number = 1000;
 
 	public init() {
 		this.setUpEvents();
@@ -159,16 +181,25 @@ class TimeToCurl {
 				const response = await this.emitAction<Partial<TimerOptions>, StateAndOptions>(<SocketAction<Partial<TimerOptions>>>{
 					request: "CREATE_TIMER",
 					options: {
-						name: timerName
+						name: timerName,
+						lengthOfSecond: this.lengthOfSecond
 					}
 				});
 				this.addCurlingMachine(response.data);
 			});
 			document.getElementById("showDebug")!.addEventListener("change", this.onDebugToggled);
+			document.getElementById("speedyClocks")!.addEventListener("change", this.onSpeedyClocksToggled.bind(this));
 			document.getElementById("themeSelector")!.addEventListener("change", this.onThemeChanged);
 			this.onThemeChanged();
 			this.onDebugToggled();
+			this.onSpeedyClocksToggled();
 		});
+	}
+
+	private onSpeedyClocksToggled() {
+		const speedyClocks = document.getElementById("speedyClocks")! as HTMLInputElement;
+		const isSpeedy = speedyClocks.checked;
+		this.lengthOfSecond = isSpeedy ? 100 : 1000;
 	}
 
 	private onDebugToggled() {
@@ -213,6 +244,7 @@ class CurlingMachineUI {
 	private betweenEndTimeText: HTMLElement;
 	private debugElement: HTMLElement;
 	private elements: { [key: string]: Element[] };
+	private lengthOfSecond = 1000;
 	private options: TimerOptions;
 	private rootTimerElement: HTMLElement;
 	private runningTimer: TimeMinder;
@@ -230,6 +262,9 @@ class CurlingMachineUI {
 		this.thinkingTimeText = {};
 		this.state = initParams.state;
 		this.options = initParams.options;
+		if (initParams.options.lengthOfSecond) {
+			this.lengthOfSecond = initParams.options.lengthOfSecond;
+		}
 		this.initUI();
 	}
 
@@ -280,14 +315,14 @@ class CurlingMachineUI {
 
 		this.clearTimer();
 		for (const teamId of this.options.teams) {
-			this.thinkingTimeText[teamId].textContent = this.secondsToStr(this.state.timeRemaining[teamId]);
+			setTimeToElem(this.thinkingTimeText[teamId], this.state.timeRemaining[teamId]);
 			if (this.state.phase === "thinking") {
 				const thinkingTeam = this.state.phaseData["team"];
 				if (thinkingTeam === teamId) {
 					this.thinkingButtons[teamId].disabled = true;
-					const timer = new TimeMinder(this.state.timeRemaining[thinkingTeam] * _settings.lengthOfSecond);
-					timer.every(_settings.lengthOfSecond / 10, () => {
-						this.thinkingTimeText[teamId].textContent = this.secondsToStr(timer.getTimeRemaining() / _settings.lengthOfSecond);
+					const timer = new TimeMinder(this.state.timeRemaining[thinkingTeam] * this.lengthOfSecond);
+					timer.every(this.lengthOfSecond / 10, () => {
+						setTimeToElem(this.thinkingTimeText[teamId], timer.getTimeRemaining() / this.lengthOfSecond);
 					}, false);
 					timer.start();
 					this.runningTimer = timer;
@@ -298,9 +333,9 @@ class CurlingMachineUI {
 		}
 		if (this.state.phase === "warm-up") {
 			this.elements["warmup-time-container"][0].classList.remove("irrelevant");
-			const timer = new TimeMinder(this.state.warmupTimeRemaining * _settings.lengthOfSecond);
-			timer.every(_settings.lengthOfSecond / 10, () => {
-				this.warmupTimeText.textContent = this.secondsToStr(timer.getTimeRemaining() / _settings.lengthOfSecond);
+			const timer = new TimeMinder(this.state.warmupTimeRemaining * this.lengthOfSecond);
+			timer.every(this.lengthOfSecond / 10, () => {
+				setTimeToElem(this.warmupTimeText, timer.getTimeRemaining() / this.lengthOfSecond);
 			}, false);
 			timer.start();
 			this.runningTimer = timer;
@@ -310,9 +345,9 @@ class CurlingMachineUI {
 
 		if (this.state.phase === "between-ends") {
 			this.elements["between-end-time-container"][0].classList.remove("irrelevant");
-			const timer = new TimeMinder(this.state.betweenEndTimeRemaining * _settings.lengthOfSecond);
-			timer.every(_settings.lengthOfSecond / 10, () => {
-				this.betweenEndTimeText.textContent = this.secondsToStr(timer.getTimeRemaining() / _settings.lengthOfSecond);
+			const timer = new TimeMinder(this.state.betweenEndTimeRemaining * this.lengthOfSecond);
+			timer.every(this.lengthOfSecond / 10, () => {
+				setTimeToElem(this.betweenEndTimeText, timer.getTimeRemaining() / this.lengthOfSecond);
 			}, false);
 			timer.start();
 			this.runningTimer = timer;
@@ -322,9 +357,9 @@ class CurlingMachineUI {
 
 		if (this.state.phase === "timeout") {
 			this.elements["timeout-time-container"][0].classList.remove("irrelevant");
-			const timer = new TimeMinder(this.state.timeoutTimeRemaining * _settings.lengthOfSecond);
-			timer.every(_settings.lengthOfSecond / 10, () => {
-				this.timeoutTimeText.textContent = this.secondsToStr(timer.getTimeRemaining() / _settings.lengthOfSecond);
+			const timer = new TimeMinder(this.state.timeoutTimeRemaining * this.lengthOfSecond);
+			timer.every(this.lengthOfSecond / 10, () => {
+				setTimeToElem(this.timeoutTimeText, timer.getTimeRemaining() / this.lengthOfSecond);
 			}, false);
 			timer.start();
 			this.runningTimer = timer;
@@ -372,7 +407,7 @@ class CurlingMachineUI {
 
 	private initElements(elem: Element) {
 		let key = "";
-		const elemData = (elem as HTMLElement).dataset["action"];
+		const elemData = (elem as HTMLElement).dataset["key"] || (elem as HTMLElement).dataset["action"];
 		if (elemData) {
 			key = elemData;
 		}
@@ -428,14 +463,24 @@ class CurlingMachineUI {
 			}
 		}
 	}
+}
 
-	private secondsToStr(seconds: number) {
-		const clampedSeconds = Math.max(0, seconds);
-		const m = Math.floor(clampedSeconds / 60);
-		const s = roundPrecision(clampedSeconds, 0) % 60;
-		const slz = s < 10 ? "0" + String(s) : String(s);
-		return `${m}:${slz}`;
-	}
+function secondsToStr(seconds: number) {
+	const clampedSeconds = Math.max(0, seconds);
+	const m = Math.floor(clampedSeconds / 60);
+	const s = roundPrecision(clampedSeconds, 0) % 60;
+	const slz = s < 10 ? "0" + String(s) : String(s);
+	return `${m}:${slz}`;
+}
+
+function setTimeToElem(elem: HTMLElement, seconds: number) {
+	setMonospaceText(elem, secondsToStr(seconds));
+}
+
+function setMonospaceText(elem: HTMLElement, text: string) {
+	elem.innerHTML = "";
+	elem.textContent = text;
+	forceMonospace(elem);
 }
 
 new TimeToCurl().init();

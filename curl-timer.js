@@ -2,18 +2,18 @@ const TimeMinder = require("./time-minder");
 const uuidV4 = require('uuid/v4');
 
 const defaultOptions = {
+	betweenEndTime: 60,
+	lengthOfSecond: 1000,
+	midGameBreakTime: 5 * 60,
+	numTimeouts: 1,
+	teams: ["Red", "Yellow"],
 	thinkingTime: 30 * 60,
 	timeoutTime: 60,
-	numTimeouts: 1,
-	betweenEndTime: 60,
-	midGameBreakTime: 5 * 60,
-	teams: ["Red", "Yellow"],
-	warmupTime: 9 * 60,
-	timerName: "Timer"
+	timerName: "Timer",
+	warmupTime: 9 * 60
 };
 
-const LENGTH_OF_A_SECOND = 100; // for debugging
-const MACHINE_ID_SEED = Math.floor(Math.random() * 1000 + 1001);
+const MACHINE_ID_SEED = Math.floor(Math.random() * 10000 + 10001);
 
 /**
  * This class implements a state machine to keep track of a single curling game. The word 'state'
@@ -30,6 +30,7 @@ class CurlingMachine {
 
 	constructor(options, onStateChange) {
 		this.options = Object.assign({}, defaultOptions, options);
+		this.lengthOfSecond = this.options.lengthOfSecond;
 		this.nextPhaseMap = require("./phase-map");
 		this.id = String(CurlingMachine.nextMachineId++);
 		this.allTimers = {};
@@ -58,9 +59,9 @@ class CurlingMachine {
 	}
 
 	createTimer(duration, onComplete) {
-		console.log("Starting timer for " + duration * LENGTH_OF_A_SECOND + " ms.");
+		console.log("Starting timer for " + duration * this.lengthOfSecond + " ms.");
 		const timerId = uuidV4();
-		const timer = new TimeMinder(duration * LENGTH_OF_A_SECOND, onComplete);
+		const timer = new TimeMinder(duration * this.lengthOfSecond, onComplete);
 		this.allTimers[timerId] = timer;
 
 		// No timer is allowed to last longer than a day.
@@ -228,13 +229,13 @@ class CurlingMachine {
 	getCurrentState() {
 		const state = Object.assign({}, this.state);
 
-		const betweenEndTimeRemaining = this.state.phase === "between-ends" ? this.state.timer.getTimeRemaining() / LENGTH_OF_A_SECOND : null;
+		const betweenEndTimeRemaining = this.state.phase === "between-ends" ? this.state.timer.getTimeRemaining() / this.lengthOfSecond : null;
 		const timeoutsRemaining = Object.assign({}, this.timeoutsRemaining);
-		const timeoutTimeRemaining = this.state.phase === "timeout" ? this.state.timer.getTimeRemaining() / LENGTH_OF_A_SECOND : null;
-		const warmupTimeRemaining = this.state.phase === "warm-up" ? this.state.timer.getTimeRemaining() / LENGTH_OF_A_SECOND : null;
+		const timeoutTimeRemaining = this.state.phase === "timeout" ? this.state.timer.getTimeRemaining() / this.lengthOfSecond : null;
+		const warmupTimeRemaining = this.state.phase === "warm-up" ? this.state.timer.getTimeRemaining() / this.lengthOfSecond : null;
 		const timeRemaining = Object.assign({}, this.thinkingTimers);
 		Object.keys(timeRemaining).forEach(team => 
-			timeRemaining[team] = timeRemaining[team].getTimeRemaining() / LENGTH_OF_A_SECOND);
+			timeRemaining[team] = timeRemaining[team].getTimeRemaining() / this.lengthOfSecond);
 
 		state.betweenEndTimeRemaining = betweenEndTimeRemaining;
 		state.timeoutsRemaining = timeoutsRemaining;

@@ -61,8 +61,29 @@ function roundPrecision(num, decimalPlaces) {
     var power = Math.pow(10, decimalPlaces);
     return Math.round(num * power) / power;
 }
+function forceMonospace(element) {
+    for (var i = 0; i < element.childNodes.length; i++) {
+        var child = element.childNodes[i];
+        if (child.nodeType === Node.TEXT_NODE) {
+            var $wrapper = document.createDocumentFragment();
+            for (i = 0; i < child.nodeValue.length; i++) {
+                var $char = document.createElement("span");
+                var val = child.nodeValue.charAt(i);
+                var charCode = val.charCodeAt(0);
+                $char.className = "char" + (charCode >= 48 && charCode < 58 ? " digit" : "");
+                $char.textContent = val;
+                $wrapper.appendChild($char);
+            }
+            element.replaceChild($wrapper, child);
+        }
+        else if (child.nodeType === Node.ELEMENT_NODE) {
+            forceMonospace(child);
+        }
+    }
+}
 var TimeToCurl = (function () {
     function TimeToCurl() {
+        this.lengthOfSecond = 1000;
     }
     TimeToCurl.prototype.init = function () {
         var _this = this;
@@ -145,7 +166,8 @@ var TimeToCurl = (function () {
                             return [4 /*yield*/, this.emitAction({
                                     request: "CREATE_TIMER",
                                     options: {
-                                        name: timerName
+                                        name: timerName,
+                                        lengthOfSecond: this.lengthOfSecond
                                     }
                                 })];
                         case 1:
@@ -156,10 +178,17 @@ var TimeToCurl = (function () {
                 });
             }); });
             document.getElementById("showDebug").addEventListener("change", _this.onDebugToggled);
+            document.getElementById("speedyClocks").addEventListener("change", _this.onSpeedyClocksToggled.bind(_this));
             document.getElementById("themeSelector").addEventListener("change", _this.onThemeChanged);
             _this.onThemeChanged();
             _this.onDebugToggled();
+            _this.onSpeedyClocksToggled();
         });
+    };
+    TimeToCurl.prototype.onSpeedyClocksToggled = function () {
+        var speedyClocks = document.getElementById("speedyClocks");
+        var isSpeedy = speedyClocks.checked;
+        this.lengthOfSecond = isSpeedy ? 100 : 1000;
     };
     TimeToCurl.prototype.onDebugToggled = function () {
         var showDebug = document.getElementById("showDebug");
@@ -200,11 +229,15 @@ var CurlingMachineUI = (function () {
     function CurlingMachineUI(initParams, container, application) {
         this.container = container;
         this.application = application;
+        this.lengthOfSecond = 1000;
         this.elements = {};
         this.thinkingButtons = {};
         this.thinkingTimeText = {};
         this.state = initParams.state;
         this.options = initParams.options;
+        if (initParams.options.lengthOfSecond) {
+            this.lengthOfSecond = initParams.options.lengthOfSecond;
+        }
         this.initUI();
     }
     CurlingMachineUI.prototype.initUI = function () {
@@ -253,14 +286,14 @@ var CurlingMachineUI = (function () {
         });
         this.clearTimer();
         var _loop_2 = function (teamId) {
-            this_2.thinkingTimeText[teamId].textContent = this_2.secondsToStr(this_2.state.timeRemaining[teamId]);
+            setTimeToElem(this_2.thinkingTimeText[teamId], this_2.state.timeRemaining[teamId]);
             if (this_2.state.phase === "thinking") {
                 var thinkingTeam = this_2.state.phaseData["team"];
                 if (thinkingTeam === teamId) {
                     this_2.thinkingButtons[teamId].disabled = true;
-                    var timer_1 = new TimeMinder(this_2.state.timeRemaining[thinkingTeam] * _settings.lengthOfSecond);
-                    timer_1.every(_settings.lengthOfSecond / 10, function () {
-                        _this.thinkingTimeText[teamId].textContent = _this.secondsToStr(timer_1.getTimeRemaining() / _settings.lengthOfSecond);
+                    var timer_1 = new TimeMinder(this_2.state.timeRemaining[thinkingTeam] * this_2.lengthOfSecond);
+                    timer_1.every(this_2.lengthOfSecond / 10, function () {
+                        setTimeToElem(_this.thinkingTimeText[teamId], timer_1.getTimeRemaining() / _this.lengthOfSecond);
                     }, false);
                     timer_1.start();
                     this_2.runningTimer = timer_1;
@@ -277,9 +310,9 @@ var CurlingMachineUI = (function () {
         }
         if (this.state.phase === "warm-up") {
             this.elements["warmup-time-container"][0].classList.remove("irrelevant");
-            var timer_2 = new TimeMinder(this.state.warmupTimeRemaining * _settings.lengthOfSecond);
-            timer_2.every(_settings.lengthOfSecond / 10, function () {
-                _this.warmupTimeText.textContent = _this.secondsToStr(timer_2.getTimeRemaining() / _settings.lengthOfSecond);
+            var timer_2 = new TimeMinder(this.state.warmupTimeRemaining * this.lengthOfSecond);
+            timer_2.every(this.lengthOfSecond / 10, function () {
+                setTimeToElem(_this.warmupTimeText, timer_2.getTimeRemaining() / _this.lengthOfSecond);
             }, false);
             timer_2.start();
             this.runningTimer = timer_2;
@@ -289,9 +322,9 @@ var CurlingMachineUI = (function () {
         }
         if (this.state.phase === "between-ends") {
             this.elements["between-end-time-container"][0].classList.remove("irrelevant");
-            var timer_3 = new TimeMinder(this.state.betweenEndTimeRemaining * _settings.lengthOfSecond);
-            timer_3.every(_settings.lengthOfSecond / 10, function () {
-                _this.betweenEndTimeText.textContent = _this.secondsToStr(timer_3.getTimeRemaining() / _settings.lengthOfSecond);
+            var timer_3 = new TimeMinder(this.state.betweenEndTimeRemaining * this.lengthOfSecond);
+            timer_3.every(this.lengthOfSecond / 10, function () {
+                setTimeToElem(_this.betweenEndTimeText, timer_3.getTimeRemaining() / _this.lengthOfSecond);
             }, false);
             timer_3.start();
             this.runningTimer = timer_3;
@@ -301,9 +334,9 @@ var CurlingMachineUI = (function () {
         }
         if (this.state.phase === "timeout") {
             this.elements["timeout-time-container"][0].classList.remove("irrelevant");
-            var timer_4 = new TimeMinder(this.state.timeoutTimeRemaining * _settings.lengthOfSecond);
-            timer_4.every(_settings.lengthOfSecond / 10, function () {
-                _this.timeoutTimeText.textContent = _this.secondsToStr(timer_4.getTimeRemaining() / _settings.lengthOfSecond);
+            var timer_4 = new TimeMinder(this.state.timeoutTimeRemaining * this.lengthOfSecond);
+            timer_4.every(this.lengthOfSecond / 10, function () {
+                setTimeToElem(_this.timeoutTimeText, timer_4.getTimeRemaining() / _this.lengthOfSecond);
             }, false);
             timer_4.start();
             this.runningTimer = timer_4;
@@ -359,7 +392,7 @@ var CurlingMachineUI = (function () {
     CurlingMachineUI.prototype.initElements = function (elem) {
         var _this = this;
         var key = "";
-        var elemData = elem.dataset["action"];
+        var elemData = elem.dataset["key"] || elem.dataset["action"];
         if (elemData) {
             key = elemData;
         }
@@ -412,13 +445,21 @@ var CurlingMachineUI = (function () {
             }
         }
     };
-    CurlingMachineUI.prototype.secondsToStr = function (seconds) {
-        var clampedSeconds = Math.max(0, seconds);
-        var m = Math.floor(clampedSeconds / 60);
-        var s = roundPrecision(clampedSeconds, 0) % 60;
-        var slz = s < 10 ? "0" + String(s) : String(s);
-        return m + ":" + slz;
-    };
     return CurlingMachineUI;
 }());
+function secondsToStr(seconds) {
+    var clampedSeconds = Math.max(0, seconds);
+    var m = Math.floor(clampedSeconds / 60);
+    var s = roundPrecision(clampedSeconds, 0) % 60;
+    var slz = s < 10 ? "0" + String(s) : String(s);
+    return m + ":" + slz;
+}
+function setTimeToElem(elem, seconds) {
+    setMonospaceText(elem, secondsToStr(seconds));
+}
+function setMonospaceText(elem, text) {
+    elem.innerHTML = "";
+    elem.textContent = text;
+    forceMonospace(elem);
+}
 new TimeToCurl().init();

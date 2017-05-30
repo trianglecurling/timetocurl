@@ -127,6 +127,12 @@ class CurlingMachine {
 					throw new Error("No prior state to go back to.");
 				}
 				nextState = Object.assign({}, this.history[this.history.length - 1]);
+
+				if (action.transition === "cancel-timer") {
+					if (this.state.timer) {
+						this.state.timer.dispose();
+					}
+				}
 			}
 
 			if (nextState.phase === "pregame") {
@@ -153,7 +159,11 @@ class CurlingMachine {
 				if (nextState.timer) {
 					nextState.timer.unpause();
 				} else {
-					nextState.timer = this.createTimer(this.options.betweenEndTime, () => {
+					let time = this.options.betweenEndTime;
+					if (action.transition === "begin-midgame-break") {
+						time = this.options.midGameBreakTime;
+					}
+					nextState.timer = this.createTimer(time, () => {
 						this.handleAction({
 							transition: "between-end-end"
 						});
@@ -204,8 +214,11 @@ class CurlingMachine {
 								team: whoseTimeout
 							}
 						});
+
+						// Only deduct a timeout when it has been used completey.
+						// It may have been canceled.
+						this.timeoutsRemaining[whoseTimeout]--;
 					});
-					this.timeoutsRemaining[whoseTimeout]--;
 					nextState.timer.start();
 				}
 			}

@@ -316,6 +316,7 @@ class CurlingMachineUI {
 		this.clearTimer();
 		for (const teamId of this.options.teams) {
 			setTimeToElem(this.thinkingTimeText[teamId], this.state.timeRemaining[teamId]);
+			this.thinkingTimeText[teamId].classList.remove("running");
 			if (this.state.phase === "thinking") {
 				const thinkingTeam = this.state.phaseData["team"];
 				if (thinkingTeam === teamId) {
@@ -326,6 +327,7 @@ class CurlingMachineUI {
 					}, false);
 					timer.start();
 					this.runningTimer = timer;
+					this.thinkingTimeText[teamId].classList.add("running");
 				} else {
 					this.thinkingButtons[teamId].disabled = false;
 				}

@@ -137,6 +137,8 @@ body.classic .timer {
 	$misc-timer-gry: #c0c0c0;
 	$misc-timer-cancel-gry-top: #e0e0e0;
 	$misc-timer-cancel-gry-bot: #b0afc2;
+	$misc-timer-cancel-gry-top-hov: #dfdfdf;
+	$misc-timer-cancel-gry-bot-hov: #d1d1cb;
 	$misc-timer-cancel-border: #1b4f7f;
 
 	width: 100%;
@@ -162,12 +164,16 @@ body.classic .timer {
 	.time-value {
 		font-weight: bold;
 		.char {
-			width: 12vmin;
+			width: 11vmin;
 			text-align: center;
 
 			&.digit {
 				width: 18vmin;
 			}
+		}
+
+		&.running {
+			text-decoration: underline;
 		}
 	}
 
@@ -181,7 +187,7 @@ body.classic .timer {
 		}
 	}
 
-	.between-end-time-container,.warmup-time-container {
+	.overlay-time-container {
 		position: absolute;
 		width: 100%;
 		height: 100%;
@@ -190,7 +196,7 @@ body.classic .timer {
 		background-color: $misc-timer-gry;
 		z-index: 2;
 
-		.between-end-time,.warmup-time {
+		.time-value {
 			position: absolute;
 			width: 75%;
 			height: 40%;
@@ -202,6 +208,27 @@ body.classic .timer {
 			display: flex;
 			align-items: center;
 			justify-content: center;
+		}
+
+		.cancel-timer-button {
+			position: absolute;
+			width: 120px;
+			height: 40px;
+			left: calc(50% - 60px);
+			border: 2px solid $misc-timer-cancel-border;
+			background: linear-gradient(to bottom, $misc-timer-cancel-gry-top 0%, $misc-timer-cancel-gry-bot 100%);
+			border-radius: 2px;
+			top: 92%;
+
+			&:hover {
+				background: linear-gradient(to bottom, $misc-timer-cancel-gry-top-hov 0%, $misc-timer-cancel-gry-bot-hov 100%);
+			}
+		}
+
+		h2 {
+			text-align: center;
+			margin-top: 6%;
+			font-size: 32px;
 		}
 	}
 
@@ -256,30 +283,32 @@ body.classic .timer {
 
 	}
 
-	&.between-ends .thinking-time-container,&.warm-up .thinking-time-container {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		left: 0;
-		top: 0;
-		z-index: 3;
-		pointer-events: none;
-		.spacer {
-			display: none;
-		}
-		.thinking-time {
-			pointer-events: all;
+	&.between-ends,&.warm-up,&.timeout {
+		.thinking-time-container {
 			position: absolute;
-			width: 50%;
-			left: 25%;
-			height: 20%;
-			font-size: 18vmin;
-
-			&:first-child {
-				top: 9%;
+			width: 100%;
+			height: 100%;
+			left: 0;
+			top: 0;
+			z-index: 3;
+			pointer-events: none;
+			.spacer {
+				display: none;
 			}
-			&:last-child {
-				top: 71%;
+			.thinking-time {
+				pointer-events: all;
+				position: absolute;
+				width: 50%;
+				left: 25%;
+				height: 20%;
+				font-size: 18vmin;
+
+				&:first-child {
+					top: 9%;
+				}
+				&:last-child {
+					top: 71%;
+				}
 			}
 		}
 	}
@@ -418,7 +447,7 @@ body.classic .timer {
 			}
 		}
 
-		#begin-mid-game-break {
+		#begin-midgame-break {
 			order: 24;
 			background: linear-gradient(to bottom, $btn-grn-top 0%, $btn-grn-bot 100%);
 			&:hover:not(:disabled) {

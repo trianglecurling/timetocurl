@@ -144,7 +144,7 @@ class TimeMinder {
 
 	getTimeSpent() {
 		return this.intervals.map(i => {
-			if (typeof i.adjustment !== undefined) {
+			if (typeof i.adjustment !== "undefined") {
 				return i.adjustment;
 			}
 			return ((i.end && i.end.getTime()) || Date.now()) - i.start.getTime();

@@ -28,6 +28,7 @@ interface TimerOptions {
 interface SocketAction<TOptions> {
 	request: string;
 	options: TOptions;
+	clientId: string;
 	token?: string;
 }
 
@@ -82,6 +83,8 @@ function uuid(): string {
 		return v.toString(16);
 	});
 }
+
+const clientId = uuid();
 
 function roundPrecision(num: number, decimalPlaces: number) {
 	const power = Math.pow(10, decimalPlaces);
@@ -180,6 +183,7 @@ class TimeToCurl {
 				const timerName = (document.getElementById("timerName") as HTMLInputElement).value || "Timer";
 				const response = await this.emitAction<Partial<TimerOptions>, StateAndOptions>(<SocketAction<Partial<TimerOptions>>>{
 					request: "CREATE_TIMER",
+					clientId: clientId,
 					options: {
 						name: timerName,
 						lengthOfSecond: this.lengthOfSecond
@@ -225,6 +229,7 @@ class TimeToCurl {
 		return new Promise<SocketResponse<TResponse>>((resolve, reject) => {
 			const token = uuid();
 			action.token = token;
+			action.clientId = clientId;
 			this.socket.emit("action", JSON.stringify(action));
 			this.requestResolvers[token] = resolve;
 		});
@@ -396,6 +401,7 @@ class CurlingMachineUI {
 	private async sendPhaseTransition(transition: string, data?: any) {
 		const result = await this.application.emitAction<{}, string>({
 			request: "QUERY_TIMER",
+			clientId: clientId,
 			options: {
 				transition: transition,
 				data: data,

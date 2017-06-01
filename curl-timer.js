@@ -36,6 +36,7 @@ class CurlingMachine {
 		this.allTimers = {};
 		this.initialize();
 		this.onStateChange = onStateChange;
+		this.sockets = {};
 	}
 
 	initialize() {
@@ -235,8 +236,12 @@ class CurlingMachine {
 		if (nextState) {
 			this.history.push(this.state);
 			this.state = nextState;
-			this.onStateChange();
+			this.onStateChange(Object.keys(this.sockets).map(s => this.sockets[s]));
 		}
+	}
+
+	registerSocket(clientId, socket) {
+		this.sockets[clientId] = socket;
 	}
 
 	getCurrentState() {

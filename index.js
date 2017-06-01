@@ -62,22 +62,25 @@ io.on("connection", (socket) => {
 
 const games = {};
 
-function dispatchStateChange(socket, machineId) {
+function dispatchStateChange(sockets, machineId) {
 	console.log("sending updated state");
-	socket.emit("statechange", JSON.stringify({
-		message: "SET_STATE",
-		machineId: machineId,
-		data: games[machineId].getSerializableState()
-	}));
+	for (const socket of sockets) {
+		socket.emit("statechange", JSON.stringify({
+			message: "SET_STATE",
+			machineId: machineId,
+			data: games[machineId].getSerializableState()
+		}));
+	}
 }
 
 function handleAction(action, socket) {
 	//console.log("Action: " + action.request);
 
 	if (action.request === "CREATE_TIMER") {
-		const curlingMachine = new CurlingMachine(action.options, (action) => {
-			dispatchStateChange(socket, curlingMachine.id);
+		const curlingMachine = new CurlingMachine(action.options, (sockets) => {
+			dispatchStateChange(sockets, curlingMachine.id);
 		});
+		curlingMachine.registerSocket(action.clientId, socket);
 		games[curlingMachine.id] = curlingMachine;
 		const response = {response: "CREATE_TIMER", token: action.token, data: curlingMachine.getSerializableState()};
 		socket.emit("response", JSON.stringify(response));
@@ -85,6 +88,7 @@ function handleAction(action, socket) {
 
 	if (action.request === "GET_TIMER") {
 		const game = games[action.options.timerId];
+		game.registerSocket(action.clientId, socket);
 		if (game) {
 			const response = {response: "GET_TIMER", token: action.token, data: game.getSerializableState()};
 			
@@ -105,7 +109,7 @@ function handleAction(action, socket) {
 	if (action.request === "QUERY_TIMER") {
 		//console.log("Query timer: " + JSON.stringify(action, null, 4));
 		const machine = games[action.options.timerId];
-
+		machine.registerSocket(action.clientId, socket);
 		if (machine) {
 			if (action.options.state) {
 				machine.handleAction({

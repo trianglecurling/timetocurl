@@ -57,6 +57,7 @@ function uuid() {
         return v.toString(16);
     });
 }
+var clientId = uuid();
 function roundPrecision(num, decimalPlaces) {
     var power = Math.pow(10, decimalPlaces);
     return Math.round(num * power) / power;
@@ -165,6 +166,7 @@ var TimeToCurl = (function () {
                             timerName = document.getElementById("timerName").value || "Timer";
                             return [4 /*yield*/, this.emitAction({
                                     request: "CREATE_TIMER",
+                                    clientId: clientId,
                                     options: {
                                         name: timerName,
                                         lengthOfSecond: this.lengthOfSecond
@@ -211,6 +213,7 @@ var TimeToCurl = (function () {
         return new Promise(function (resolve, reject) {
             var token = uuid();
             action.token = token;
+            action.clientId = clientId;
             _this.socket.emit("action", JSON.stringify(action));
             _this.requestResolvers[token] = resolve;
         });
@@ -375,6 +378,7 @@ var CurlingMachineUI = (function () {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.application.emitAction({
                             request: "QUERY_TIMER",
+                            clientId: clientId,
                             options: {
                                 transition: transition,
                                 data: data,

@@ -236,6 +236,7 @@ var CurlingMachineUI = (function () {
         this.elements = {};
         this.thinkingButtons = {};
         this.thinkingTimeText = {};
+        this.timeoutsRemainingText = {};
         this.state = initParams.state;
         this.options = initParams.options;
         if (initParams.options.lengthOfSecond) {
@@ -307,6 +308,7 @@ var CurlingMachineUI = (function () {
                     this_2.thinkingButtons[teamId].disabled = false;
                 }
             }
+            this_2.timeoutsRemainingText[teamId].textContent = String(state.timeoutsRemaining[teamId]);
         };
         var this_2 = this;
         for (var _i = 0, _a = this.options.teams; _i < _a.length; _i++) {
@@ -348,6 +350,12 @@ var CurlingMachineUI = (function () {
         }
         else if (this.state.phase !== "technical") {
             this.elements["timeout-time-container"][0].classList.add("irrelevant");
+        }
+        if (["thinking", "stone-moving"].indexOf(this.state.phase) >= 0) {
+            this.timeoutsRemainingContainerElement.classList.remove("irrelevant");
+        }
+        else {
+            this.timeoutsRemainingContainerElement.classList.add("irrelevant");
         }
         // Title
         this.titleElement.textContent = this.state.timerName;
@@ -416,6 +424,9 @@ var CurlingMachineUI = (function () {
             if (this.elements["thinking-time"] && this.elements["thinking-time"][i]) {
                 this.thinkingTimeText[this.options.teams[i]] = this.elements["thinking-time"][i];
             }
+            if (this.elements["timeouts-remaining"] && this.elements["timeouts-remaining"][i]) {
+                this.timeoutsRemainingText[this.options.teams[i]] = this.elements["timeouts-remaining"][i];
+            }
         }
         if (this.elements["timer"] && this.elements["timer"][0]) {
             this.rootTimerElement = this.elements["timer"][0];
@@ -434,6 +445,9 @@ var CurlingMachineUI = (function () {
         }
         if (this.elements["timer-title"] && this.elements["timer-title"][0]) {
             this.titleElement = this.elements["timer-title"][0];
+        }
+        if (this.elements["timeouts-remaining-container"] && this.elements["timeouts-remaining-container"][0]) {
+            this.timeoutsRemainingContainerElement = this.elements["timeouts-remaining-container"][0];
         }
         if (this.elements["timer-container"] && this.elements["timer-container"][0]) {
             this.timerContainerElement = this.elements["timer-container"][0];

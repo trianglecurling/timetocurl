@@ -209,16 +209,16 @@ class CurlingMachine {
 					nextState.timer.unpause();
 				} else {
 					nextState.timer = this.createTimer(this.options.timeoutTime, () => {
+						// Only deduct a timeout when it has been used completey.
+						// It may have been canceled.
+						this.timeoutsRemaining[whoseTimeout]--;
+
 						this.handleAction({
 							transition: "end-timeout",
 							data: {
 								team: whoseTimeout
 							}
 						});
-
-						// Only deduct a timeout when it has been used completey.
-						// It may have been canceled.
-						this.timeoutsRemaining[whoseTimeout]--;
 					});
 					nextState.timer.start();
 				}

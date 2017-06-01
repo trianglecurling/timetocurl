@@ -256,6 +256,8 @@ class CurlingMachineUI {
 	private state: CurlingMachineState;
 	private thinkingButtons: IMap<HTMLButtonElement>;
 	private thinkingTimeText: IMap<HTMLElement>;
+	private timeoutsRemainingContainerElement: HTMLElement;
+	private timeoutsRemainingText: IMap<HTMLElement>;
 	private timeoutTimeText: HTMLElement;
 	private timerContainerElement: HTMLElement;
 	private titleElement: HTMLElement;
@@ -265,6 +267,7 @@ class CurlingMachineUI {
 		this.elements = {};
 		this.thinkingButtons = {};
 		this.thinkingTimeText = {};
+		this.timeoutsRemainingText = {};
 		this.state = initParams.state;
 		this.options = initParams.options;
 		if (initParams.options.lengthOfSecond) {
@@ -337,6 +340,8 @@ class CurlingMachineUI {
 					this.thinkingButtons[teamId].disabled = false;
 				}
 			}
+
+			this.timeoutsRemainingText[teamId].textContent = String(state.timeoutsRemaining[teamId]);
 		}
 		if (this.state.phase === "warm-up") {
 			this.elements["warmup-time-container"][0].classList.remove("irrelevant");
@@ -372,6 +377,12 @@ class CurlingMachineUI {
 			this.runningTimer = timer;
 		} else if (this.state.phase !== "technical") {
 			this.elements["timeout-time-container"][0].classList.add("irrelevant");
+		}
+
+		if (["thinking", "stone-moving"].indexOf(this.state.phase) >= 0) {
+			this.timeoutsRemainingContainerElement.classList.remove("irrelevant");
+		} else {
+			this.timeoutsRemainingContainerElement.classList.add("irrelevant");
 		}
 
 		// Title
@@ -434,6 +445,9 @@ class CurlingMachineUI {
 			if (this.elements["thinking-time"] && this.elements["thinking-time"][i]) {
 				this.thinkingTimeText[this.options.teams[i]] = this.elements["thinking-time"][i] as HTMLElement;
 			}
+			if (this.elements["timeouts-remaining"] && this.elements["timeouts-remaining"][i]) {
+				this.timeoutsRemainingText[this.options.teams[i]] = this.elements["timeouts-remaining"][i] as HTMLElement;
+			}
 		}
 		if (this.elements["timer"] && this.elements["timer"][0]) {
 			this.rootTimerElement = this.elements["timer"][0] as HTMLElement;
@@ -452,6 +466,9 @@ class CurlingMachineUI {
 		}
 		if (this.elements["timer-title"] && this.elements["timer-title"][0]) {
 			this.titleElement = this.elements["timer-title"][0] as HTMLElement;
+		}
+		if (this.elements["timeouts-remaining-container"] && this.elements["timeouts-remaining-container"][0]) {
+			this.timeoutsRemainingContainerElement = this.elements["timeouts-remaining-container"][0] as HTMLElement;
 		}
 		if (this.elements["timer-container"] && this.elements["timer-container"][0]) {
 			this.timerContainerElement = this.elements["timer-container"][0] as HTMLElement;

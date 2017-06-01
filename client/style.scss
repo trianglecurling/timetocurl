@@ -236,6 +236,44 @@ body.classic .timer {
 		display: flex;
 	}
 
+	.timeouts-remaining-container {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		pointer-events: none;
+
+		h2 {
+			display: none;
+		}
+
+		.timeouts-remaining {
+			position: absolute;
+			width: 15vmin;
+			height: 7vmin;
+			left: 80vmin;
+			padding: 10px;
+			text-align: center;
+			font-size: 28px;
+			font-weight: bold;
+
+			&:first-of-type {
+				border: 2px solid #fff;
+				color: #fff;
+				top: 4vmin;
+			}
+			&:last-of-type {
+				border: 2px solid #000;
+				color: #000;
+				top: 68vmin;
+			}
+
+			&::before {
+				content: "Time Outs";
+				display: block;
+			}
+		}
+	}
+
 	.thinking-time-container {
 		order: 5;
 		width: 100%;

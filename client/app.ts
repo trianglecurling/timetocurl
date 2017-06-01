@@ -281,6 +281,14 @@ class CurlingMachineUI {
 		const newUI = template.cloneNode(true) as Element;
 		this.initElements(newUI);
 
+		// set up click-to-scroll
+		this.titleElement.addEventListener("click", () => {
+			this.timerContainerElement.scrollIntoView({
+				behavior: "smooth",
+				block: "start"
+			});
+		});
+
 		for (const teamId of Object.keys(this.thinkingButtons)) {
 			this.thinkingButtons[teamId].addEventListener("click", () => {
 				this.sendPhaseTransition("begin-thinking", {team: teamId});
@@ -472,14 +480,6 @@ class CurlingMachineUI {
 		}
 		if (this.elements["timer-container"] && this.elements["timer-container"][0]) {
 			this.timerContainerElement = this.elements["timer-container"][0] as HTMLElement;
-
-			// set up click-to-scroll
-			this.titleElement.addEventListener("click", () => {
-				this.timerContainerElement.scrollIntoView({
-					behavior: "smooth",
-					block: "start"
-				});
-			});
 		}
 
 		if (elem.children) {

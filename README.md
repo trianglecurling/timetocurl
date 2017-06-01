@@ -34,6 +34,7 @@ At this point the program is running. You can open a web browser and navigate to
 [ ] Implement audit log (1 hr)
 [ ] Implement generation of official game log (4 hrs)
 [ ] Implement an end-of-game experience (1 hr)
+[ ] Figure out how to handle no remaining timeouts (30 min)
 [ ] Testing, fit and finish (∞ hrs)
 
 **Total: 28+ hours**

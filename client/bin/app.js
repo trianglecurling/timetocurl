@@ -249,6 +249,13 @@ var CurlingMachineUI = (function () {
         var template = document.getElementById("timerTemplate").children.item(0);
         var newUI = template.cloneNode(true);
         this.initElements(newUI);
+        // set up click-to-scroll
+        this.titleElement.addEventListener("click", function () {
+            _this.timerContainerElement.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        });
         var _loop_1 = function (teamId) {
             this_1.thinkingButtons[teamId].addEventListener("click", function () {
                 _this.sendPhaseTransition("begin-thinking", { team: teamId });
@@ -404,7 +411,6 @@ var CurlingMachineUI = (function () {
         });
     };
     CurlingMachineUI.prototype.initElements = function (elem) {
-        var _this = this;
         var key = "";
         var elemData = elem.dataset["key"] || elem.dataset["action"];
         if (elemData) {
@@ -451,13 +457,6 @@ var CurlingMachineUI = (function () {
         }
         if (this.elements["timer-container"] && this.elements["timer-container"][0]) {
             this.timerContainerElement = this.elements["timer-container"][0];
-            // set up click-to-scroll
-            this.titleElement.addEventListener("click", function () {
-                _this.timerContainerElement.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start"
-                });
-            });
         }
         if (elem.children) {
             for (var i = 0; i < elem.children.length; ++i) {

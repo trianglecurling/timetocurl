@@ -88,6 +88,12 @@ class TimeMinder {
 		return Date.now() - this.intervals[0].start.getTime();
 	}
 
+	setTimeRemaining(ms) {
+		this.pause();
+		this.intervals.push({adjustment: ms - this.getTimeRemaining()});
+		this.unpause();
+	}
+
 	getTotalSegmentTime(segmentName) {
 		return this.getTimeSpent(this.intervals.filter(i => i.segmentName === segmentName));
 	}

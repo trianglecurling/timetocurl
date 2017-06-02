@@ -25,6 +25,7 @@ function setupRoutes(app) {
 		res.sendFile(join(__dirname, "client/time-minder.js"));
 	});
 
+	// @TODO: Cache the result of SASS
 	app.get("/style.css", (req, res) => {
 		sass.render({
 			file: join(__dirname, "client/style.scss")
@@ -41,7 +42,6 @@ function setupRoutes(app) {
 		});
 	});
 }
-
 
 app.use(express.static('client/icons'))
 
@@ -126,6 +126,10 @@ function handleAction(action, socket) {
 			} else {
 				socket.emit("response", JSON.stringify({response: "QUERY_TIMER", token: action.token, data: "no action given"}));
 			}
+		} else if (action.options.command) {
+			machine.handleAction({
+				command: action.options.command
+			});
 		} else {
 			socket.emit("response", JSON.stringify({response: "QUERY_TIMER", token: action.token, data: "unknown machine"}));
 		}

@@ -121,6 +121,28 @@ class CurlingMachine {
 		action.data = action.data || { };
 		if (action.state) {
 			nextState = this.getFullState(action.state);
+		} else if (action.command) {
+			nextState = this.getCurrentState();
+			switch (action.command) {
+				case "ADD_TIMEOUTS":
+					if (nextState.timeoutsRemaining[action.data.team]) {
+						nextState.timeoutsRemaining[action.data.team] += parseInt(action.data.value, 10);
+					}
+					break;
+				case "ADD_TIME":
+					if (this.thinkingTimers[action.data.team]) {
+						this.thinkingTimers[action.data.team].setTimeRemaining(this.thinkingTimers[action.data.team].getTimeRemaining() + parseInt(action.data.value));
+					}
+					break;
+				case "ADD_ENDS":
+					nextState.end += parseInt(action.data.value);
+					break;
+				case "ADD_STONES":
+					if (nextState.currentStone[action.data.team]) {
+						nextState.currentStone[action.data.team] += parseInt(action.data.value);
+					}
+					break;
+			}
 		} else if (action.transition) {
 			nextState = this.getNextState(action);
 			if (nextState === null) {

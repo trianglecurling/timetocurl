@@ -42,6 +42,7 @@ interface CurlingMachineState {
 	betweenEndTimeRemaining: number;
 	currentlyRunningTimeout: string | null;
 	currentlyThinking: string | null;
+	currentTimerRunningTime: number;
 	end: number | null;
 	id: string;
 	legalActions: string[];
@@ -249,6 +250,8 @@ class CurlingMachineUI {
 	private betweenEndTimeText: HTMLElement;
 	private debugElement: HTMLElement;
 	private elements: { [key: string]: Element[] };
+	private elapsedThinkingTime: { [key: string]: HTMLElement };
+	private elapsedThinkingTimeContainer: HTMLElement;
 	private lengthOfSecond = 1000;
 	private options: TimerOptions;
 	private rootTimerElement: HTMLElement;
@@ -265,6 +268,7 @@ class CurlingMachineUI {
 
 	constructor(initParams: StateAndOptions, private container: Element, private application: TimeToCurl) {
 		this.elements = {};
+		this.elapsedThinkingTime = {};
 		this.thinkingButtons = {};
 		this.thinkingTimeText = {};
 		this.timeoutsRemainingText = {};
@@ -395,9 +399,9 @@ class CurlingMachineUI {
 
 		// Title
 		this.titleElement.textContent = this.state.timerName;
-		this.rootTimerElement.classList.remove(this.rootTimerElement.dataset["phase"]);
+		this.rootTimerElement.classList.remove(this.rootTimerElement.dataset["phase"]!);
 		this.rootTimerElement.dataset["phase"] = this.state.phase;
-		this.rootTimerElement.classList.add(this.rootTimerElement.dataset["phase"]);
+		this.rootTimerElement.classList.add(this.rootTimerElement.dataset["phase"]!);
 	}
 
 	private forEachAction(callback: (elem: HTMLButtonElement, action: string) => void) {
@@ -456,6 +460,9 @@ class CurlingMachineUI {
 			if (this.elements["timeouts-remaining"] && this.elements["timeouts-remaining"][i]) {
 				this.timeoutsRemainingText[this.options.teams[i]] = this.elements["timeouts-remaining"][i] as HTMLElement;
 			}
+			if (this.elements["elapsed-thinking-time"] && this.elements["elapsed-thinking-time"][i]) {
+				this.elapsedThinkingTime[this.options.teams[i]] = this.elements["elapsed-thinking-time"][i] as HTMLElement;
+			}
 		}
 		if (this.elements["timer"] && this.elements["timer"][0]) {
 			this.rootTimerElement = this.elements["timer"][0] as HTMLElement;
@@ -480,6 +487,9 @@ class CurlingMachineUI {
 		}
 		if (this.elements["timer-container"] && this.elements["timer-container"][0]) {
 			this.timerContainerElement = this.elements["timer-container"][0] as HTMLElement;
+		}
+		if (this.elements["elapsed-thinking-time-container"] && this.elements["elapsed-thinking-time-container"][0]) {
+			this.elapsedThinkingTimeContainer = this.elements["elapsed-thinking-time-container"][0] as HTMLElement;
 		}
 
 		if (elem.children) {

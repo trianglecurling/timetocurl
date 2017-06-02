@@ -21,22 +21,30 @@ class TimeMinder {
 		this.disposed = true;
 	}
 
-	start() {
+	start(segmentName) {
 		if (this.isRunning() || this.getTimeRemaining() <= 0) {
 			return;
 		}
 		this.started = true;
-		this.unpause();
+		this.unpause(segmentName);
 		for (const task of this.startupTasks) {
 			task.call(this);
 		}
 	}
 
-	unpause() {
-		this.intervals.push({
+	unpause(segmentName) {
+		if (!this.started) {
+			this.start(segmentName);
+			return;
+		}
+		const newInterval = {
 			start: new Date(),
 			end: null
-		});
+		};
+		if (segmentName) {
+			newInterval.segmentName = segmentName;
+		}
+		this.intervals.push(newInterval);
 		this.timeout = setTimeout(() => {
 			this.intervals[this.intervals.length - 1].end = new Date();
 			if (this.onComplete) {
@@ -66,8 +74,10 @@ class TimeMinder {
 		this.tickTimers.push({timer, runWhenPaused});
 	}
 
-	getTimeSpent() {
-		return this.intervals.map(i => ((i.end && i.end.getTime()) || Date.now()) - i.start.getTime()).reduce((prev, current) => current + prev, 0);
+	getTimeSpent(intervals) {
+		return (intervals || this.intervals)
+			.map(i => ((i.end && i.end.getTime()) || Date.now()) - i.start.getTime())
+			.reduce((prev, current) => current + prev, 0);
 	}
 
 	getTimeRemaining() {
@@ -78,14 +88,20 @@ class TimeMinder {
 		return Date.now() - this.intervals[0].start.getTime();
 	}
 
+	getTotalSegmentTime(segmentName) {
+		return this.getTimeSpent(this.intervals.filter(i => i.segmentName === segmentName));
+	}
+
 	pause() {
 		if (!this.isRunning()) {
 			return;
 		}
 		clearTimeout(this.timeout);
 
+		const interval = this.intervals[this.intervals.length - 1];
+
 		// People running around with chainsaws is not Leah's thing.
-		this.intervals[this.intervals.length - 1].end = new Date();
+		interval.end = new Date();
 
 		// Pause all tick timers that don't run when paused.
 		for (const timer of this.tickTimers) {

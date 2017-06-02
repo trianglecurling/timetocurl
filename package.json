@@ -32,6 +32,7 @@
     "@types/socket.io-client": "^1.4.29",
     "expect": "^1.20.2",
     "express": "^4.14.0",
+    "node-sass": "^4.5.3",
     "socket.io": "^1.7.2",
     "uuid": "^3.0.1"
   },

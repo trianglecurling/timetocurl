@@ -17,10 +17,13 @@
   "keywords": [
     "curling",
     "timer",
-    "web",
+    "curltime",
+    "timetocurl",
     "typescript",
     "nodejs",
-    "javascript"
+    "javascript",
+    "socketio",
+    "websockets"
   ],
   "author": "Trevor Gau",
   "license": "MIT",
@@ -38,6 +41,6 @@
   },
   "devDependencies": {
     "nodemon": "^1.11.0",
-    "typescript": "^2.1.5"
+    "typescript": "2.3.4"
   }
 }

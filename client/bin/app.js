@@ -15,8 +15,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t;
-    return { next: verb(0), "throw": verb(1), "return": verb(2) };
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -179,9 +179,16 @@ var TimeToCurl = (function () {
                     }
                 });
             }); });
-            document.getElementById("showDebug").addEventListener("change", _this.onDebugToggled);
+            var showDebug = document.getElementById("showDebug");
+            showDebug.addEventListener("change", _this.onDebugToggled);
             document.getElementById("speedyClocks").addEventListener("change", _this.onSpeedyClocksToggled.bind(_this));
             document.getElementById("themeSelector").addEventListener("change", _this.onThemeChanged);
+            window.addEventListener("keydown", function (event) {
+                if (event.code === "Backquote" && event.ctrlKey) {
+                    showDebug.checked = !showDebug.checked;
+                    _this.onDebugToggled();
+                }
+            });
             _this.onThemeChanged();
             _this.onDebugToggled();
             _this.onSpeedyClocksToggled();
@@ -234,6 +241,7 @@ var CurlingMachineUI = (function () {
         this.application = application;
         this.lengthOfSecond = 1000;
         this.elements = {};
+        this.elapsedThinkingTime = {};
         this.thinkingButtons = {};
         this.thinkingTimeText = {};
         this.timeoutsRemainingText = {};
@@ -433,6 +441,9 @@ var CurlingMachineUI = (function () {
             if (this.elements["timeouts-remaining"] && this.elements["timeouts-remaining"][i]) {
                 this.timeoutsRemainingText[this.options.teams[i]] = this.elements["timeouts-remaining"][i];
             }
+            if (this.elements["elapsed-thinking-time"] && this.elements["elapsed-thinking-time"][i]) {
+                this.elapsedThinkingTime[this.options.teams[i]] = this.elements["elapsed-thinking-time"][i];
+            }
         }
         if (this.elements["timer"] && this.elements["timer"][0]) {
             this.rootTimerElement = this.elements["timer"][0];
@@ -457,6 +468,9 @@ var CurlingMachineUI = (function () {
         }
         if (this.elements["timer-container"] && this.elements["timer-container"][0]) {
             this.timerContainerElement = this.elements["timer-container"][0];
+        }
+        if (this.elements["elapsed-thinking-time-container"] && this.elements["elapsed-thinking-time-container"][0]) {
+            this.elapsedThinkingTimeContainer = this.elements["elapsed-thinking-time-container"][0];
         }
         if (elem.children) {
             for (var i = 0; i < elem.children.length; ++i) {

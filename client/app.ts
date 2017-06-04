@@ -192,9 +192,16 @@ class TimeToCurl {
 				});
 				this.addCurlingMachine(response.data);
 			});
-			document.getElementById("showDebug")!.addEventListener("change", this.onDebugToggled);
+			const showDebug = document.getElementById("showDebug")! as HTMLInputElement;
+			showDebug.addEventListener("change", this.onDebugToggled);
 			document.getElementById("speedyClocks")!.addEventListener("change", this.onSpeedyClocksToggled.bind(this));
 			document.getElementById("themeSelector")!.addEventListener("change", this.onThemeChanged);
+			window.addEventListener("keydown", (event: KeyboardEvent) => {
+				if (event.code === "Backquote" && event.ctrlKey) {
+					showDebug.checked = !showDebug.checked;
+					this.onDebugToggled(); 
+				}
+			});
 			this.onThemeChanged();
 			this.onDebugToggled();
 			this.onSpeedyClocksToggled();

@@ -15,8 +15,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t;
+    return { next: verb(0), "throw": verb(1), "return": verb(2) };
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -243,6 +243,7 @@ var CurlingMachineUI = (function () {
         this.addTimeoutButtons = {};
         this.elements = {};
         this.elapsedThinkingTime = {};
+        this.runningTimers = [];
         this.thinkingButtons = {};
         this.thinkingTimeText = {};
         this.timeoutsRemainingText = {};
@@ -312,7 +313,7 @@ var CurlingMachineUI = (function () {
                 elem.disabled = true;
             }
         });
-        this.clearTimer();
+        this.clearTimers();
         var _loop_2 = function (teamId) {
             setTimeToElem(this_2.thinkingTimeText[teamId], this_2.state.timeRemaining[teamId]);
             this_2.thinkingTimeText[teamId].classList.remove("running");
@@ -320,19 +321,35 @@ var CurlingMachineUI = (function () {
                 var thinkingTeam = this_2.state.phaseData["team"];
                 if (thinkingTeam === teamId) {
                     this_2.thinkingButtons[teamId].disabled = true;
-                    var timer_1 = new TimeMinder(this_2.state.timeRemaining[thinkingTeam] * this_2.lengthOfSecond);
-                    timer_1.every(this_2.lengthOfSecond / 10, function () {
-                        setTimeToElem(_this.thinkingTimeText[teamId], timer_1.getTimeRemaining() / _this.lengthOfSecond);
+                    // Main countdown timer
+                    var mainTimer_1 = new TimeMinder(this_2.state.timeRemaining[thinkingTeam] * this_2.lengthOfSecond);
+                    mainTimer_1.every(this_2.lengthOfSecond / 10, function () {
+                        setTimeToElem(_this.thinkingTimeText[teamId], mainTimer_1.getTimeRemaining() / _this.lengthOfSecond);
                     }, false);
-                    timer_1.start();
-                    this_2.runningTimer = timer_1;
+                    mainTimer_1.start();
+                    this_2.runningTimers.push(mainTimer_1);
+                    // Time spent this stone
+                    var stoneTimer_1 = new Stopwatch();
+                    stoneTimer_1.every(this_2.lengthOfSecond / 10, function () {
+                        setTimeToElem(_this.elapsedThinkingTime[teamId], (stoneTimer_1.elapsedTime() + (_this.state.currentTimerRunningTime || 0)) / _this.lengthOfSecond);
+                    }, false);
+                    stoneTimer_1.start();
+                    this_2.runningTimers.push(stoneTimer_1);
                     this_2.thinkingTimeText[teamId].classList.add("running");
                 }
                 else {
                     this_2.thinkingButtons[teamId].disabled = false;
                 }
             }
-            this_2.timeoutsRemainingText[teamId].textContent = String(state.timeoutsRemaining[teamId]);
+            var timeoutsRemaining = state.timeoutsRemaining[teamId];
+            this_2.timeoutsRemainingText[teamId].textContent = String(timeoutsRemaining);
+            // Don't show subtract button if timeouts === 0
+            if (timeoutsRemaining === 0) {
+                this_2.subtractTimeoutButtons[teamId].classList.add("irrelevant", "placeholder");
+            }
+            else {
+                this_2.subtractTimeoutButtons[teamId].classList.remove("irrelevant", "placeholder");
+            }
         };
         var this_2 = this;
         for (var _i = 0, _a = this.options.teams; _i < _a.length; _i++) {
@@ -341,36 +358,36 @@ var CurlingMachineUI = (function () {
         }
         if (this.state.phase === "warm-up") {
             this.elements["warmup-time-container"][0].classList.remove("irrelevant");
-            var timer_2 = new TimeMinder(this.state.warmupTimeRemaining * this.lengthOfSecond);
-            timer_2.every(this.lengthOfSecond / 10, function () {
-                setTimeToElem(_this.warmupTimeText, timer_2.getTimeRemaining() / _this.lengthOfSecond);
+            var timer_1 = new TimeMinder(this.state.warmupTimeRemaining * this.lengthOfSecond);
+            timer_1.every(this.lengthOfSecond / 10, function () {
+                setTimeToElem(_this.warmupTimeText, timer_1.getTimeRemaining() / _this.lengthOfSecond);
             }, false);
-            timer_2.start();
-            this.runningTimer = timer_2;
+            timer_1.start();
+            this.runningTimers.push(timer_1);
         }
         else if (this.state.phase !== "technical") {
             this.elements["warmup-time-container"][0].classList.add("irrelevant");
         }
         if (this.state.phase === "between-ends") {
             this.elements["between-end-time-container"][0].classList.remove("irrelevant");
-            var timer_3 = new TimeMinder(this.state.betweenEndTimeRemaining * this.lengthOfSecond);
-            timer_3.every(this.lengthOfSecond / 10, function () {
-                setTimeToElem(_this.betweenEndTimeText, timer_3.getTimeRemaining() / _this.lengthOfSecond);
+            var timer_2 = new TimeMinder(this.state.betweenEndTimeRemaining * this.lengthOfSecond);
+            timer_2.every(this.lengthOfSecond / 10, function () {
+                setTimeToElem(_this.betweenEndTimeText, timer_2.getTimeRemaining() / _this.lengthOfSecond);
             }, false);
-            timer_3.start();
-            this.runningTimer = timer_3;
+            timer_2.start();
+            this.runningTimers.push(timer_2);
         }
         else if (this.state.phase !== "technical") {
             this.elements["between-end-time-container"][0].classList.add("irrelevant");
         }
         if (this.state.phase === "timeout") {
             this.elements["timeout-time-container"][0].classList.remove("irrelevant");
-            var timer_4 = new TimeMinder(this.state.timeoutTimeRemaining * this.lengthOfSecond);
-            timer_4.every(this.lengthOfSecond / 10, function () {
-                setTimeToElem(_this.timeoutTimeText, timer_4.getTimeRemaining() / _this.lengthOfSecond);
+            var timer_3 = new TimeMinder(this.state.timeoutTimeRemaining * this.lengthOfSecond);
+            timer_3.every(this.lengthOfSecond / 10, function () {
+                setTimeToElem(_this.timeoutTimeText, timer_3.getTimeRemaining() / _this.lengthOfSecond);
             }, false);
-            timer_4.start();
-            this.runningTimer = timer_4;
+            timer_3.start();
+            this.runningTimers.push(timer_3);
         }
         else if (this.state.phase !== "technical") {
             this.elements["timeout-time-container"][0].classList.add("irrelevant");
@@ -409,9 +426,10 @@ var CurlingMachineUI = (function () {
             }
         }
     };
-    CurlingMachineUI.prototype.clearTimer = function () {
-        if (this.runningTimer) {
-            this.runningTimer.dispose();
+    CurlingMachineUI.prototype.clearTimers = function () {
+        if (this.runningTimers) {
+            this.runningTimers.forEach(function (t) { return t.dispose(); });
+            this.runningTimers = [];
         }
     };
     CurlingMachineUI.prototype.sendPhaseTransition = function (transition, data) {

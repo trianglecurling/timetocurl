@@ -2,7 +2,7 @@ const TimeMinder = require("./time-minder");
 const uuidV4 = require('uuid/v4');
 
 const defaultOptions = {
-	betweenEndTime: 60,
+	betweenEndTime: 10,
 	lengthOfSecond: 1000,
 	midGameBreakTime: 5 * 60,
 	numTimeouts: 1,

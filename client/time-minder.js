@@ -70,6 +70,108 @@ class ManagedTimer {
 	}
 }
 
+class Stopwatch {
+	constructor() {
+		this.splits = [];
+		this.intervals = [];
+		this.startupTasks = [];
+		this.started = false;
+		this.disposed = false;
+		this.tickTimers = [];
+	}
+
+	dispose() {
+		for (const timer of this.tickTimers) {
+			timer.timer.cancel();
+		}
+		this.disposed = true;
+	}
+
+	start() {
+		if (this.isRunning()) {
+			return;
+		}
+		this.started = true;
+		this.unpause();
+		for (const task of this.startupTasks) {
+			task.call(this);
+		}
+	}
+
+	unpause() {
+		this.intervals.push({
+			start: new Date(),
+			end: null
+		});
+
+		// Unpause all tick timers that were paused
+		for (const timer of this.tickTimers) {
+			if (!timer.runWhenPaused) {
+				timer.timer.unpause();
+			}
+		}
+	}
+
+	every(ms, callback, runWhenPaused = false) {
+		if (!this.started) {
+			this.startupTasks.push(this.every.bind(this, ms, callback, runWhenPaused));
+			return;
+		}
+
+		const timer = new ManagedTimer(
+			callback, 
+			ms, 
+			true, // recurring
+			window.setTimeout.bind(window),
+			window.clearTimeout.bind(window),
+			window.setInterval.bind(window),
+			window.clearInterval.bind(window));
+
+		if (runWhenPaused || this.isRunning()) {
+			timer.start();
+		}
+		this.tickTimers.push({timer, runWhenPaused});
+	}
+
+	split() {
+		this.splits.push(this.elapsedTime());
+	}
+
+	getSplits() {
+		return this.splits;
+	}
+
+	elapsedTime() {
+		return this.intervals.map(i => {
+			return ((i.end && i.end.getTime()) || Date.now()) - i.start.getTime();
+		}).reduce((prev, current) => current + prev, 0);
+	}
+
+	getTotalTimeSinceStart() {
+		return Date.now() - this.intervals[0].start.getTime();
+	}
+
+	pause() {
+		if (!this.isRunning()) {
+			return;
+		}
+
+		// People running around with chainsaws is not Leah's thing.
+		this.intervals[this.intervals.length - 1].end = new Date();
+
+		// Pause all tick timers that don't run when paused.
+		for (const timer of this.tickTimers) {
+			if (!timer.runWhenPaused) {
+				timer.timer.pause();
+			}
+		}
+	}
+
+	isRunning() {
+		return this.intervals.length && this.intervals[this.intervals.length - 1].end === null;
+	}
+}
+
 class TimeMinder {
 	constructor(totalTime, onComplete) {
 		this.totalTime = totalTime;
@@ -142,7 +244,7 @@ class TimeMinder {
 		this.tickTimers.push({timer, runWhenPaused});
 	}
 
-	getTimeSpent() {
+	elapsedTime() {
 		return this.intervals.map(i => {
 			if (typeof i.adjustment !== "undefined") {
 				return i.adjustment;
@@ -152,7 +254,7 @@ class TimeMinder {
 	}
 
 	getTimeRemaining() {
-		return this.totalTime - this.getTimeSpent();
+		return this.totalTime - this.elapsedTime();
 	}
 
 	getTotalTimeSinceStart() {

@@ -20,22 +20,22 @@ There are plans to run this application on a public server with a domain name. U
 At this point the program is running. You can open a web browser and navigate to http://localhost:3001 to use it. **From now on, to run Time to Curl, you only need to do step 5 above from within the application directory in a command prompt.
 
 ## Remaining tasks
-- [x] Fix *loaded* timers not working (30 min?) - 27:11
-- [x] Show remaining timeouts for each team (30 min) - 24:13
-- [ ] Show the elapsed time for current thinking session (30 min)
-- [ ] Implement extra ends (45 min)
-- [ ] Implement time/state adjustments (evantually will include things like "replay this end") (3 hrs)
-- [ ] Implement coach travel time for timeouts (1 hr)
-- [ ] Implement a UI for selecting timer options (super custom configuration) (3 hrs)
-- [ ] Implement presets for 6, 8, 10 end games, and mixed doubles (1 hr)
-- [ ] Implement a read-only mode (1 hr)
-- [ ] Implement some kind of token security (3 hrs)
-- [ ] Implement one or two new themes (8+ hrs)
-- [ ] Implement audit log (1 hr)
-- [ ] Implement generation of official game log (4 hrs)
-- [ ] Implement an end-of-game experience (1 hr)
-- [ ] Figure out how to handle no remaining timeouts (30 min)
-- [ ] Testing, fit and finish (∞ hrs)
+[x] Fix *loaded* timers not working (30 min?) - 27:11
+[x] Show remaining timeouts for each team (30 min) - 24:13
+[ ] Show the elapsed time for current thinking session (30 min) - N/A
+[ ] Implement extra ends (45 min)
+[ ] Implement time/state adjustments (evantually will include things like "replay this end") (3 hrs) - N/A
+[ ] Implement coach travel time for timeouts (1 hr)
+[ ] Implement a UI for selecting timer options (super custom configuration) (3 hrs)
+[ ] Implement presets for 6, 8, 10 end games, and mixed doubles (1 hr)
+[ ] Implement a read-only mode (1 hr)
+[ ] Implement some kind of token security (3 hrs)
+[ ] Implement one or two new themes (8+ hrs)
+[ ] Implement audit log (1 hr)
+[ ] Implement generation of official game log (4 hrs)
+[ ] Implement an end-of-game experience (1 hr)
+[ ] Figure out how to handle no remaining timeouts (30 min)
+[ ] Testing, fit and finish (∞ hrs)
 
 **Total: 28+ hours**
 

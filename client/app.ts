@@ -1,13 +1,20 @@
-declare class TimeMinder {
-	constructor(totalTime: number, onComplete?: (timerData: any) => void);
+declare class Stopwatch {
+	constructor();
 	public dispose(): void;
-	public every(ms: number, callback: () => void, runWhenPaused: boolean): void;
-	public getTimeRemaining(): number;
-	public getTimeSpent(): number;
-	public getTotalTimeSinceStart(): number;
-	public isRunning(): boolean;
-	public pause(): void;
 	public start(): void;
+	public unpause(): void;
+	public every(ms: number, callback: () => void, runWhenPaused: boolean): void;
+	public split(): void;
+	public getSplits(): number[];
+	public elapsedTime(): number;
+	public getTotalTimeSinceStart(): number;
+	public pause(): void;
+	public isRunning(): boolean;
+}
+
+declare class TimeMinder extends Stopwatch {
+	constructor(totalTime: number, onComplete?: (timerData: any) => void);
+	public getTimeRemaining(): number;
 }
 
 interface IMap<TVal> {
@@ -263,7 +270,7 @@ class CurlingMachineUI {
 	private lengthOfSecond = 1000;
 	private options: TimerOptions;
 	private rootTimerElement: HTMLElement;
-	private runningTimer: TimeMinder;
+	private runningTimers: Stopwatch[];
 	private state: CurlingMachineState;
 	private subtractTimeoutButtons: { [key: string]: HTMLButtonElement};
 	private thinkingButtons: IMap<HTMLButtonElement>;
@@ -279,6 +286,7 @@ class CurlingMachineUI {
 		this.addTimeoutButtons = {};
 		this.elements = {};
 		this.elapsedThinkingTime = {};
+		this.runningTimers = [];
 		this.thinkingButtons = {};
 		this.thinkingTimeText = {};
 		this.timeoutsRemainingText = {};
@@ -352,7 +360,7 @@ class CurlingMachineUI {
 			}
 		});
 
-		this.clearTimer();
+		this.clearTimers();
 		for (const teamId of this.options.teams) {
 			setTimeToElem(this.thinkingTimeText[teamId], this.state.timeRemaining[teamId]);
 			this.thinkingTimeText[teamId].classList.remove("running");
@@ -360,19 +368,38 @@ class CurlingMachineUI {
 				const thinkingTeam = this.state.phaseData["team"];
 				if (thinkingTeam === teamId) {
 					this.thinkingButtons[teamId].disabled = true;
-					const timer = new TimeMinder(this.state.timeRemaining[thinkingTeam] * this.lengthOfSecond);
-					timer.every(this.lengthOfSecond / 10, () => {
-						setTimeToElem(this.thinkingTimeText[teamId], timer.getTimeRemaining() / this.lengthOfSecond);
+
+					// Main countdown timer
+					const mainTimer = new TimeMinder(this.state.timeRemaining[thinkingTeam] * this.lengthOfSecond);
+					mainTimer.every(this.lengthOfSecond / 10, () => {
+						setTimeToElem(this.thinkingTimeText[teamId], mainTimer.getTimeRemaining() / this.lengthOfSecond);
 					}, false);
-					timer.start();
-					this.runningTimer = timer;
+					mainTimer.start();
+					this.runningTimers.push(mainTimer);
+
+					// Time spent this stone
+					const stoneTimer = new Stopwatch();
+					stoneTimer.every(this.lengthOfSecond / 10, () => {
+						setTimeToElem(this.elapsedThinkingTime[teamId], (stoneTimer.elapsedTime() + (this.state.currentTimerRunningTime || 0)) / this.lengthOfSecond);
+					}, false);
+					stoneTimer.start();
+					this.runningTimers.push(stoneTimer);
+
 					this.thinkingTimeText[teamId].classList.add("running");
 				} else {
 					this.thinkingButtons[teamId].disabled = false;
 				}
 			}
 
-			this.timeoutsRemainingText[teamId].textContent = String(state.timeoutsRemaining[teamId]);
+			const timeoutsRemaining = state.timeoutsRemaining[teamId];
+			this.timeoutsRemainingText[teamId].textContent = String(timeoutsRemaining);
+
+			// Don't show subtract button if timeouts === 0
+			if (timeoutsRemaining === 0) {
+				this.subtractTimeoutButtons[teamId].classList.add("irrelevant", "placeholder");
+			} else {
+				this.subtractTimeoutButtons[teamId].classList.remove("irrelevant", "placeholder");
+			}
 		}
 		if (this.state.phase === "warm-up") {
 			this.elements["warmup-time-container"][0].classList.remove("irrelevant");
@@ -381,7 +408,7 @@ class CurlingMachineUI {
 				setTimeToElem(this.warmupTimeText, timer.getTimeRemaining() / this.lengthOfSecond);
 			}, false);
 			timer.start();
-			this.runningTimer = timer;
+			this.runningTimers.push(timer);
 		} else if (this.state.phase !== "technical") {
 			this.elements["warmup-time-container"][0].classList.add("irrelevant");
 		}
@@ -393,7 +420,7 @@ class CurlingMachineUI {
 				setTimeToElem(this.betweenEndTimeText, timer.getTimeRemaining() / this.lengthOfSecond);
 			}, false);
 			timer.start();
-			this.runningTimer = timer;
+			this.runningTimers.push(timer);
 		} else if (this.state.phase !== "technical") {
 			this.elements["between-end-time-container"][0].classList.add("irrelevant");
 		}
@@ -405,7 +432,7 @@ class CurlingMachineUI {
 				setTimeToElem(this.timeoutTimeText, timer.getTimeRemaining() / this.lengthOfSecond);
 			}, false);
 			timer.start();
-			this.runningTimer = timer;
+			this.runningTimers.push(timer);
 		} else if (this.state.phase !== "technical") {
 			this.elements["timeout-time-container"][0].classList.add("irrelevant");
 		}
@@ -445,9 +472,10 @@ class CurlingMachineUI {
 		}
 	}
 
-	private clearTimer() {
-		if (this.runningTimer) {
-			this.runningTimer.dispose();
+	private clearTimers() {
+		if (this.runningTimers) {
+			this.runningTimers.forEach(t => t.dispose());
+			this.runningTimers = [];
 		}
 	}
 

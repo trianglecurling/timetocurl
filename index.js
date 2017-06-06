@@ -123,13 +123,14 @@ function handleAction(action, socket) {
 					data: action.options.data
 				});
 				socket.emit("response", JSON.stringify({response: "QUERY_TIMER", token: action.token, data: "ok"}));
+			} else if (action.options.command) {
+				machine.handleAction({
+					command: action.options.command,
+					data: JSON.parse(action.options.data)
+				});
 			} else {
 				socket.emit("response", JSON.stringify({response: "QUERY_TIMER", token: action.token, data: "no action given"}));
 			}
-		} else if (action.options.command) {
-			machine.handleAction({
-				command: action.options.command
-			});
 		} else {
 			socket.emit("response", JSON.stringify({response: "QUERY_TIMER", token: action.token, data: "unknown machine"}));
 		}

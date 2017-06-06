@@ -70,8 +70,16 @@
 					</div>
 					<div class="timeouts-remaining-container">
 						<h2>Timeouts remaining</h2>
-						<div class="timeouts-remaining"></div>
-						<div class="timeouts-remaining"></div>
+						<div class="timeouts-remaining">
+							<span class="timeouts-num"></span>
+							<button data-command="ADD_TIMEOUTS" data-data='{"team": "Red", "value": 1}' class="add-timeout">+</button>
+							<button data-command="ADD_TIMEOUTS" data-data='{"team": "Red", "value": -1}' class="subtract-timeout">-</button>
+						</div>
+						<div class="timeouts-remaining">
+							<span class="timeouts-num"></span>
+							<button data-command="ADD_TIMEOUTS" data-data='{"team": "Yellow", "value": 1}' class="add-timeout">+</button>
+							<button data-command="ADD_TIMEOUTS" data-data='{"team": "Yellow", "value": -1}' class="subtract-timeout">-</button>
+						</div>
 					</div>
 					<div class="elapsed-thinking-time-container">
 						<h2>Elapsed thinking time</h2>

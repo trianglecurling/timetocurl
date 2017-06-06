@@ -266,21 +266,40 @@ body.classic .timer {
 			text-align: center;
 			font-size: 2.5vmin;
 			font-weight: bold;
+			pointer-events: all;
 
 			&:first-of-type {
 				border: 2px solid #fff;
 				color: #fff;
 				top: 4%;
+
+				.add-timeout, .subtract-timeout {
+					border: 1px dotted #fff;
+					color: #fff;
+				}
 			}
 			&:last-of-type {
 				border: 2px solid #000;
 				color: #000;
 				top: 56%;
+				
+				.add-timeout, .subtract-timeout {
+					border: 1px dotted #000;
+					color: #000;
+				}
 			}
 
 			&::before {
 				content: "Time Outs";
 				display: block;
+			}
+
+			.add-timeout, .subtract-timeout {
+				background: none;
+				outline: none;
+				cursor: pointer;
+				width: 2.5vmin;
+				height: 2.5vmin;
 			}
 		}
 	}

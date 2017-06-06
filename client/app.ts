@@ -254,6 +254,7 @@ class TimeToCurl {
 }
 
 class CurlingMachineUI {
+	private addTimeoutButtons: { [key: string]: HTMLButtonElement};
 	private betweenEndTimeText: HTMLElement;
 	private debugElement: HTMLElement;
 	private elements: { [key: string]: Element[] };
@@ -264,6 +265,7 @@ class CurlingMachineUI {
 	private rootTimerElement: HTMLElement;
 	private runningTimer: TimeMinder;
 	private state: CurlingMachineState;
+	private subtractTimeoutButtons: { [key: string]: HTMLButtonElement};
 	private thinkingButtons: IMap<HTMLButtonElement>;
 	private thinkingTimeText: IMap<HTMLElement>;
 	private timeoutsRemainingContainerElement: HTMLElement;
@@ -274,12 +276,14 @@ class CurlingMachineUI {
 	private warmupTimeText: HTMLElement;
 
 	constructor(initParams: StateAndOptions, private container: Element, private application: TimeToCurl) {
+		this.addTimeoutButtons = {};
 		this.elements = {};
 		this.elapsedThinkingTime = {};
 		this.thinkingButtons = {};
 		this.thinkingTimeText = {};
 		this.timeoutsRemainingText = {};
 		this.state = initParams.state;
+		this.subtractTimeoutButtons = {};
 		this.options = initParams.options;
 		if (initParams.options.lengthOfSecond) {
 			this.lengthOfSecond = initParams.options.lengthOfSecond;
@@ -312,6 +316,14 @@ class CurlingMachineUI {
 			}
 			elem.addEventListener("click", () => {
 				this.sendPhaseTransition(action);
+			});
+		});
+
+		this.forEachCommand((elem: HTMLButtonElement) => {
+			const command = elem.dataset["command"]!;
+			const data = JSON.parse(elem.dataset["data"] || "{}");
+			elem.addEventListener("click", () => {
+				this.sendCommand(command, data);
 			});
 		});
 
@@ -422,6 +434,17 @@ class CurlingMachineUI {
 		}
 	}
 
+	private forEachCommand(callback: (elem: HTMLButtonElement) => void) {
+		for (const command in this.elements) {
+			for (const elem of this.elements[command]) {
+				const commandAttr = (elem as HTMLElement).dataset["command"];
+				if (elem.tagName.toLowerCase() === "button" && commandAttr) {
+					callback.call(null, elem, commandAttr);
+				}
+			}
+		}
+	}
+
 	private clearTimer() {
 		if (this.runningTimer) {
 			this.runningTimer.dispose();
@@ -441,6 +464,18 @@ class CurlingMachineUI {
 		if (result.data !== "ok") {
 			throw new Error("Error querying timer w/ phase transition " + transition + ".");
 		}
+	}
+
+	private async sendCommand(command: String, data?: any) {
+		const result = await this.application.emitAction<{}, string>({
+			request: "QUERY_TIMER",
+			clientId: clientId,
+			options: {
+				command: command,
+				data: JSON.stringify(data),
+				timerId: this.state.id
+			}
+		});
 	}
 
 	private initElements(elem: Element) {
@@ -464,11 +499,17 @@ class CurlingMachineUI {
 			if (this.elements["thinking-time"] && this.elements["thinking-time"][i]) {
 				this.thinkingTimeText[this.options.teams[i]] = this.elements["thinking-time"][i] as HTMLElement;
 			}
-			if (this.elements["timeouts-remaining"] && this.elements["timeouts-remaining"][i]) {
-				this.timeoutsRemainingText[this.options.teams[i]] = this.elements["timeouts-remaining"][i] as HTMLElement;
+			if (this.elements["timeouts-num"] && this.elements["timeouts-num"][i]) {
+				this.timeoutsRemainingText[this.options.teams[i]] = this.elements["timeouts-num"][i] as HTMLElement;
 			}
 			if (this.elements["elapsed-thinking-time"] && this.elements["elapsed-thinking-time"][i]) {
 				this.elapsedThinkingTime[this.options.teams[i]] = this.elements["elapsed-thinking-time"][i] as HTMLElement;
+			}
+			if (this.elements["add-timeout"] && this.elements["add-timeout"][i]) {
+				this.addTimeoutButtons[this.options.teams[i]] = this.elements["add-timeout"][i] as HTMLButtonElement;
+			}
+			if (this.elements["subtract-timeout"] && this.elements["subtract-timeout"][i]) {
+				this.subtractTimeoutButtons[this.options.teams[i]] = this.elements["subtract-timeout"][i] as HTMLButtonElement;
 			}
 		}
 		if (this.elements["timer"] && this.elements["timer"][0]) {

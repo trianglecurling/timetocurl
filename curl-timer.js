@@ -125,8 +125,8 @@ class CurlingMachine {
 			nextState = this.getCurrentState();
 			switch (action.command) {
 				case "ADD_TIMEOUTS":
-					if (nextState.timeoutsRemaining[action.data.team]) {
-						nextState.timeoutsRemaining[action.data.team] += parseInt(action.data.value, 10);
+					if (typeof this.timeoutsRemaining[action.data.team] === "number") {
+						this.timeoutsRemaining[action.data.team] += parseInt(action.data.value, 10);
 					}
 					break;
 				case "ADD_TIME":

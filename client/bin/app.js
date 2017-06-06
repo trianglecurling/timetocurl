@@ -240,12 +240,14 @@ var CurlingMachineUI = (function () {
         this.container = container;
         this.application = application;
         this.lengthOfSecond = 1000;
+        this.addTimeoutButtons = {};
         this.elements = {};
         this.elapsedThinkingTime = {};
         this.thinkingButtons = {};
         this.thinkingTimeText = {};
         this.timeoutsRemainingText = {};
         this.state = initParams.state;
+        this.subtractTimeoutButtons = {};
         this.options = initParams.options;
         if (initParams.options.lengthOfSecond) {
             this.lengthOfSecond = initParams.options.lengthOfSecond;
@@ -280,6 +282,13 @@ var CurlingMachineUI = (function () {
             }
             elem.addEventListener("click", function () {
                 _this.sendPhaseTransition(action);
+            });
+        });
+        this.forEachCommand(function (elem) {
+            var command = elem.dataset["command"];
+            var data = JSON.parse(elem.dataset["data"] || "{}");
+            elem.addEventListener("click", function () {
+                _this.sendCommand(command, data);
             });
         });
         this.setNewState(this.state);
@@ -389,6 +398,17 @@ var CurlingMachineUI = (function () {
             }
         }
     };
+    CurlingMachineUI.prototype.forEachCommand = function (callback) {
+        for (var command in this.elements) {
+            for (var _i = 0, _a = this.elements[command]; _i < _a.length; _i++) {
+                var elem = _a[_i];
+                var commandAttr = elem.dataset["command"];
+                if (elem.tagName.toLowerCase() === "button" && commandAttr) {
+                    callback.call(null, elem, commandAttr);
+                }
+            }
+        }
+    };
     CurlingMachineUI.prototype.clearTimer = function () {
         if (this.runningTimer) {
             this.runningTimer.dispose();
@@ -418,6 +438,27 @@ var CurlingMachineUI = (function () {
             });
         });
     };
+    CurlingMachineUI.prototype.sendCommand = function (command, data) {
+        return __awaiter(this, void 0, void 0, function () {
+            var result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.application.emitAction({
+                            request: "QUERY_TIMER",
+                            clientId: clientId,
+                            options: {
+                                command: command,
+                                data: JSON.stringify(data),
+                                timerId: this.state.id
+                            }
+                        })];
+                    case 1:
+                        result = _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
     CurlingMachineUI.prototype.initElements = function (elem) {
         var key = "";
         var elemData = elem.dataset["key"] || elem.dataset["action"];
@@ -438,11 +479,17 @@ var CurlingMachineUI = (function () {
             if (this.elements["thinking-time"] && this.elements["thinking-time"][i]) {
                 this.thinkingTimeText[this.options.teams[i]] = this.elements["thinking-time"][i];
             }
-            if (this.elements["timeouts-remaining"] && this.elements["timeouts-remaining"][i]) {
-                this.timeoutsRemainingText[this.options.teams[i]] = this.elements["timeouts-remaining"][i];
+            if (this.elements["timeouts-num"] && this.elements["timeouts-num"][i]) {
+                this.timeoutsRemainingText[this.options.teams[i]] = this.elements["timeouts-num"][i];
             }
             if (this.elements["elapsed-thinking-time"] && this.elements["elapsed-thinking-time"][i]) {
                 this.elapsedThinkingTime[this.options.teams[i]] = this.elements["elapsed-thinking-time"][i];
+            }
+            if (this.elements["add-timeout"] && this.elements["add-timeout"][i]) {
+                this.addTimeoutButtons[this.options.teams[i]] = this.elements["add-timeout"][i];
+            }
+            if (this.elements["subtract-timeout"] && this.elements["subtract-timeout"][i]) {
+                this.subtractTimeoutButtons[this.options.teams[i]] = this.elements["subtract-timeout"][i];
             }
         }
         if (this.elements["timer"] && this.elements["timer"][0]) {

@@ -261,18 +261,20 @@ class TimeToCurl {
 }
 
 class CurlingMachineUI {
-	private addTimeoutButtons: { [key: string]: HTMLButtonElement};
+	private addTimeoutButtons: IMap<HTMLButtonElement>;
 	private betweenEndTimeText: HTMLElement;
 	private debugElement: HTMLElement;
-	private elements: { [key: string]: Element[] };
-	private elapsedThinkingTime: { [key: string]: HTMLElement };
+	private designationToTeam: IMap<string>;
+	private elements: IMap<Element[]>;
+	private elapsedThinkingTime: IMap<HTMLElement>;
 	private elapsedThinkingTimeContainer: HTMLElement;
 	private lengthOfSecond = 1000;
 	private options: TimerOptions;
 	private rootTimerElement: HTMLElement;
 	private runningTimers: Stopwatch[];
 	private state: CurlingMachineState;
-	private subtractTimeoutButtons: { [key: string]: HTMLButtonElement};
+	private subtractTimeoutButtons: IMap<HTMLButtonElement>;
+	private teamsToDesignation: IMap<string>;
 	private thinkingButtons: IMap<HTMLButtonElement>;
 	private thinkingTimeText: IMap<HTMLElement>;
 	private timeoutsRemainingContainerElement: HTMLElement;
@@ -284,9 +286,11 @@ class CurlingMachineUI {
 
 	constructor(initParams: StateAndOptions, private container: Element, private application: TimeToCurl) {
 		this.addTimeoutButtons = {};
+		this.designationToTeam = {};
 		this.elements = {};
 		this.elapsedThinkingTime = {};
 		this.runningTimers = [];
+		this.teamsToDesignation = {};
 		this.thinkingButtons = {};
 		this.thinkingTimeText = {};
 		this.timeoutsRemainingText = {};
@@ -296,6 +300,15 @@ class CurlingMachineUI {
 		if (initParams.options.lengthOfSecond) {
 			this.lengthOfSecond = initParams.options.lengthOfSecond;
 		}
+
+		for (let i = 0; i < this.options.teams.length; ++i) {
+			const designation = String.fromCharCode(65 + i);
+			const team = this.options.teams[i];
+
+			this.teamsToDesignation[team] = designation;
+			this.designationToTeam[designation] = team
+		}
+
 		this.initUI();
 	}
 
@@ -327,9 +340,12 @@ class CurlingMachineUI {
 			});
 		});
 
-		this.forEachCommand((elem: HTMLButtonElement) => {
-			const command = elem.dataset["command"]!;
+		this.forEachCommand((elem: HTMLButtonElement, command: string, team: string | null) => {
 			const data = JSON.parse(elem.dataset["data"] || "{}");
+			if (team) {
+				data.team = this.designationToTeam[team];
+			}
+			
 			elem.addEventListener("click", () => {
 				this.sendCommand(command, data);
 			});
@@ -363,6 +379,7 @@ class CurlingMachineUI {
 		this.clearTimers();
 		for (const teamId of this.options.teams) {
 			setTimeToElem(this.thinkingTimeText[teamId], this.state.timeRemaining[teamId]);
+			this.elapsedThinkingTime[teamId].classList.remove("running");
 			this.thinkingTimeText[teamId].classList.remove("running");
 			if (this.state.phase === "thinking") {
 				const thinkingTeam = this.state.phaseData["team"];
@@ -379,6 +396,7 @@ class CurlingMachineUI {
 
 					// Time spent this stone
 					const stoneTimer = new Stopwatch();
+					this.elapsedThinkingTime[teamId].classList.add("running");
 					stoneTimer.every(this.lengthOfSecond / 10, () => {
 						setTimeToElem(this.elapsedThinkingTime[teamId], (stoneTimer.elapsedTime() + (this.state.currentTimerRunningTime || 0)) / this.lengthOfSecond);
 					}, false);
@@ -461,12 +479,19 @@ class CurlingMachineUI {
 		}
 	}
 
-	private forEachCommand(callback: (elem: HTMLButtonElement) => void) {
-		for (const command in this.elements) {
-			for (const elem of this.elements[command]) {
+	private forEachCommand(callback: (elem: HTMLButtonElement, command: string, team: string | null) => void) {
+		for (const commandKey in this.elements) {
+			const splitCommand = commandKey.split(":");
+			let command = commandKey;
+			let team: string | null = null;
+			if (splitCommand.length === 2) {
+				team = splitCommand[0];
+				command = splitCommand[1];
+			}
+			for (const elem of this.elements[commandKey]) {
 				const commandAttr = (elem as HTMLElement).dataset["command"];
 				if (elem.tagName.toLowerCase() === "button" && commandAttr) {
-					callback.call(null, elem, commandAttr);
+					callback.call(null, elem, commandAttr, team);
 				}
 			}
 		}
@@ -507,39 +532,33 @@ class CurlingMachineUI {
 	}
 
 	private initElements(elem: Element) {
-		let key = "";
-		const elemData = (elem as HTMLElement).dataset["key"] || (elem as HTMLElement).dataset["action"];
-		if (elemData) {
-			key = elemData;
-		}
-		else if (elem.classList.length === 1) {
-			key = elem.className;
-		}
-		if (!this.elements[key]) {
-			this.elements[key] = [];
-		} 
-		this.elements[key].push(elem);
+		this.populateElements(elem);
 
-		for (let i = 0; i < this.options.teams.length; ++i) {
-			if (this.elements["begin-thinking"] && this.elements["begin-thinking"][i]) {
-				this.thinkingButtons[this.options.teams[i]] = this.elements["begin-thinking"][i] as HTMLButtonElement;
+		// UI that is one-per-team
+		for (const teamId of this.options.teams) {
+			const key = this.teamsToDesignation[teamId] + ":";
+
+			if (this.elements[`${key}begin-thinking`]) {
+				this.thinkingButtons[teamId] = this.elements[`${key}begin-thinking`][0] as HTMLButtonElement;
 			}
-			if (this.elements["thinking-time"] && this.elements["thinking-time"][i]) {
-				this.thinkingTimeText[this.options.teams[i]] = this.elements["thinking-time"][i] as HTMLElement;
+			if (this.elements[`${key}thinking-time`]) {
+				this.thinkingTimeText[teamId] = this.elements[`${key}thinking-time`][0] as HTMLElement;
 			}
-			if (this.elements["timeouts-num"] && this.elements["timeouts-num"][i]) {
-				this.timeoutsRemainingText[this.options.teams[i]] = this.elements["timeouts-num"][i] as HTMLElement;
+			if (this.elements[`${key}timeouts-num`]) {
+				this.timeoutsRemainingText[teamId] = this.elements[`${key}timeouts-num`][0] as HTMLElement;
 			}
-			if (this.elements["elapsed-thinking-time"] && this.elements["elapsed-thinking-time"][i]) {
-				this.elapsedThinkingTime[this.options.teams[i]] = this.elements["elapsed-thinking-time"][i] as HTMLElement;
+			if (this.elements[`${key}elapsed-thinking-time`]) {
+				this.elapsedThinkingTime[teamId] = this.elements[`${key}elapsed-thinking-time`][0] as HTMLElement;
 			}
-			if (this.elements["add-timeout"] && this.elements["add-timeout"][i]) {
-				this.addTimeoutButtons[this.options.teams[i]] = this.elements["add-timeout"][i] as HTMLButtonElement;
+			if (this.elements[`${key}add-timeout`]) {
+				this.addTimeoutButtons[teamId] = this.elements[`${key}add-timeout`][0] as HTMLButtonElement;
 			}
-			if (this.elements["subtract-timeout"] && this.elements["subtract-timeout"][i]) {
-				this.subtractTimeoutButtons[this.options.teams[i]] = this.elements["subtract-timeout"][i] as HTMLButtonElement;
+			if (this.elements[`${key}subtract-timeout`]) {
+				this.subtractTimeoutButtons[teamId] = this.elements[`${key}subtract-timeout`][0] as HTMLButtonElement;
 			}
 		}
+
+		// UI that exists once
 		if (this.elements["timer"] && this.elements["timer"][0]) {
 			this.rootTimerElement = this.elements["timer"][0] as HTMLElement;
 		}
@@ -567,10 +586,39 @@ class CurlingMachineUI {
 		if (this.elements["elapsed-thinking-time-container"] && this.elements["elapsed-thinking-time-container"][0]) {
 			this.elapsedThinkingTimeContainer = this.elements["elapsed-thinking-time-container"][0] as HTMLElement;
 		}
+	}
+
+	private populateElements(elem: Element, teamContext: string | null = null) {
+		let key = "";
+		const elemData = (elem as HTMLElement).dataset["key"] || (elem as HTMLElement).dataset["action"];
+		if (elemData) {
+			key = elemData;
+		} else {
+			const nonTeamClasses = Array.prototype.filter.call(elem.classList, (c: string) => c.substr(0, 5) !== "team");
+			if (nonTeamClasses.length === 1) {
+				key = nonTeamClasses[0];
+			}
+		}
+
+		let foundTeamContext = teamContext;
+		if (foundTeamContext === null) {
+			const testForTeamInClassname = /team-([a-z]+)\b/i.exec(elem.className);
+			if (testForTeamInClassname && testForTeamInClassname[1]) {
+				foundTeamContext = testForTeamInClassname[1];
+			}
+		}
+
+		let teamPrefix = foundTeamContext === null ? "" : foundTeamContext + ":";
+		key = teamPrefix + key;
+
+		if (!this.elements[key]) {
+			this.elements[key] = [];
+		}
+		this.elements[key].push(elem);
 
 		if (elem.children) {
 			for (let i = 0; i < elem.children.length; ++i) {
-				this.initElements(elem.children.item(i));
+				this.populateElements(elem.children.item(i), foundTeamContext);
 			}
 		}
 	}
@@ -595,3 +643,7 @@ function setMonospaceText(elem: HTMLElement, text: string) {
 }
 
 new TimeToCurl().init();
+console.log("Hey developers! Thanks for checking out the source of Time to Curl. The JavaScript included on this page is compiled from TypeScript source. To see the original source, head on over to our GitHub repo at https://github.com/trianglecurling/timetocurl. Please use the GitHub page to let us know if you find any issues with this application.");
+console.log("Those looking a bit more closely may notice that the layout of this page is fairly horrendous. Lots of overlayed DIVs with absolute positioning—yuck! Here's my reasoning. When I first created the app, I started with the most bare-bones HTML possible with almost no CSS. Once I got a good amount of the functionality done, I decided to go back and add CSS to skin the app. However, the plan was to make the first skin as similar as possible to \"CurlTime\" to make for an easy transition. However, I wanted to keep my options open for re-skinning in the future, so I wanted the HTML to be easily modified without affecting the \"Classic\" layout. We'll see in time if that was a good decision. I'm starting to regret it!");
+
+/* keep the last line short... */

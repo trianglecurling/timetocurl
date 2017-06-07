@@ -241,9 +241,11 @@ var CurlingMachineUI = (function () {
         this.application = application;
         this.lengthOfSecond = 1000;
         this.addTimeoutButtons = {};
+        this.designationToTeam = {};
         this.elements = {};
         this.elapsedThinkingTime = {};
         this.runningTimers = [];
+        this.teamsToDesignation = {};
         this.thinkingButtons = {};
         this.thinkingTimeText = {};
         this.timeoutsRemainingText = {};
@@ -252,6 +254,12 @@ var CurlingMachineUI = (function () {
         this.options = initParams.options;
         if (initParams.options.lengthOfSecond) {
             this.lengthOfSecond = initParams.options.lengthOfSecond;
+        }
+        for (var i = 0; i < this.options.teams.length; ++i) {
+            var designation = String.fromCharCode(65 + i);
+            var team = this.options.teams[i];
+            this.teamsToDesignation[team] = designation;
+            this.designationToTeam[designation] = team;
         }
         this.initUI();
     }
@@ -285,9 +293,11 @@ var CurlingMachineUI = (function () {
                 _this.sendPhaseTransition(action);
             });
         });
-        this.forEachCommand(function (elem) {
-            var command = elem.dataset["command"];
+        this.forEachCommand(function (elem, command, team) {
             var data = JSON.parse(elem.dataset["data"] || "{}");
+            if (team) {
+                data.team = _this.designationToTeam[team];
+            }
             elem.addEventListener("click", function () {
                 _this.sendCommand(command, data);
             });
@@ -316,6 +326,7 @@ var CurlingMachineUI = (function () {
         this.clearTimers();
         var _loop_2 = function (teamId) {
             setTimeToElem(this_2.thinkingTimeText[teamId], this_2.state.timeRemaining[teamId]);
+            this_2.elapsedThinkingTime[teamId].classList.remove("running");
             this_2.thinkingTimeText[teamId].classList.remove("running");
             if (this_2.state.phase === "thinking") {
                 var thinkingTeam = this_2.state.phaseData["team"];
@@ -330,6 +341,7 @@ var CurlingMachineUI = (function () {
                     this_2.runningTimers.push(mainTimer_1);
                     // Time spent this stone
                     var stoneTimer_1 = new Stopwatch();
+                    this_2.elapsedThinkingTime[teamId].classList.add("running");
                     stoneTimer_1.every(this_2.lengthOfSecond / 10, function () {
                         setTimeToElem(_this.elapsedThinkingTime[teamId], (stoneTimer_1.elapsedTime() + (_this.state.currentTimerRunningTime || 0)) / _this.lengthOfSecond);
                     }, false);
@@ -416,12 +428,19 @@ var CurlingMachineUI = (function () {
         }
     };
     CurlingMachineUI.prototype.forEachCommand = function (callback) {
-        for (var command in this.elements) {
-            for (var _i = 0, _a = this.elements[command]; _i < _a.length; _i++) {
+        for (var commandKey in this.elements) {
+            var splitCommand = commandKey.split(":");
+            var command = commandKey;
+            var team = null;
+            if (splitCommand.length === 2) {
+                team = splitCommand[0];
+                command = splitCommand[1];
+            }
+            for (var _i = 0, _a = this.elements[commandKey]; _i < _a.length; _i++) {
                 var elem = _a[_i];
                 var commandAttr = elem.dataset["command"];
                 if (elem.tagName.toLowerCase() === "button" && commandAttr) {
-                    callback.call(null, elem, commandAttr);
+                    callback.call(null, elem, commandAttr, team);
                 }
             }
         }
@@ -478,38 +497,31 @@ var CurlingMachineUI = (function () {
         });
     };
     CurlingMachineUI.prototype.initElements = function (elem) {
-        var key = "";
-        var elemData = elem.dataset["key"] || elem.dataset["action"];
-        if (elemData) {
-            key = elemData;
-        }
-        else if (elem.classList.length === 1) {
-            key = elem.className;
-        }
-        if (!this.elements[key]) {
-            this.elements[key] = [];
-        }
-        this.elements[key].push(elem);
-        for (var i = 0; i < this.options.teams.length; ++i) {
-            if (this.elements["begin-thinking"] && this.elements["begin-thinking"][i]) {
-                this.thinkingButtons[this.options.teams[i]] = this.elements["begin-thinking"][i];
+        this.populateElements(elem);
+        // UI that is one-per-team
+        for (var _i = 0, _a = this.options.teams; _i < _a.length; _i++) {
+            var teamId = _a[_i];
+            var key = this.teamsToDesignation[teamId] + ":";
+            if (this.elements[key + "begin-thinking"]) {
+                this.thinkingButtons[teamId] = this.elements[key + "begin-thinking"][0];
             }
-            if (this.elements["thinking-time"] && this.elements["thinking-time"][i]) {
-                this.thinkingTimeText[this.options.teams[i]] = this.elements["thinking-time"][i];
+            if (this.elements[key + "thinking-time"]) {
+                this.thinkingTimeText[teamId] = this.elements[key + "thinking-time"][0];
             }
-            if (this.elements["timeouts-num"] && this.elements["timeouts-num"][i]) {
-                this.timeoutsRemainingText[this.options.teams[i]] = this.elements["timeouts-num"][i];
+            if (this.elements[key + "timeouts-num"]) {
+                this.timeoutsRemainingText[teamId] = this.elements[key + "timeouts-num"][0];
             }
-            if (this.elements["elapsed-thinking-time"] && this.elements["elapsed-thinking-time"][i]) {
-                this.elapsedThinkingTime[this.options.teams[i]] = this.elements["elapsed-thinking-time"][i];
+            if (this.elements[key + "elapsed-thinking-time"]) {
+                this.elapsedThinkingTime[teamId] = this.elements[key + "elapsed-thinking-time"][0];
             }
-            if (this.elements["add-timeout"] && this.elements["add-timeout"][i]) {
-                this.addTimeoutButtons[this.options.teams[i]] = this.elements["add-timeout"][i];
+            if (this.elements[key + "add-timeout"]) {
+                this.addTimeoutButtons[teamId] = this.elements[key + "add-timeout"][0];
             }
-            if (this.elements["subtract-timeout"] && this.elements["subtract-timeout"][i]) {
-                this.subtractTimeoutButtons[this.options.teams[i]] = this.elements["subtract-timeout"][i];
+            if (this.elements[key + "subtract-timeout"]) {
+                this.subtractTimeoutButtons[teamId] = this.elements[key + "subtract-timeout"][0];
             }
         }
+        // UI that exists once
         if (this.elements["timer"] && this.elements["timer"][0]) {
             this.rootTimerElement = this.elements["timer"][0];
         }
@@ -537,9 +549,36 @@ var CurlingMachineUI = (function () {
         if (this.elements["elapsed-thinking-time-container"] && this.elements["elapsed-thinking-time-container"][0]) {
             this.elapsedThinkingTimeContainer = this.elements["elapsed-thinking-time-container"][0];
         }
+    };
+    CurlingMachineUI.prototype.populateElements = function (elem, teamContext) {
+        if (teamContext === void 0) { teamContext = null; }
+        var key = "";
+        var elemData = elem.dataset["key"] || elem.dataset["action"];
+        if (elemData) {
+            key = elemData;
+        }
+        else {
+            var nonTeamClasses = Array.prototype.filter.call(elem.classList, function (c) { return c.substr(0, 5) !== "team"; });
+            if (nonTeamClasses.length === 1) {
+                key = nonTeamClasses[0];
+            }
+        }
+        var foundTeamContext = teamContext;
+        if (foundTeamContext === null) {
+            var testForTeamInClassname = /team-([a-z]+)\b/i.exec(elem.className);
+            if (testForTeamInClassname && testForTeamInClassname[1]) {
+                foundTeamContext = testForTeamInClassname[1];
+            }
+        }
+        var teamPrefix = foundTeamContext === null ? "" : foundTeamContext + ":";
+        key = teamPrefix + key;
+        if (!this.elements[key]) {
+            this.elements[key] = [];
+        }
+        this.elements[key].push(elem);
         if (elem.children) {
             for (var i = 0; i < elem.children.length; ++i) {
-                this.initElements(elem.children.item(i));
+                this.populateElements(elem.children.item(i), foundTeamContext);
             }
         }
     };
@@ -561,3 +600,6 @@ function setMonospaceText(elem, text) {
     forceMonospace(elem);
 }
 new TimeToCurl().init();
+console.log("Hey developers! Thanks for checking out the source of Time to Curl. The JavaScript included on this page is compiled from TypeScript source. To see the original source, head on over to our GitHub repo at https://github.com/trianglecurling/timetocurl. Please use the GitHub page to let us know if you find any issues with this application.");
+console.log("Those looking a bit more closely may notice that the layout of this page is fairly horrendous. Lots of overlayed DIVs with absolute positioning—yuck! Here's my reasoning. When I first created the app, I started with the most bare-bones HTML possible with almost no CSS. Once I got a good amount of the functionality done, I decided to go back and add CSS to skin the app. However, the plan was to make the first skin as similar as possible to \"CurlTime\" to make for an easy transition. However, I wanted to keep my options open for re-skinning in the future, so I wanted the HTML to be easily modified without affecting the \"Classic\" layout. We'll see in time if that was a good decision. I'm starting to regret it!");
+/* keep the last line short... */ 

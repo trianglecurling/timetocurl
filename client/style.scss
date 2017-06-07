@@ -262,14 +262,23 @@ body.classic .timer {
 
 		.elapsed-thinking-time {
 			position: absolute;
-			right: 0;
+			right: 2vw;
+			opacity: 0.5;
+			font-size: 1.5vmin;
 
-			&:first-of-type {
-				top: 40vh;
+			&.running {
+				opacity: 1;
+				font-size: 2.4vmin;
+				text-decoration: none;
 			}
 
-			&:last-of-type {
-				top: 90vh;
+			&.team-A {
+				top: 44vh;
+				color: #fff;
+			}
+
+			&.team-B {
+				top: 96vh;
 			}
 		}
 	}
@@ -295,7 +304,7 @@ body.classic .timer {
 			font-weight: bold;
 			pointer-events: all;
 
-			&:first-of-type {
+			&.team-A {
 				border: 2px solid #fff;
 				color: #fff;
 				top: 4%;
@@ -308,7 +317,7 @@ body.classic .timer {
 					}
 				}
 			}
-			&:last-of-type {
+			&.team-B {
 				border: 2px solid #000;
 				color: #000;
 				top: 56%;
@@ -373,21 +382,25 @@ body.classic .timer {
 				}
 			}
 
-			.thinking-time {
-				height: 48%;
+			.time-with-controls {
+				height: 48vh;
 				width: 100%;
-				font-size: 34vmin;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				font-weight: bold;
 
-				&:first-child {
-					color: #fff;
-					background-color: $red-bg;
-				}
-				&:last-child {
-					background-color: $yel-bg;
+				.thinking-time {
+					height: 100%;
+					font-size: 34vmin;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					font-weight: bold;
+
+					&.team-A {
+						color: #fff;
+						background-color: $red-bg;
+					}
+					&.team-B {
+						background-color: $yel-bg;
+					}
 				}
 			}
 		}
@@ -406,19 +419,24 @@ body.classic .timer {
 			.spacer {
 				display: none;
 			}
-			.thinking-time {
-				pointer-events: all;
-				position: absolute;
-				width: 50%;
-				left: 25%;
-				height: 20%;
-				font-size: 18vmin;
 
-				&:first-child {
-					top: 9%;
-				}
-				&:last-child {
-					top: 71%;
+			.time-with-controls {
+				height: 20vh;
+
+				.thinking-time {
+					height: inherit;
+					pointer-events: all;
+					position: absolute;
+					width: 50%;
+					left: 25%;
+					font-size: 18vmin;
+
+					&.team-A {
+						top: 9%;
+					}
+					&.team-B {
+						top: 71%;
+					}
 				}
 			}
 		}

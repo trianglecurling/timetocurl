@@ -42,7 +42,7 @@
 				</div>
 				<div class="debug-toggle-container">
 					<label for="showDebug">Show debug data</label>
-					<input type="checkbox" id="showDebug" checked="checked" />
+					<input type="checkbox" id="showDebug" />
 					<label for="speedyClocks" title="Changes won't take effect until new timers start.">Speedy clocks</label>
 					<input type="checkbox" id="speedyClocks" checked="checked" title="Changes won't take effect until new timers start." />
 				</div>
@@ -63,28 +63,32 @@
 					<div class="thinking-time-container" data-key="thinking-time-container">
 						<h2>Thinking time remaining</h2>
 						<div class="thinking-times">
-							<div class="thinking-time time-value" data-key="thinking-time"></div>
+							<div class="time-with-controls">
+								<div class="team-A thinking-time time-value" data-key="thinking-time"></div>
+							</div>
 							<div class="spacer" data-key="spacer"></div>
-							<div class="thinking-time time-value" data-key="thinking-time"></div>
+							<div class="time-with-controls">
+								<div class="team-B thinking-time time-value" data-key="thinking-time"></div>
+							</div>
 						</div>
 					</div>
 					<div class="timeouts-remaining-container">
 						<h2>Timeouts remaining</h2>
-						<div class="timeouts-remaining">
+						<div class="team-A timeouts-remaining">
 							<span class="timeouts-num"></span>
-							<button data-command="ADD_TIMEOUTS" data-data='{"team": "Red", "value": 1}' class="add-timeout">+</button>
-							<button data-command="ADD_TIMEOUTS" data-data='{"team": "Red", "value": -1}' class="subtract-timeout">-</button>
+							<button data-command="ADD_TIMEOUTS" data-data='{"value": 1}' class="add-timeout">+</button>
+							<button data-command="ADD_TIMEOUTS" data-data='{"value": -1}' class="subtract-timeout">-</button>
 						</div>
-						<div class="timeouts-remaining">
+						<div class="team-B timeouts-remaining">
 							<span class="timeouts-num"></span>
-							<button data-command="ADD_TIMEOUTS" data-data='{"team": "Yellow", "value": 1}' class="add-timeout">+</button>
-							<button data-command="ADD_TIMEOUTS" data-data='{"team": "Yellow", "value": -1}' class="subtract-timeout">-</button>
+							<button data-command="ADD_TIMEOUTS" data-data='{"value": 1}' class="add-timeout">+</button>
+							<button data-command="ADD_TIMEOUTS" data-data='{"value": -1}' class="subtract-timeout">-</button>
 						</div>
 					</div>
 					<div class="elapsed-thinking-time-container">
 						<h2>Elapsed thinking time</h2>
-						<div data-key="elapsed-thinking-time" class="elapsed-thinking-time time-value"></div>
-						<div data-key="elapsed-thinking-time" class="elapsed-thinking-time time-value"></div>
+						<div data-key="elapsed-thinking-time" class="team-A elapsed-thinking-time time-value"></div>
+						<div data-key="elapsed-thinking-time" class="team-B elapsed-thinking-time time-value"></div>
 					</div>
 					<div class="overlay-time-container between-end-time-container" data-key="between-end-time-container">
 						<h2>Between ends</h2>
@@ -99,8 +103,8 @@
 					<div class="controls" data-key="controls">
 						<button id="game-start-warmup" data-action="game-start-warmup" class="btn">Begin Warmup</button>
 						<button id="game-start-no-warmup" data-action="game-start-no-warmup" class="btn">Begin pre-game countdown</button>
-						<button id="red-begin-thinking" data-action="begin-thinking" class="btn">Start red thinking</button>
-						<button id="yellow-begin-thinking" data-action="begin-thinking" class="btn">Start yellow thinking</button>
+						<button id="red-begin-thinking" data-action="begin-thinking" class="team-A btn">Start red thinking</button>
+						<button id="yellow-begin-thinking" data-action="begin-thinking" class="team-B btn">Start yellow thinking</button>
 						<button id="end-yellow-thinking" data-action="end-thinking" class="btn">Stop thinking</button>
 						<button id="end-red-thinking" data-action="end-thinking" class="btn">Stop thinking</button>
 						<button id="end-end" data-action="end-end" class="btn">Between ends</button>

@@ -5,8 +5,19 @@ const http = require("http").Server(app);
 const io = require("socket.io")(http);
 const { join } = require("path");
 const CurlingMachine = require("./curl-timer");
-const sass = require("node-sass");
+const fs = require("fs");
 const Settings = require("./settings");
+
+async function getStylePath() {
+	return new Promise((resolve, reject) => {
+		fs.readdir(join(__dirname, "client/bin"), (err, files) => {
+			if (err) {
+				reject(err);
+			}
+			resolve(join(__dirname, "client/bin", files.filter(f => f.startsWith("main.") && f.endsWith(".css"))[0]));
+		});
+	});
+}
 
 function setupRoutes(app) {
 	app.get("/", (req, res) => {
@@ -17,33 +28,17 @@ function setupRoutes(app) {
 		res.send("var _settings = " + JSON.stringify(Settings) + ";");
 	})
 
-	app.get("/app.js", (req, res) => {
-		res.sendFile(join(__dirname, "client/bin/app.js"));
-	});
-
 	app.get("/time-minder.js", (req, res) => {
 		res.sendFile(join(__dirname, "client/time-minder.js"));
 	});
 
-	// @TODO: Cache the result of SASS
-	app.get("/style.css", (req, res) => {
-		sass.render({
-			file: join(__dirname, "client/style.scss")
-		}, (err, result) => {
-			res.setHeader("Content-Type", "text/css");
-			if (err) {
-				console.log(err);
-
-				// obvious error is obvious
-				res.send("body{background-color:pink}");
-			} else {
-				res.send(result.css.toString());
-			}
-		});
+	app.get("/style.css", async (req, res) => {
+		res.sendFile(await getStylePath());
 	});
-}
 
-app.use(express.static('client/icons'))
+	app.use(express.static("client/icons"));
+	app.use(express.static("client/bin"));
+}
 
 setupRoutes(app);
 

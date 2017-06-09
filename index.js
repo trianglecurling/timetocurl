@@ -14,7 +14,15 @@ async function getStylePath() {
 			if (err) {
 				reject(err);
 			}
-			resolve(join(__dirname, "client/bin", files.filter(f => f.startsWith("main.") && f.endsWith(".css"))[0]));
+			resolve(
+				join(
+					__dirname,
+					"client/bin",
+					files.filter(
+						f => f.startsWith("main.") && f.endsWith(".css"),
+					)[0],
+				),
+			);
 		});
 	});
 }
@@ -26,7 +34,7 @@ function setupRoutes(app) {
 
 	app.get("/settings.js", (req, res) => {
 		res.send("var _settings = " + JSON.stringify(Settings) + ";");
-	})
+	});
 
 	app.get("/time-minder.js", (req, res) => {
 		res.sendFile(join(__dirname, "client/time-minder.js"));
@@ -42,13 +50,12 @@ function setupRoutes(app) {
 
 setupRoutes(app);
 
-io.on("connection", (socket) => {	
-	socket.on("action", (message) => {
+io.on("connection", socket => {
+	socket.on("action", message => {
 		let payload;
 		try {
 			payload = JSON.parse(message);
-		}
-		catch (e) {
+		} catch (e) {
 			throw new Error(`Failed to parse message as JSON: ${message}`);
 		}
 		handleAction(payload, socket);
@@ -60,11 +67,14 @@ const games = {};
 function dispatchStateChange(sockets, machineId) {
 	console.log("sending updated state");
 	for (const socket of sockets) {
-		socket.emit("statechange", JSON.stringify({
-			message: "SET_STATE",
-			machineId: machineId,
-			data: games[machineId].getSerializableState()
-		}));
+		socket.emit(
+			"statechange",
+			JSON.stringify({
+				message: "SET_STATE",
+				machineId: machineId,
+				data: games[machineId].getSerializableState(),
+			}),
+		);
 	}
 }
 
@@ -72,12 +82,16 @@ function handleAction(action, socket) {
 	//console.log("Action: " + action.request);
 
 	if (action.request === "CREATE_TIMER") {
-		const curlingMachine = new CurlingMachine(action.options, (sockets) => {
+		const curlingMachine = new CurlingMachine(action.options, sockets => {
 			dispatchStateChange(sockets, curlingMachine.id);
 		});
 		curlingMachine.registerSocket(action.clientId, socket);
 		games[curlingMachine.id] = curlingMachine;
-		const response = {response: "CREATE_TIMER", token: action.token, data: curlingMachine.getSerializableState()};
+		const response = {
+			response: "CREATE_TIMER",
+			token: action.token,
+			data: curlingMachine.getSerializableState(),
+		};
 		socket.emit("response", JSON.stringify(response));
 	}
 
@@ -85,8 +99,12 @@ function handleAction(action, socket) {
 		const game = games[action.options.timerId];
 		game.registerSocket(action.clientId, socket);
 		if (game) {
-			const response = {response: "GET_TIMER", token: action.token, data: game.getSerializableState()};
-			
+			const response = {
+				response: "GET_TIMER",
+				token: action.token,
+				data: game.getSerializableState(),
+			};
+
 			//console.log("GET_TIMER response: " + require("util").inspect(response));
 			socket.emit("response", JSON.stringify(response));
 		} else {
@@ -98,7 +116,14 @@ function handleAction(action, socket) {
 		games[action.options.timerId].dispose();
 		const deleted = !!games[action.options.timerId] ? "ok" : "not found";
 		delete games[action.options.timerId];
-		socket.emit("response", JSON.stringify({response: "DELETE_TIMER", token: action.token, data: deleted}));
+		socket.emit(
+			"response",
+			JSON.stringify({
+				response: "DELETE_TIMER",
+				token: action.token,
+				data: deleted,
+			}),
+		);
 	}
 
 	if (action.request === "QUERY_TIMER") {
@@ -108,26 +133,54 @@ function handleAction(action, socket) {
 		if (machine) {
 			if (action.options.state) {
 				machine.handleAction({
-					state: action.options.state
+					state: action.options.state,
 				});
-				socket.emit("response", JSON.stringify({response: "QUERY_TIMER", token: action.token, data: "ok"}));
+				socket.emit(
+					"response",
+					JSON.stringify({
+						response: "QUERY_TIMER",
+						token: action.token,
+						data: "ok",
+					}),
+				);
 			} else if (action.options.transition) {
 				//console.log("Transition: " + action.options.transition);
 				machine.handleAction({
 					transition: action.options.transition,
-					data: action.options.data
+					data: action.options.data,
 				});
-				socket.emit("response", JSON.stringify({response: "QUERY_TIMER", token: action.token, data: "ok"}));
+				socket.emit(
+					"response",
+					JSON.stringify({
+						response: "QUERY_TIMER",
+						token: action.token,
+						data: "ok",
+					}),
+				);
 			} else if (action.options.command) {
 				machine.handleAction({
 					command: action.options.command,
-					data: JSON.parse(action.options.data)
+					data: JSON.parse(action.options.data),
 				});
 			} else {
-				socket.emit("response", JSON.stringify({response: "QUERY_TIMER", token: action.token, data: "no action given"}));
+				socket.emit(
+					"response",
+					JSON.stringify({
+						response: "QUERY_TIMER",
+						token: action.token,
+						data: "no action given",
+					}),
+				);
 			}
 		} else {
-			socket.emit("response", JSON.stringify({response: "QUERY_TIMER", token: action.token, data: "unknown machine"}));
+			socket.emit(
+				"response",
+				JSON.stringify({
+					response: "QUERY_TIMER",
+					token: action.token,
+					data: "unknown machine",
+				}),
+			);
 		}
 	}
 }

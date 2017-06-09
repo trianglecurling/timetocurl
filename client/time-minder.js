@@ -9,32 +9,32 @@ class ManagedTimer {
 		this.ct = ct;
 		this.elapsed = 0;
 	}
-	
+
 	start() {
 		if (this.firstStarted) {
 			throw new Error("Timer already started.");
 		}
-		
+
 		this.firstStarted = Date.now();
 		this._start();
 	}
-	
+
 	reset() {
 		this.cancel();
 		this.firstStarted = null;
 	}
-	
+
 	_start() {
 		const setMethod = this.recurring ? this.si : this.st;
 		this.clearMethod = this.recurring ? this.ci : this.ct;
-		
+
 		this.startedAt = Date.now();
 		const handle = setMethod(() => {
 			this._invoke();
 		}, this.ms);
 		this.clear = this.clearMethod.bind(this, handle);
 	}
-	
+
 	_invoke() {
 		this.callback();
 		this.startedAt = Date.now();
@@ -46,18 +46,18 @@ class ManagedTimer {
 		this.elapsed = this.ms - ms;
 		this.unpause();
 	}
-	
+
 	cancel() {
 		if (this.clear) {
 			this.clear();
 		}
 	}
-	
+
 	pause() {
-		this.elapsed += (Date.now() - this.startedAt);
+		this.elapsed += Date.now() - this.startedAt;
 		this.clear();
 	}
-	
+
 	unpause() {
 		this.startedAt = Date.now();
 		const handle = this.st(() => {
@@ -101,7 +101,7 @@ class Stopwatch {
 	unpause() {
 		this.intervals.push({
 			start: new Date(),
-			end: null
+			end: null,
 		});
 
 		// Unpause all tick timers that were paused
@@ -119,18 +119,19 @@ class Stopwatch {
 		}
 
 		const timer = new ManagedTimer(
-			callback, 
-			ms, 
+			callback,
+			ms,
 			true, // recurring
 			window.setTimeout.bind(window),
 			window.clearTimeout.bind(window),
 			window.setInterval.bind(window),
-			window.clearInterval.bind(window));
+			window.clearInterval.bind(window),
+		);
 
 		if (runWhenPaused || this.isRunning()) {
 			timer.start();
 		}
-		this.tickTimers.push({timer, runWhenPaused});
+		this.tickTimers.push({ timer, runWhenPaused });
 	}
 
 	split() {
@@ -142,9 +143,11 @@ class Stopwatch {
 	}
 
 	elapsedTime() {
-		return this.intervals.map(i => {
-			return ((i.end && i.end.getTime()) || Date.now()) - i.start.getTime();
-		}).reduce((prev, current) => current + prev, 0);
+		return this.intervals
+			.map(i => {
+				return ((i.end && i.end.getTime()) || Date.now()) - i.start.getTime();
+			})
+			.reduce((prev, current) => current + prev, 0);
 	}
 
 	getTotalTimeSinceStart() {
@@ -205,7 +208,7 @@ class TimeMinder {
 	unpause() {
 		this.intervals.push({
 			start: new Date(),
-			end: null
+			end: null,
 		});
 		this.timeout = setTimeout(() => {
 			this.intervals[this.intervals.length - 1].end = new Date();
@@ -216,7 +219,7 @@ class TimeMinder {
 				timer.timer.cancel();
 			}
 		}, this.getTimeRemaining());
-		
+
 		// Unpause all tick timers that were paused
 		for (const timer of this.tickTimers) {
 			if (!timer.runWhenPaused) {
@@ -232,25 +235,28 @@ class TimeMinder {
 		}
 
 		const timer = new ManagedTimer(
-			callback, 
-			ms, 
+			callback,
+			ms,
 			true, // recurring
 			window.setTimeout.bind(window),
 			window.clearTimeout.bind(window),
 			window.setInterval.bind(window),
-			window.clearInterval.bind(window));
+			window.clearInterval.bind(window),
+		);
 
 		timer.start();
-		this.tickTimers.push({timer, runWhenPaused});
+		this.tickTimers.push({ timer, runWhenPaused });
 	}
 
 	elapsedTime() {
-		return this.intervals.map(i => {
-			if (typeof i.adjustment !== "undefined") {
-				return i.adjustment;
-			}
-			return ((i.end && i.end.getTime()) || Date.now()) - i.start.getTime();
-		}).reduce((prev, current) => current + prev, 0);
+		return this.intervals
+			.map(i => {
+				if (typeof i.adjustment !== "undefined") {
+					return i.adjustment;
+				}
+				return ((i.end && i.end.getTime()) || Date.now()) - i.start.getTime();
+			})
+			.reduce((prev, current) => current + prev, 0);
 	}
 
 	getTimeRemaining() {
@@ -263,7 +269,7 @@ class TimeMinder {
 
 	setTimeRemaining(ms) {
 		this.pause();
-		this.intervals.push({adjustment: ms - this.getTimeRemaining()});
+		this.intervals.push({ adjustment: ms - this.getTimeRemaining() });
 		this.unpause();
 	}
 

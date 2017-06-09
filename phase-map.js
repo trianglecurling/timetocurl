@@ -1,5 +1,5 @@
 module.exports = {
-	"pregame": {
+	pregame: {
 		"game-start-warmup": "warm-up",
 		"game-start-no-warmup": "between-ends",
 		"warmup-end": null,
@@ -11,8 +11,8 @@ module.exports = {
 		"begin-timeout": null,
 		"end-timeout": null,
 		"cancel-timer": null,
-		"technical": null,
-		"end-technical": null
+		technical: null,
+		"end-technical": null,
 	},
 	"warm-up": {
 		"game-start-warmup": null,
@@ -26,8 +26,8 @@ module.exports = {
 		"begin-timeout": null,
 		"end-timeout": null,
 		"cancel-timer": "PRIOR-STATE",
-		"technical": "technical",
-		"end-technical": null
+		technical: "technical",
+		"end-technical": null,
 	},
 	"between-ends": {
 		"game-start-warmup": null,
@@ -41,10 +41,10 @@ module.exports = {
 		"begin-timeout": null,
 		"end-timeout": null,
 		"cancel-timer": "PRIOR-STATE",
-		"technical": "technical",
-		"end-technical": null
+		technical: "technical",
+		"end-technical": null,
 	},
-	"idle": {
+	idle: {
 		"game-start-warmup": "between-ends",
 		"game-start-no-warmup": "between-ends",
 		"warmup-end": null,
@@ -56,8 +56,8 @@ module.exports = {
 		"begin-timeout": null,
 		"end-timeout": null,
 		"cancel-timer": null,
-		"technical": "technical",
-		"end-technical": null
+		technical: "technical",
+		"end-technical": null,
 	},
 	"stone-moving": {
 		"game-start-warmup": null,
@@ -71,10 +71,10 @@ module.exports = {
 		"begin-timeout": null,
 		"end-timeout": null,
 		"cancel-timer": null,
-		"technical": "technical",
-		"end-technical": null
+		technical: "technical",
+		"end-technical": null,
 	},
-	"thinking": {
+	thinking: {
 		"game-start-warmup": null,
 		"game-start-no-warmup": null,
 		"warmup-end": null,
@@ -86,10 +86,10 @@ module.exports = {
 		"begin-timeout": "timeout",
 		"end-timeout": null,
 		"cancel-timer": null,
-		"technical": "technical",
-		"end-technical": null
+		technical: "technical",
+		"end-technical": null,
 	},
-	"timeout": {
+	timeout: {
 		"game-start-warmup": null,
 		"game-start-no-warmup": null,
 		"warmup-end": null,
@@ -101,10 +101,10 @@ module.exports = {
 		"begin-timeout": null,
 		"end-timeout": "thinking",
 		"cancel-timer": "PRIOR-STATE",
-		"technical": "technical",
-		"end-technical": null
+		technical: "technical",
+		"end-technical": null,
 	},
-	"technical": {
+	technical: {
 		"game-start-warmup": null,
 		"game-start-no-warmup": null,
 		"warmup-end": null,
@@ -116,7 +116,7 @@ module.exports = {
 		"begin-timeout": null,
 		"end-timeout": null,
 		"cancel-timer": null,
-		"technical": null,
-		"end-technical": "PRIOR-STATE"
-	}
+		technical: null,
+		"end-technical": "PRIOR-STATE",
+	},
 };

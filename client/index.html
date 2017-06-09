@@ -1,124 +1,127 @@
 <!doctype html>
 <html>
-	<head>
-		<title>Time to Curl</title>
-		
-		<!-- Icons and such -->
-		<link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
-		<link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
-		<link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
-		<link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
-		<link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
-		<link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
-		<link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
-		<link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
-		<link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
-		<link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
-		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-		<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
-		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-		<link rel="manifest" href="/manifest.json">
-		<meta name="msapplication-TileColor" content="#ffffff">
-		<meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
-		<meta name="theme-color" content="#ffffff">
 
-		<link rel="stylesheet" href="/style.css">
-		<script src="/socket.io/socket.io.js"></script>
-		<script src="/time-minder.js"></script>
-		<script src="/app.js"></script>
-	</head>
-	<body>
-		<header>
-			<h1><a href="/">Time to Curl</a></h1>
-			<input class="timer-name" type="text" id="timerName" placeholder="Sheet B" />
-			<button id="createTimer" class="btn btn-primary">Create New Timer</button>
-			<div class="view-settings-container">
-				<div class="theme-selector-container">
-					<label for="themeSelector">Select theme</label>
-					<select id="themeSelector">
+<head>
+	<title>Time to Curl</title>
+
+	<!-- Icons and such -->
+	<link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+	<link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+	<link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="manifest" href="/manifest.json">
+	<meta name="msapplication-TileColor" content="#ffffff">
+	<meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+	<meta name="theme-color" content="#ffffff">
+
+	<link rel="stylesheet" href="/style.css">
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="/time-minder.js"></script>
+	<script src="/app.js"></script>
+</head>
+
+<body>
+	<header>
+		<h1><a href="/">Time to Curl</a></h1>
+		<input class="timer-name" type="text" id="timerName" placeholder="Sheet B" />
+		<button id="createTimer" class="btn btn-primary">Create New Timer</button>
+		<div class="view-settings-container">
+			<div class="theme-selector-container">
+				<label for="themeSelector">Select theme</label>
+				<select id="themeSelector">
 						<option value="classic">Classic</option>
 					</select>
-				</div>
-				<div class="debug-toggle-container">
-					<label for="showDebug">Show debug data</label>
-					<input type="checkbox" id="showDebug" />
-					<label for="speedyClocks" title="Changes won't take effect until new timers start.">Speedy clocks</label>
-					<input type="checkbox" id="speedyClocks" checked="checked" title="Changes won't take effect until new timers start." />
-				</div>
 			</div>
-		</header>
-		<main>
-			<div id="timersContainer"></div>
-		</main>
-		<div id="timerTemplate">
-			<div class="timer" data-key="timer">
-				<div class="timer-title" data-key="timer-title"></div>
-				<div class="timer-container" data-key="timer-container">
-					<div class="overlay-time-container warmup-time-container" data-key="warmup-time-container">
-						<h2>Warmup time remaining</h2>
-						<div class="warmup-time time-value" data-key="warmup-time"></div>
-						<button data-action="cancel-timer" class="cancel-timer-button cancel-warmup">Cancel</button>
-					</div>
-					<div class="thinking-time-container" data-key="thinking-time-container">
-						<h2>Thinking time remaining</h2>
-						<div class="thinking-times">
-							<div class="time-with-controls">
-								<div class="team-A thinking-time time-value" data-key="thinking-time"></div>
-							</div>
-							<div class="spacer" data-key="spacer"></div>
-							<div class="time-with-controls">
-								<div class="team-B thinking-time time-value" data-key="thinking-time"></div>
-							</div>
-						</div>
-					</div>
-					<div class="timeouts-remaining-container">
-						<h2>Timeouts remaining</h2>
-						<div class="team-A timeouts-remaining">
-							<span class="timeouts-num"></span>
-							<button data-command="ADD_TIMEOUTS" data-data='{"value": 1}' class="add-timeout">+</button>
-							<button data-command="ADD_TIMEOUTS" data-data='{"value": -1}' class="subtract-timeout">-</button>
-						</div>
-						<div class="team-B timeouts-remaining">
-							<span class="timeouts-num"></span>
-							<button data-command="ADD_TIMEOUTS" data-data='{"value": 1}' class="add-timeout">+</button>
-							<button data-command="ADD_TIMEOUTS" data-data='{"value": -1}' class="subtract-timeout">-</button>
-						</div>
-					</div>
-					<div class="elapsed-thinking-time-container">
-						<h2>Elapsed thinking time</h2>
-						<div data-key="elapsed-thinking-time" class="team-A elapsed-thinking-time time-value"></div>
-						<div data-key="elapsed-thinking-time" class="team-B elapsed-thinking-time time-value"></div>
-					</div>
-					<div class="overlay-time-container between-end-time-container" data-key="between-end-time-container">
-						<h2>Between ends</h2>
-						<div class="between-end-time time-value" data-key="between-end-time"></div>
-						<button data-action="cancel-timer" class="cancel-timer-button cancel-between-ends">Cancel</button>
-					</div>
-					<div class="overlay-time-container timeout-time-container" data-key="timeout-time-container">
-						<h2>Timeout time remaining</h2>
-						<div class="timeout-time time-value" data-key="timeout-time"></div>
-						<button data-action="cancel-timer" class="cancel-timer-button cancel-timeout">Cancel</button>
-					</div>
-					<div class="controls" data-key="controls">
-						<button id="game-start-warmup" data-action="game-start-warmup" class="btn">Begin Warmup</button>
-						<button id="game-start-no-warmup" data-action="game-start-no-warmup" class="btn">Begin pre-game countdown</button>
-						<button id="red-begin-thinking" data-action="begin-thinking" class="team-A btn">Start red thinking</button>
-						<button id="yellow-begin-thinking" data-action="begin-thinking" class="team-B btn">Start yellow thinking</button>
-						<button id="end-yellow-thinking" data-action="end-thinking" class="btn">Stop thinking</button>
-						<button id="end-red-thinking" data-action="end-thinking" class="btn">Stop thinking</button>
-						<button id="end-end" data-action="end-end" class="btn">Between ends</button>
-						<button id="begin-timeout" data-action="begin-timeout" class="btn">Timeout</button>
-						<button id="begin-midgame-break" data-action="begin-midgame-break" class="btn">Mid game break</button>
-						<!--<button id="end-timeout" data-action="end-timeout" class="btn">End timeout</button>-->
-						<button id="begin-extra-end" data-action="begin-extra-end" class="btn">Extra End</button>
-						<button id="technical" data-action="technical" class="btn">Technical timeout</button>
-						<button id="end-technical" data-action="end-technical" class="btn">End technical</button>
-						<button id="adjust-time" class="btn">Adjust time</button>
-						<button id="reset" class="btn">Reset</button>
-					</div>
-					<div class="debug" data-key="debug"></div>
-				</div>
+			<div class="debug-toggle-container">
+				<label for="showDebug">Show debug data</label>
+				<input type="checkbox" id="showDebug" />
+				<label for="speedyClocks" title="Changes won't take effect until new timers start.">Speedy clocks</label>
+				<input type="checkbox" id="speedyClocks" checked="checked" title="Changes won't take effect until new timers start." />
 			</div>
 		</div>
-	</body>
+	</header>
+	<main>
+		<div id="timersContainer"></div>
+	</main>
+	<div id="timerTemplate">
+		<div class="timer" data-key="timer">
+			<div class="timer-title" data-key="timer-title"></div>
+			<div class="timer-container" data-key="timer-container">
+				<div class="overlay-time-container warmup-time-container" data-key="warmup-time-container">
+					<h2>Warmup time remaining</h2>
+					<div class="warmup-time time-value" data-key="warmup-time"></div>
+					<button data-action="cancel-timer" class="cancel-timer-button cancel-warmup">Cancel</button>
+				</div>
+				<div class="thinking-time-container" data-key="thinking-time-container">
+					<h2>Thinking time remaining</h2>
+					<div class="thinking-times">
+						<div class="time-with-controls">
+							<div class="team-A thinking-time time-value" data-key="thinking-time"></div>
+						</div>
+						<div class="spacer" data-key="spacer"></div>
+						<div class="time-with-controls">
+							<div class="team-B thinking-time time-value" data-key="thinking-time"></div>
+						</div>
+					</div>
+				</div>
+				<div class="timeouts-remaining-container">
+					<h2>Timeouts remaining</h2>
+					<div class="team-A timeouts-remaining">
+						<span class="timeouts-num"></span>
+						<button data-command="ADD_TIMEOUTS" data-data='{"value": 1}' class="add-timeout">+</button>
+						<button data-command="ADD_TIMEOUTS" data-data='{"value": -1}' class="subtract-timeout">-</button>
+					</div>
+					<div class="team-B timeouts-remaining">
+						<span class="timeouts-num"></span>
+						<button data-command="ADD_TIMEOUTS" data-data='{"value": 1}' class="add-timeout">+</button>
+						<button data-command="ADD_TIMEOUTS" data-data='{"value": -1}' class="subtract-timeout">-</button>
+					</div>
+				</div>
+				<div class="elapsed-thinking-time-container">
+					<h2>Elapsed thinking time</h2>
+					<div data-key="elapsed-thinking-time" class="team-A elapsed-thinking-time time-value"></div>
+					<div data-key="elapsed-thinking-time" class="team-B elapsed-thinking-time time-value"></div>
+				</div>
+				<div class="overlay-time-container between-end-time-container" data-key="between-end-time-container">
+					<h2>Between ends</h2>
+					<div class="between-end-time time-value" data-key="between-end-time"></div>
+					<button data-action="cancel-timer" class="cancel-timer-button cancel-between-ends">Cancel</button>
+				</div>
+				<div class="overlay-time-container timeout-time-container" data-key="timeout-time-container">
+					<h2>Timeout time remaining</h2>
+					<div class="timeout-time time-value" data-key="timeout-time"></div>
+					<button data-action="cancel-timer" class="cancel-timer-button cancel-timeout">Cancel</button>
+				</div>
+				<div class="controls" data-key="controls">
+					<button id="game-start-warmup" data-action="game-start-warmup" class="btn">Begin Warmup</button>
+					<button id="game-start-no-warmup" data-action="game-start-no-warmup" class="btn">Begin pre-game countdown</button>
+					<button id="red-begin-thinking" data-action="begin-thinking" class="team-A btn">Start red thinking</button>
+					<button id="yellow-begin-thinking" data-action="begin-thinking" class="team-B btn">Start yellow thinking</button>
+					<button id="end-yellow-thinking" data-action="end-thinking" class="btn">Stop thinking</button>
+					<button id="end-red-thinking" data-action="end-thinking" class="btn">Stop thinking</button>
+					<button id="end-end" data-action="end-end" class="btn">Between ends</button>
+					<button id="begin-timeout" data-action="begin-timeout" class="btn">Timeout</button>
+					<button id="begin-midgame-break" data-action="begin-midgame-break" class="btn">Mid game break</button>
+					<!--<button id="end-timeout" data-action="end-timeout" class="btn">End timeout</button>-->
+					<button id="begin-extra-end" data-action="begin-extra-end" class="btn">Extra End</button>
+					<button id="technical" data-action="technical" class="btn">Technical timeout</button>
+					<button id="end-technical" data-action="end-technical" class="btn">End technical</button>
+					<button id="adjust-time" class="btn">Adjust time</button>
+					<button id="reset" class="btn">Reset</button>
+				</div>
+				<div class="debug" data-key="debug"></div>
+			</div>
+		</div>
+	</div>
+</body>
+
 </html>

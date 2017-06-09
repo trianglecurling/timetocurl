@@ -1,5 +1,5 @@
 const TimeMinder = require("./time-minder");
-const uuidV4 = require('uuid/v4');
+const uuidV4 = require("uuid/v4");
 
 const defaultOptions = {
 	betweenEndTime: 10,
@@ -10,7 +10,7 @@ const defaultOptions = {
 	thinkingTime: 30 * 60,
 	timeoutTime: 60,
 	timerName: "Timer",
-	warmupTime: 9 * 60
+	warmupTime: 9 * 60,
 };
 
 const MACHINE_ID_SEED = Math.floor(Math.random() * 10000 + 10001);
@@ -27,7 +27,6 @@ const MACHINE_ID_SEED = Math.floor(Math.random() * 10000 + 10001);
  * name of the transition.
  */
 class CurlingMachine {
-
 	constructor(options, onStateChange) {
 		this.options = Object.assign({}, defaultOptions, options);
 		this.lengthOfSecond = this.options.lengthOfSecond;
@@ -42,15 +41,14 @@ class CurlingMachine {
 	initialize() {
 		this.state = this.getInitialState();
 		this.history = [this.state];
-		this.thinkingTimers = { };
+		this.thinkingTimers = {};
 
-		this.timeoutsRemaining = { };
+		this.timeoutsRemaining = {};
 
 		for (const team of this.options.teams) {
 			this.thinkingTimers[team] = this.createTimer(this.options.thinkingTime);
 			this.timeoutsRemaining[team] = this.options.numTimeouts;
 		}
-		
 	}
 
 	dispose() {
@@ -66,9 +64,13 @@ class CurlingMachine {
 		this.allTimers[timerId] = timer;
 
 		// No timer is allowed to last longer than a day.
-		setTimeout(() => {
-			timer.dispose();
-		}, 86400 * 1000, timer);
+		setTimeout(
+			() => {
+				timer.dispose();
+			},
+			86400 * 1000,
+			timer,
+		);
 
 		return timer;
 	}
@@ -95,8 +97,8 @@ class CurlingMachine {
 			phaseData: {},
 			timeoutsRemaining,
 			timeRemaining,
-			timerName: this.options.timerName
-		}
+			timerName: this.options.timerName,
+		};
 	}
 
 	getSerializableState() {
@@ -118,7 +120,7 @@ class CurlingMachine {
 
 	handleAction(action) {
 		let nextState;
-		action.data = action.data || { };
+		action.data = action.data || {};
 		if (action.state) {
 			nextState = this.getFullState(action.state);
 		} else if (action.command) {
@@ -131,7 +133,9 @@ class CurlingMachine {
 					break;
 				case "ADD_TIME":
 					if (this.thinkingTimers[action.data.team]) {
-						this.thinkingTimers[action.data.team].setTimeRemaining(this.thinkingTimers[action.data.team].getTimeRemaining() + parseInt(action.data.value));
+						this.thinkingTimers[action.data.team].setTimeRemaining(
+							this.thinkingTimers[action.data.team].getTimeRemaining() + parseInt(action.data.value),
+						);
 					}
 					break;
 				case "ADD_ENDS":
@@ -174,7 +178,7 @@ class CurlingMachine {
 					nextState.timer = this.createTimer(this.options.warmupTime, () => {
 						console.log("warmup is over");
 						this.handleAction({
-							transition: "warmup-end"
+							transition: "warmup-end",
 						});
 					});
 					nextState.timer.start();
@@ -192,9 +196,11 @@ class CurlingMachine {
 					}
 					nextState.timer = this.createTimer(time, () => {
 						this.previousThinkingTeam = null;
-						Object.keys(nextState.currentStone).forEach(k => { nextState.currentStone[k] = 0; });
+						Object.keys(nextState.currentStone).forEach(k => {
+							nextState.currentStone[k] = 0;
+						});
 						this.handleAction({
-							transition: "between-end-end"
+							transition: "between-end-end",
 						});
 					});
 					nextState.timer.start();
@@ -223,7 +229,7 @@ class CurlingMachine {
 				}
 
 				// Keep track of which stone we're on.
-				// 99% of the time the first stone of an end does not use any 
+				// 99% of the time the first stone of an end does not use any
 				// thinking time, so we will assume that the first usage
 				// of thinking time for an end will set each team to their
 				// FIRST stone.
@@ -233,8 +239,14 @@ class CurlingMachine {
 				// If thinking time starts within that 10 seconds, assume it's for
 				// the first rock of the end.
 
-				if (Object.keys(nextState.currentStone).map(k => nextState.currentStone[k]).reduce((a, b) => a + b, 0) === 0) {
-					Object.keys(nextState.currentStone).forEach(k => { nextState.currentStone[k] = 1; });
+				if (
+					Object.keys(nextState.currentStone)
+						.map(k => nextState.currentStone[k])
+						.reduce((a, b) => a + b, 0) === 0
+				) {
+					Object.keys(nextState.currentStone).forEach(k => {
+						nextState.currentStone[k] = 1;
+					});
 				} else if (nextState.phaseData.team !== nextState.previousThinkingTeam) {
 					nextState.currentStone[nextState.phaseData.team]++;
 				}
@@ -245,7 +257,13 @@ class CurlingMachine {
 
 				// Time individual stones by providing a segment name in the
 				// form: Yellow:n-m where n is the end number and m is the stone number.
-				nextState.timer.unpause(nextState.phaseData.team + ":" + nextState.end + "-" + nextState.currentStone[nextState.phaseData.team]);
+				nextState.timer.unpause(
+					nextState.phaseData.team +
+						":" +
+						nextState.end +
+						"-" +
+						nextState.currentStone[nextState.phaseData.team],
+				);
 			}
 
 			if (nextState.phase === "timeout") {
@@ -266,8 +284,8 @@ class CurlingMachine {
 						this.handleAction({
 							transition: "end-timeout",
 							data: {
-								team: whoseTimeout
-							}
+								team: whoseTimeout,
+							},
 						});
 					});
 					nextState.timer.start();
@@ -297,18 +315,26 @@ class CurlingMachine {
 	getCurrentState() {
 		const state = Object.assign({}, this.state);
 
-		const betweenEndTimeRemaining = this.state.phase === "between-ends" ? this.state.timer.getTimeRemaining() / this.lengthOfSecond : null;
+		const betweenEndTimeRemaining = this.state.phase === "between-ends"
+			? this.state.timer.getTimeRemaining() / this.lengthOfSecond
+			: null;
 		const timeoutsRemaining = Object.assign({}, this.timeoutsRemaining);
-		const timeoutTimeRemaining = this.state.phase === "timeout" ? this.state.timer.getTimeRemaining() / this.lengthOfSecond : null;
-		const warmupTimeRemaining = this.state.phase === "warm-up" ? this.state.timer.getTimeRemaining() / this.lengthOfSecond : null;
+		const timeoutTimeRemaining = this.state.phase === "timeout"
+			? this.state.timer.getTimeRemaining() / this.lengthOfSecond
+			: null;
+		const warmupTimeRemaining = this.state.phase === "warm-up"
+			? this.state.timer.getTimeRemaining() / this.lengthOfSecond
+			: null;
 		const timeRemaining = Object.assign({}, this.thinkingTimers);
-		Object.keys(timeRemaining).forEach(team => 
-			timeRemaining[team] = timeRemaining[team].getTimeRemaining() / this.lengthOfSecond);
+		Object.keys(timeRemaining).forEach(
+			team => (timeRemaining[team] = timeRemaining[team].getTimeRemaining() / this.lengthOfSecond),
+		);
 
 		let currentTimerRunningTime = null;
 		if (state.timer) {
 			if (state.phase === "thinking") {
-				const segmentName = state.phaseData.team + ":" + state.end + "-" + state.currentStone[state.phaseData.team];
+				const segmentName =
+					state.phaseData.team + ":" + state.end + "-" + state.currentStone[state.phaseData.team];
 				currentTimerRunningTime = state.timer.getTotalSegmentTime(segmentName);
 			} else {
 				currentTimerRunningTime = state.timer.getTimeSpent();
@@ -331,15 +357,15 @@ class CurlingMachine {
 		delete currentState.currentlyThinking;
 		const phase = this.nextPhaseMap[this.state.phase][action.transition];
 		const end = this.getNextEnd(action);
-		
+
 		const id = this.id;
 
-		return Object.assign(currentState, { 
-			phase, 
-			end, 
+		return Object.assign(currentState, {
+			phase,
+			end,
 			id,
 			phaseData: Object.assign({}, action.data),
-			legalActions: this.getLegalActions(phase)
+			legalActions: this.getLegalActions(phase),
 		});
 	}
 
@@ -365,7 +391,7 @@ class CurlingMachine {
 		if (action.data.team) {
 			return { team: action.data.team };
 		}
-		return { };
+		return {};
 	}
 }
 

@@ -57,7 +57,7 @@ interface CurlingMachineState {
 	id: string;
 	legalActions: string[];
 	phase: string;
-	phaseData: {[key: string]: string};
+	phaseData: { [key: string]: string };
 	timeoutsRemaining: IMap<number>;
 	timeoutTimeRemaining: number;
 	timeRemaining: IMap<number>;
@@ -79,7 +79,7 @@ interface ActionMessage {
 function getDisplayedTimers(): string[] {
 	const hash = window.location.hash;
 	if (hash.length > 0) {
-		return hash.substr(1).split(";")
+		return hash.substr(1).split(";");
 	}
 	return [];
 }
@@ -89,8 +89,9 @@ function setTimersInHash(ids: string[]) {
 }
 
 function uuid(): string {
-	return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
-		const r = Math.random() * 16 | 0, v = c === "x" ? r : (r & 0x3 | 0x8);
+	return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+		const r = (Math.random() * 16) | 0,
+			v = c === "x" ? r : (r & 0x3) | 0x8;
 		return v.toString(16);
 	});
 }
@@ -128,8 +129,8 @@ function forceMonospace(element: Node) {
 
 class TimeToCurl {
 	private socket: SocketIOClient.Socket;
-	private requests: {[key: string]: any};
-	private requestResolvers: {[key: string]: (value?: any | PromiseLike<any>) => void};
+	private requests: { [key: string]: any };
+	private requestResolvers: { [key: string]: (value?: any | PromiseLike<any>) => void };
 	private machines: IMap<CurlingMachineUI>;
 	private machineOrder: IMap<number>;
 	private currentTheme: string;
@@ -176,10 +177,12 @@ class TimeToCurl {
 
 	private async loadTimers(ids: string[]) {
 		for (const timerId of ids) {
-			const timer = await this.emitAction<{timerId: string}, StateAndOptions>(<SocketAction<{timerId: string}>>{
-				request: "GET_TIMER",
-				options: { timerId }
-			});
+			const timer = await this.emitAction<{ timerId: string }, StateAndOptions>(
+				<SocketAction<{ timerId: string }>>{
+					request: "GET_TIMER",
+					options: { timerId },
+				},
+			);
 			if (this.machines[timerId]) {
 				this.machines[timerId].setNewState(timer.data.state);
 			} else {
@@ -192,14 +195,16 @@ class TimeToCurl {
 		document.addEventListener("DOMContentLoaded", () => {
 			document.getElementById("createTimer")!.addEventListener("click", async () => {
 				const timerName = (document.getElementById("timerName") as HTMLInputElement).value || "Timer";
-				const response = await this.emitAction<Partial<TimerOptions>, StateAndOptions>(<SocketAction<Partial<TimerOptions>>>{
-					request: "CREATE_TIMER",
-					clientId: clientId,
-					options: {
-						name: timerName,
-						lengthOfSecond: this.lengthOfSecond
-					}
-				});
+				const response = await this.emitAction<Partial<TimerOptions>, StateAndOptions>(
+					<SocketAction<Partial<TimerOptions>>>{
+						request: "CREATE_TIMER",
+						clientId: clientId,
+						options: {
+							name: timerName,
+							lengthOfSecond: this.lengthOfSecond,
+						},
+					},
+				);
 				this.addCurlingMachine(response.data);
 			});
 			const showDebug = document.getElementById("showDebug")! as HTMLInputElement;
@@ -209,7 +214,7 @@ class TimeToCurl {
 			window.addEventListener("keydown", (event: KeyboardEvent) => {
 				if (event.code === "Backquote" && event.ctrlKey) {
 					showDebug.checked = !showDebug.checked;
-					this.onDebugToggled(); 
+					this.onDebugToggled();
 				}
 			});
 			this.onThemeChanged();
@@ -257,7 +262,7 @@ class TimeToCurl {
 		this.machines[cm.state.id] = new CurlingMachineUI(cm, document.getElementById("timersContainer")!, this);
 		const displayedTimers = getDisplayedTimers();
 		if (displayedTimers.indexOf(cm.state.id) === -1) {
-			displayedTimers.push(cm.state.id)
+			displayedTimers.push(cm.state.id);
 		}
 		setTimersInHash(displayedTimers);
 	}
@@ -309,7 +314,7 @@ class CurlingMachineUI {
 			const team = this.options.teams[i];
 
 			this.teamsToDesignation[team] = designation;
-			this.designationToTeam[designation] = team
+			this.designationToTeam[designation] = team;
 		}
 
 		this.initUI();
@@ -324,13 +329,13 @@ class CurlingMachineUI {
 		this.titleElement.addEventListener("click", () => {
 			this.timerContainerElement.scrollIntoView({
 				behavior: "smooth",
-				block: "start"
+				block: "start",
 			});
 		});
 
 		for (const teamId of Object.keys(this.thinkingButtons)) {
 			this.thinkingButtons[teamId].addEventListener("click", () => {
-				this.sendPhaseTransition("begin-thinking", {team: teamId});
+				this.sendPhaseTransition("begin-thinking", { team: teamId });
 			});
 		}
 
@@ -348,7 +353,7 @@ class CurlingMachineUI {
 			if (team) {
 				data.team = this.designationToTeam[team];
 			}
-			
+
 			elem.addEventListener("click", () => {
 				this.sendCommand(command, data);
 			});
@@ -362,9 +367,7 @@ class CurlingMachineUI {
 		return { ...this.state };
 	}
 
-	public dispose() {
-
-	}
+	public dispose() {}
 
 	public setNewState(state: CurlingMachineState) {
 		this.debugElement.textContent = JSON.stringify(state, null, 4);
@@ -391,18 +394,33 @@ class CurlingMachineUI {
 
 					// Main countdown timer
 					const mainTimer = new TimeMinder(this.state.timeRemaining[thinkingTeam] * this.lengthOfSecond);
-					mainTimer.every(this.lengthOfSecond / 10, () => {
-						setTimeToElem(this.thinkingTimeText[teamId], mainTimer.getTimeRemaining() / this.lengthOfSecond);
-					}, false);
+					mainTimer.every(
+						this.lengthOfSecond / 10,
+						() => {
+							setTimeToElem(
+								this.thinkingTimeText[teamId],
+								mainTimer.getTimeRemaining() / this.lengthOfSecond,
+							);
+						},
+						false,
+					);
 					mainTimer.start();
 					this.runningTimers.push(mainTimer);
 
 					// Time spent this stone
 					const stoneTimer = new Stopwatch();
 					this.elapsedThinkingTime[teamId].classList.add("running");
-					stoneTimer.every(this.lengthOfSecond / 10, () => {
-						setTimeToElem(this.elapsedThinkingTime[teamId], (stoneTimer.elapsedTime() + (this.state.currentTimerRunningTime || 0)) / this.lengthOfSecond);
-					}, false);
+					stoneTimer.every(
+						this.lengthOfSecond / 10,
+						() => {
+							setTimeToElem(
+								this.elapsedThinkingTime[teamId],
+								(stoneTimer.elapsedTime() + (this.state.currentTimerRunningTime || 0)) /
+									this.lengthOfSecond,
+							);
+						},
+						false,
+					);
 					stoneTimer.start();
 					this.runningTimers.push(stoneTimer);
 
@@ -425,9 +443,13 @@ class CurlingMachineUI {
 		if (this.state.phase === "warm-up") {
 			this.elements["warmup-time-container"][0].classList.remove("irrelevant");
 			const timer = new TimeMinder(this.state.warmupTimeRemaining * this.lengthOfSecond);
-			timer.every(this.lengthOfSecond / 10, () => {
-				setTimeToElem(this.warmupTimeText, timer.getTimeRemaining() / this.lengthOfSecond);
-			}, false);
+			timer.every(
+				this.lengthOfSecond / 10,
+				() => {
+					setTimeToElem(this.warmupTimeText, timer.getTimeRemaining() / this.lengthOfSecond);
+				},
+				false,
+			);
 			timer.start();
 			this.runningTimers.push(timer);
 		} else if (this.state.phase !== "technical") {
@@ -437,9 +459,13 @@ class CurlingMachineUI {
 		if (this.state.phase === "between-ends") {
 			this.elements["between-end-time-container"][0].classList.remove("irrelevant");
 			const timer = new TimeMinder(this.state.betweenEndTimeRemaining * this.lengthOfSecond);
-			timer.every(this.lengthOfSecond / 10, () => {
-				setTimeToElem(this.betweenEndTimeText, timer.getTimeRemaining() / this.lengthOfSecond);
-			}, false);
+			timer.every(
+				this.lengthOfSecond / 10,
+				() => {
+					setTimeToElem(this.betweenEndTimeText, timer.getTimeRemaining() / this.lengthOfSecond);
+				},
+				false,
+			);
 			timer.start();
 			this.runningTimers.push(timer);
 		} else if (this.state.phase !== "technical") {
@@ -449,9 +475,13 @@ class CurlingMachineUI {
 		if (this.state.phase === "timeout") {
 			this.elements["timeout-time-container"][0].classList.remove("irrelevant");
 			const timer = new TimeMinder(this.state.timeoutTimeRemaining * this.lengthOfSecond);
-			timer.every(this.lengthOfSecond / 10, () => {
-				setTimeToElem(this.timeoutTimeText, timer.getTimeRemaining() / this.lengthOfSecond);
-			}, false);
+			timer.every(
+				this.lengthOfSecond / 10,
+				() => {
+					setTimeToElem(this.timeoutTimeText, timer.getTimeRemaining() / this.lengthOfSecond);
+				},
+				false,
+			);
 			timer.start();
 			this.runningTimers.push(timer);
 		} else if (this.state.phase !== "technical") {
@@ -514,8 +544,8 @@ class CurlingMachineUI {
 			options: {
 				transition: transition,
 				data: data,
-				timerId: this.state.id
-			}
+				timerId: this.state.id,
+			},
 		});
 		if (result.data !== "ok") {
 			throw new Error("Error querying timer w/ phase transition " + transition + ".");
@@ -529,8 +559,8 @@ class CurlingMachineUI {
 			options: {
 				command: command,
 				data: JSON.stringify(data),
-				timerId: this.state.id
-			}
+				timerId: this.state.id,
+			},
 		});
 	}
 
@@ -597,7 +627,10 @@ class CurlingMachineUI {
 		if (elemData) {
 			key = elemData;
 		} else {
-			const nonTeamClasses = Array.prototype.filter.call(elem.classList, (c: string) => c.substr(0, 5) !== "team");
+			const nonTeamClasses = Array.prototype.filter.call(
+				elem.classList,
+				(c: string) => c.substr(0, 5) !== "team",
+			);
 			if (nonTeamClasses.length === 1) {
 				key = nonTeamClasses[0];
 			}
@@ -646,7 +679,10 @@ function setMonospaceText(elem: HTMLElement, text: string) {
 }
 
 new TimeToCurl().init();
-console.log("Hey developers! Thanks for checking out the source of Time to Curl. The JavaScript included on this page is compiled from TypeScript source. I don't do source maps because source maps are for wimps. To see the original source, head on over to our GitHub repo at https://github.com/trianglecurling/timetocurl. Please use the GitHub page to let us know if you find any issues with this application.");
-console.log("Those looking a bit more closely may notice that the layout of this page is fairly horrendous. Lots of overlayed DIVs with absolute positioning—yuck! Here's my reasoning. When I first created the app, I started with the most bare-bones HTML possible with almost no CSS. Once I got a good amount of the functionality done, I decided to go back and add CSS to skin the app. However, the plan was to make the first skin as similar as possible to \"CurlTime\" to make for an easy transition. However, I wanted to keep my options open for re-skinning in the future, so I wanted the HTML to be easily modified without affecting the \"Classic\" layout. We'll see in time if that was a good decision. I'm starting to regret it!");
-alert("test");
+console.log(
+	"Hey developers! Thanks for checking out the source of Time to Curl. The JavaScript included on this page is compiled from TypeScript source. I don't do source maps because source maps are for wimps. To see the original source, head on over to our GitHub repo at https://github.com/trianglecurling/timetocurl. Please use the GitHub page to let us know if you find any issues with this application.",
+);
+console.log(
+	'Those looking a bit more closely may notice that the layout of this page is fairly horrendous. Lots of overlayed DIVs with absolute positioning—yuck! Here\'s my reasoning. When I first created the app, I started with the most bare-bones HTML possible with almost no CSS. Once I got a good amount of the functionality done, I decided to go back and add CSS to skin the app. However, the plan was to make the first skin as similar as possible to "CurlTime" to make for an easy transition. However, I wanted to keep my options open for re-skinning in the future, so I wanted the HTML to be easily modified without affecting the "Classic" layout. We\'ll see in time if that was a good decision. I\'m starting to regret it!',
+);
 /* keep the last line short... */

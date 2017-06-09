@@ -2,7 +2,12 @@ let currentOverlay: HTMLElement | null = null;
 let currentDialog: HTMLElement | null = null;
 let resolver: ((value?: boolean | PromiseLike<boolean>) => void) | undefined = undefined;
 
-export async function confirm(title: string, message: string | HTMLElement, okText: string = "OK", cancelText: string = "Cancel") {
+export async function confirm(
+	title: string,
+	message: string | HTMLElement,
+	okText: string = "OK",
+	cancelText: string = "Cancel",
+) {
 	const dialog = document.createElement("div");
 	const overlay = document.createElement("div");
 

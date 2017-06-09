@@ -39,7 +39,7 @@ class TimeMinder {
 		}
 		const newInterval = {
 			start: new Date(),
-			end: null
+			end: null,
 		};
 		if (segmentName) {
 			newInterval.segmentName = segmentName;
@@ -54,7 +54,7 @@ class TimeMinder {
 				timer.timer.cancel();
 			}
 		}, this.getTimeRemaining());
-		
+
 		// Unpause all tick timers that were paused
 		for (const timer of this.tickTimers) {
 			if (!timer.runWhenPaused) {
@@ -71,7 +71,7 @@ class TimeMinder {
 
 		const timer = new ManagedTimer(callback, ms, true, setTimeout, clearTimeout, setInterval, clearInterval);
 		timer.start();
-		this.tickTimers.push({timer, runWhenPaused});
+		this.tickTimers.push({ timer, runWhenPaused });
 	}
 
 	getTimeSpent(intervals) {
@@ -90,7 +90,7 @@ class TimeMinder {
 
 	setTimeRemaining(ms) {
 		this.pause();
-		this.intervals.push({adjustment: ms - this.getTimeRemaining()});
+		this.intervals.push({ adjustment: ms - this.getTimeRemaining() });
 		this.unpause();
 	}
 
@@ -120,7 +120,6 @@ class TimeMinder {
 	isRunning() {
 		return this.intervals.length && this.intervals[this.intervals.length - 1].end === null;
 	}
-
 }
 
 module.exports = TimeMinder;
@@ -132,29 +131,35 @@ if (require.main === module) {
 	const testStartTime = Date.now();
 	const marginOfError = 50;
 
-	const oneSecondTimer = new TimeMinder(1000, (intervals) => {
+	const oneSecondTimer = new TimeMinder(1000, intervals => {
 		const doneTime = Date.now();
 		setTimeout(() => {
-			expect(oneSecondTimer.getTotalTimeSinceStart()).toBeGreaterThanOrEqualTo(2000 - marginOfError).toBeLessThan(2000 + marginOfError);
+			expect(oneSecondTimer.getTotalTimeSinceStart())
+				.toBeGreaterThanOrEqualTo(2000 - marginOfError)
+				.toBeLessThan(2000 + marginOfError);
 		}, 1000);
 		console.log("Finished after " + (doneTime - testStartTime) + " ms.");
 	});
 	oneSecondTimer.start();
 
-	const fiveSecondTimer = new TimeMinder(5000, (intervals) => {
+	const fiveSecondTimer = new TimeMinder(5000, intervals => {
 		const doneTime = Date.now();
 		expect(intervals.length).toEqual(1);
 		expect(intervals[0].start).toExist();
 		expect(intervals[0].end).toExist();
-		expect(doneTime - testStartTime).toBeGreaterThanOrEqualTo(5000 - marginOfError).toBeLessThan(5000 + marginOfError);
+		expect(doneTime - testStartTime)
+			.toBeGreaterThanOrEqualTo(5000 - marginOfError)
+			.toBeLessThan(5000 + marginOfError);
 		console.log("Finished after " + (doneTime - testStartTime) + " ms.");
 	});
 	fiveSecondTimer.start();
 
-	const tenSecondTimer = new TimeMinder(10000, (intervals) => {
+	const tenSecondTimer = new TimeMinder(10000, intervals => {
 		const doneTime = Date.now();
 		expect(intervals.length).toEqual(3);
-		expect(doneTime - testStartTime).toBeGreaterThanOrEqualTo(11000 - marginOfError).toBeLessThan(11000 + marginOfError);
+		expect(doneTime - testStartTime)
+			.toBeGreaterThanOrEqualTo(11000 - marginOfError)
+			.toBeLessThan(11000 + marginOfError);
 		console.log("Finished after " + (doneTime - testStartTime) + " ms.");
 	});
 	tenSecondTimer.start();
@@ -163,7 +168,9 @@ if (require.main === module) {
 		tenSecondTimer.pause();
 	}, 1000);
 	setTimeout(() => {
-		expect(tenSecondTimer.getTimeRemaining()).toBeGreaterThanOrEqualTo(9000 - marginOfError).toBeLessThan(9000 + marginOfError);
+		expect(tenSecondTimer.getTimeRemaining())
+			.toBeGreaterThanOrEqualTo(9000 - marginOfError)
+			.toBeLessThan(9000 + marginOfError);
 		tenSecondTimer.start();
 	}, 1500);
 	setTimeout(() => {

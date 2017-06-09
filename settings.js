@@ -1,3 +1,3 @@
 module.exports = {
-	lengthOfSecond: 100
+	lengthOfSecond: 100,
 };

@@ -9,49 +9,49 @@ class ManagedTimer {
 		this.ct = ct;
 		this.elapsed = 0;
 	}
-	
+
 	start() {
 		if (this.firstStarted) {
 			throw new Error("Timer already started.");
 		}
-		
+
 		this.firstStarted = Date.now();
 		this._start();
 	}
-	
+
 	reset() {
 		this.cancel();
 		this.firstStarted = null;
 	}
-	
+
 	_start() {
 		const setMethod = this.recurring ? this.si : this.st;
 		this.clearMethod = this.recurring ? this.ci : this.ct;
-		
+
 		this.startedAt = Date.now();
 		const handle = setMethod(() => {
 			this._invoke();
 		}, this.ms);
 		this.clear = this.clearMethod.bind(this, handle);
 	}
-	
+
 	_invoke() {
 		this.callback();
 		this.startedAt = Date.now();
 		this.elapsed = 0;
 	}
-	
+
 	cancel() {
 		if (this.clear) {
 			this.clear();
 		}
 	}
-	
+
 	pause() {
-		this.elapsed += (Date.now() - this.startedAt);
+		this.elapsed += Date.now() - this.startedAt;
 		this.clear();
 	}
-	
+
 	unpause() {
 		this.startedAt = Date.now();
 		const handle = this.st(() => {

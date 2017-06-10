@@ -8,25 +8,6 @@ const CurlingMachine = require("./curl-timer");
 const fs = require("fs");
 const Settings = require("./settings");
 
-async function getStylePath() {
-	return new Promise((resolve, reject) => {
-		fs.readdir(join(__dirname, "client/bin"), (err, files) => {
-			if (err) {
-				reject(err);
-			}
-			resolve(
-				join(
-					__dirname,
-					"client/bin",
-					files.filter(
-						f => f.startsWith("main.") && f.endsWith(".css"),
-					)[0],
-				),
-			);
-		});
-	});
-}
-
 function setupRoutes(app) {
 	app.get("/", (req, res) => {
 		res.sendFile(join(__dirname, "client/index.html"));
@@ -41,7 +22,7 @@ function setupRoutes(app) {
 	});
 
 	app.get("/style.css", async (req, res) => {
-		res.sendFile(await getStylePath());
+		res.sendFile(join(__dirname, "client/bin/main.css"));
 	});
 
 	app.use(express.static("client/icons"));

@@ -3,11 +3,12 @@ let currentDialog: HTMLElement | null = null;
 let resolver: ((value?: boolean | PromiseLike<boolean>) => void) | undefined = undefined;
 
 export async function confirm(
-	title: string,
+	title: string | null,
 	message: string | HTMLElement,
 	okText: string = "OK",
 	cancelText: string = "Cancel",
 ) {
+	document.body.classList.add("scroll-disabled");
 	const dialog = document.createElement("div");
 	const overlay = document.createElement("div");
 
@@ -19,7 +20,12 @@ export async function confirm(
 	titleArea.classList.add("confirm-dialog-title");
 	const titleElement = document.createElement("span");
 	titleElement.classList.add("title");
-	titleElement.textContent = title;
+
+	if (title === null || title === undefined) {
+		titleArea.classList.add("irrelevant");
+	} else {
+		titleElement.textContent = title;
+	}
 	titleArea.appendChild(titleElement);
 
 	// Message
@@ -68,10 +74,12 @@ export async function confirm(
 }
 
 function onConfirmButtonClick(value: boolean) {
+	document.body.classList.remove("scroll-disabled");
 	if (currentOverlay) {
 		currentOverlay.remove();
 	}
 	if (currentDialog) {
 		currentDialog.remove();
 	}
+	return value;
 }

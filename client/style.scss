@@ -27,6 +27,10 @@ body {
 	bottom: 0;
 	left: 0;
 	right: 0;
+
+	&.scroll-disabled {
+		overflow: hidden !important;
+	}
 }
 
 button,label {
@@ -116,9 +120,7 @@ main {
 }
 
 
-body.classic .timer {
-	position: relative;
-
+body.classic {
 	$btn-red-top: #febfbf;
 	$btn-red-bot: #f0b1ab;
 	$btn-grn-top: #bffebf;
@@ -152,447 +154,519 @@ body.classic .timer {
 	$misc-timer-cancel-gry-bot-hov: #d1d1cb;
 	$misc-timer-cancel-border: #1b4f7f;
 
-	width: 100%;
-	height: 100%;
-
-	&.pregame .thinking-time-container {
-		display: none;
-	}
-
-	:disabled {
-		opacity: 0.4;
-	}
-
 	.irrelevant:not(.placeholder) {
-		display: none;
+		display: none !important;
 	}
 	.irrelevant.placeholder {
-		visibility: hidden;
+		visibility: hidden !important;
 	}
 
-	.timer-container {
-		height: 100%;
+	.timer {
 		position: relative;
-	}
-
-	.time-value {
-		font-weight: bold;
-		.char {
-			width: 11vmin;
-			text-align: center;
-
-			&.digit {
-				width: 18vmin;
-			}
-		}
-
-		&.running {
-			text-decoration: underline;
-		}
-	}
-
-	.timer-title {
-		margin-left: 10px;
-		font-size: 22px;
-
-		&:hover {
-			color: #1565c0;
-			cursor: pointer;
-		}
-	}
-
-	.overlay-time-container {
-		position: absolute;
 		width: 100%;
 		height: 100%;
-		left: 0;
-		top: 0;
-		background-color: $misc-timer-gry;
-		z-index: 2;
+
+		&.pregame .thinking-time-container {
+			display: none;
+		}
+
+		:disabled {
+			opacity: 0.4;
+		}
+
+
+		.timer-container {
+			height: 100%;
+			position: relative;
+		}
 
 		.time-value {
-			position: absolute;
-			width: 75%;
-			height: 40%;
-			top: 30%;
-			left: 12.5%;
-			background-color: $misc-timer-grn;
-			border: 2px solid #333;
-			font-size: 32vmin;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-		}
+			font-weight: bold;
+			.char {
+				width: 11vmin;
+				text-align: center;
 
-		.cancel-timer-button {
-			position: absolute;
-			width: 120px;
-			height: 40px;
-			left: calc(50% - 60px);
-			border: 2px solid $misc-timer-cancel-border;
-			background: linear-gradient(to bottom, $misc-timer-cancel-gry-top 0%, $misc-timer-cancel-gry-bot 100%);
-			border-radius: 2px;
-			top: 92%;
-
-			&:hover {
-				background: linear-gradient(to bottom, $misc-timer-cancel-gry-top-hov 0%, $misc-timer-cancel-gry-bot-hov 100%);
+				&.digit {
+					width: 18vmin;
+				}
 			}
-		}
-
-		h2 {
-			text-align: center;
-			margin-top: 6%;
-			font-size: 32px;
-		}
-	}
-
-	.timer-container {
-		display: flex;
-	}
-
-	.elapsed-thinking-time-container {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		pointer-events: none;
-
-		h2 {
-			display: none;
-		}
-
-		.elapsed-thinking-time {
-			position: absolute;
-			right: 2vw;
-			opacity: 0.5;
-			font-size: 1.5vmin;
 
 			&.running {
-				opacity: 1;
-				font-size: 2.4vmin;
-				text-decoration: none;
-			}
-
-			&.team-A {
-				top: 44vh;
-				color: #fff;
-			}
-
-			&.team-B {
-				top: 96vh;
+				text-decoration: underline;
 			}
 		}
-	}
 
-	.timeouts-remaining-container {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		pointer-events: none;
+		.timer-title {
+			margin-left: 10px;
+			font-size: 22px;
 
-		h2 {
-			display: none;
-		}
-
-		.timeouts-remaining {
-			position: absolute;
-			width: 15vmin;
-			height: 7vmin;
-			left: 80%;
-			padding: 0.5vmin;
-			text-align: center;
-			font-size: 2.5vmin;
-			font-weight: bold;
-			pointer-events: all;
-
-			&.team-A {
-				border: 2px solid #fff;
-				color: #fff;
-				top: 4%;
-
-				.add-timeout, .subtract-timeout {
-					color: #fff;
-
-					&:hover {
-						background-color: rgba(255, 255, 255, 0.3);
-					}
-				}
-			}
-			&.team-B {
-				border: 2px solid #000;
-				color: #000;
-				top: 56%;
-				
-				.add-timeout, .subtract-timeout {
-					color: #000;
-
-					&:hover {
-						background-color: rgba(0, 0, 0, 0.1);
-					}
-				}
-			}
-
-			&::before {
-				content: "Time Outs";
-				display: block;
-			}
-
-			.add-timeout, .subtract-timeout {
-				background: none;
-				border: 0;
-				outline: 0;
+			&:hover {
+				color: #1565c0;
 				cursor: pointer;
-				width: 1.5vmin;
-				height: 1.5vmin;
-				font-size: 1.4vmin;
-				position: absolute;
-				right: 0;
-			}
-			.add-timeout {
-				bottom: 1.2vh;
-			}
-			.subtract-timeout {
-				bottom: 0;
-			}
-		}
-	}
-
-	.thinking-time-container {
-		order: 5;
-		width: 100%;
-
-		h2 {
-			display: none;
-		}
-
-		.thinking-times {
-			height: 100%;
-			display: flex;
-			align-items: center;
-			flex-direction: column;
-
-			.spacer {
-				height: 4%;
-				width: 100%;
-				font-size: 4vmin;
-				text-align: center;
-				border: 2px solid #c0c0c0;
-
-				&::after {
-					content: "It's time to curl!";
-				}
-			}
-
-			.time-with-controls {
-				height: 48vh;
-				width: 100%;
-
-				.thinking-time {
-					height: 100%;
-					font-size: 34vmin;
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					font-weight: bold;
-
-					&.team-A {
-						color: #fff;
-						background-color: $red-bg;
-					}
-					&.team-B {
-						background-color: $yel-bg;
-					}
-				}
 			}
 		}
 
-	}
-
-	&.between-ends,&.warm-up,&.timeout {
-		.thinking-time-container {
+		.overlay-time-container {
 			position: absolute;
 			width: 100%;
 			height: 100%;
 			left: 0;
 			top: 0;
-			z-index: 3;
+			background-color: $misc-timer-gry;
+			z-index: 2;
+
+			.time-value {
+				position: absolute;
+				width: 75%;
+				height: 40%;
+				top: 30%;
+				left: 12.5%;
+				background-color: $misc-timer-grn;
+				border: 2px solid #333;
+				font-size: 32vmin;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.cancel-timer-button {
+				position: absolute;
+				width: 120px;
+				height: 40px;
+				left: calc(50% - 60px);
+				border: 2px solid $misc-timer-cancel-border;
+				background: linear-gradient(to bottom, $misc-timer-cancel-gry-top 0%, $misc-timer-cancel-gry-bot 100%);
+				border-radius: 2px;
+				top: 92%;
+
+				&:hover {
+					background: linear-gradient(to bottom, $misc-timer-cancel-gry-top-hov 0%, $misc-timer-cancel-gry-bot-hov 100%);
+				}
+			}
+
+			h2 {
+				text-align: center;
+				margin-top: 6%;
+				font-size: 32px;
+			}
+		}
+
+		.timer-container {
+			display: flex;
+		}
+
+		.elapsed-thinking-time-container {
+			position: absolute;
+			width: 100%;
+			height: 100%;
 			pointer-events: none;
-			.spacer {
+
+			h2 {
 				display: none;
 			}
 
-			.time-with-controls {
-				height: 20vh;
+			.elapsed-thinking-time {
+				position: absolute;
+				right: 2vw;
+				opacity: 0.5;
+				font-size: 1.5vmin;
 
-				.thinking-time {
-					height: inherit;
-					pointer-events: all;
+				&.running {
+					opacity: 1;
+					font-size: 2.4vmin;
+					text-decoration: none;
+				}
+
+				&.team-A {
+					top: 44vh;
+					color: #fff;
+				}
+
+				&.team-B {
+					top: 96vh;
+				}
+			}
+		}
+
+		.timeouts-remaining-container {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			pointer-events: none;
+
+			h2 {
+				display: none;
+			}
+
+			.timeouts-remaining {
+				position: absolute;
+				width: 15vmin;
+				height: 7vmin;
+				left: 80%;
+				padding: 0.5vmin;
+				text-align: center;
+				font-size: 2.5vmin;
+				font-weight: bold;
+				pointer-events: all;
+
+				&.team-A {
+					border: 2px solid #fff;
+					color: #fff;
+					top: 4%;
+
+					.add-timeout, .subtract-timeout {
+						color: #fff;
+
+						&:hover {
+							background-color: rgba(255, 255, 255, 0.3);
+						}
+					}
+				}
+				&.team-B {
+					border: 2px solid #000;
+					color: #000;
+					top: 56%;
+					
+					.add-timeout, .subtract-timeout {
+						color: #000;
+
+						&:hover {
+							background-color: rgba(0, 0, 0, 0.1);
+						}
+					}
+				}
+
+				&::before {
+					content: "Time Outs";
+					display: block;
+				}
+
+				.add-timeout, .subtract-timeout {
+					background: none;
+					border: 0;
+					outline: 0;
+					cursor: pointer;
+					width: 1.5vmin;
+					height: 1.5vmin;
+					font-size: 1.4vmin;
 					position: absolute;
-					width: 50%;
-					left: 25%;
-					font-size: 18vmin;
+					right: 0;
+				}
+				.add-timeout {
+					bottom: 1.2vh;
+				}
+				.subtract-timeout {
+					bottom: 0;
+				}
+			}
+		}
 
-					&.team-A {
-						top: 9%;
+		.thinking-time-container {
+			order: 5;
+			width: 100%;
+
+			h2 {
+				display: none;
+			}
+
+			.thinking-times {
+				height: 100%;
+				display: flex;
+				align-items: center;
+				flex-direction: column;
+
+				.spacer {
+					height: 4%;
+					width: 100%;
+					font-size: 4vmin;
+					text-align: center;
+					border: 2px solid #c0c0c0;
+
+					&::after {
+						content: "It's time to curl!";
 					}
-					&.team-B {
-						top: 71%;
+				}
+
+				.time-with-controls {
+					height: 48vh;
+					width: 100%;
+
+					.thinking-time {
+						height: 100%;
+						font-size: 34vmin;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						font-weight: bold;
+
+						&.team-A {
+							color: #fff;
+							background-color: $red-bg;
+						}
+						&.team-B {
+							background-color: $yel-bg;
+						}
 					}
+				}
+			}
+
+		}
+
+		&.between-ends,&.warm-up,&.timeout {
+			.thinking-time-container {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				left: 0;
+				top: 0;
+				z-index: 3;
+				pointer-events: none;
+				.spacer {
+					display: none;
+				}
+
+				.time-with-controls {
+					height: 20vh;
+
+					.thinking-time {
+						height: inherit;
+						pointer-events: all;
+						position: absolute;
+						width: 50%;
+						left: 25%;
+						font-size: 18vmin;
+
+						&.team-A {
+							top: 9%;
+						}
+						&.team-B {
+							top: 71%;
+						}
+					}
+				}
+			}
+		}
+
+		.debug {
+			position: fixed;
+			bottom: 10px;
+			right: 10px;
+			background-color: rgba(248, 248, 248, 0.7);
+			z-index: 5;
+
+			transition: all 0.4s;
+
+			&.hidden {
+				bottom: -25%;
+				opacity: 0;
+			}
+		}
+
+		.controls {
+			text-transform: capitalize;
+			@include exactWidth(100px);
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+			order: -1;
+
+			button {
+				font-size: 16px;
+				height: 10%;
+				border: 1px solid #666;
+
+				&:hover {
+					border-color: $yel-border;
+
+					&:disabled {
+						border-color: #666;
+						cursor: not-allowed;
+					}
+				}
+			}
+
+			#game-start-warmup {
+				&:disabled {
+					display: none;
+				}
+				position: absolute;
+				top: 25%;
+				left: calc(50% - 150px);
+				height: 100px;
+				width: 300px;
+			}
+
+			#game-start-no-warmup {
+				&:disabled {
+					display: none;
+				}
+				position: absolute;
+				height: 100px;
+				width: 300px;
+				top: calc(25% + 110px);
+				left: calc(50% - 150px);
+			}
+
+			#yellow-begin-thinking {
+				order: 50;
+				background: linear-gradient(to bottom, $btn-yel-top 0%, $btn-yel-bot 100%);
+				&:hover:not(:disabled) {
+					background: linear-gradient(to bottom, $btn-yel-top-hov 0%, $btn-yel-bot-hov 100%);
+				}
+			}
+
+			#red-begin-thinking {
+				order: 20;
+				background: linear-gradient(to bottom, $btn-red-top 0%, $btn-red-bot 100%);
+				&:hover:not(:disabled) {
+					background: linear-gradient(to bottom, $btn-red-top-hov 0%, $btn-red-bot-hov 100%);
+				}
+			}
+
+			#end-red-thinking {
+				order: 21;
+				background: linear-gradient(to bottom, $btn-red-top 0%, $btn-red-bot 100%);
+				&:hover:not(:disabled) {
+					background: linear-gradient(to bottom, $btn-red-top-hov 0%, $btn-red-bot-hov 100%);
+				}
+			}
+
+			#end-yellow-thinking {
+				order: 51;
+				background: linear-gradient(to bottom, $btn-yel-top 0%, $btn-yel-bot 100%);
+				&:hover:not(:disabled) {
+					background: linear-gradient(to bottom, $btn-yel-top-hov 0%, $btn-yel-bot-hov 100%);
+				}
+			}
+
+			#end-end {
+				order: 22;
+				background: linear-gradient(to bottom, $btn-grn-top 0%, $btn-grn-bot 100%);
+				&:hover:not(:disabled) {
+					background: linear-gradient(to bottom, $btn-grn-top-hov 0%, $btn-grn-bot-hov 100%);
+				}
+			}
+
+			#begin-timeout {
+				order: 23;
+				background: linear-gradient(to bottom, $btn-blu-top 0%, $btn-blu-bot 100%);
+				&:hover:not(:disabled) {
+					background: linear-gradient(to bottom, $btn-blu-top-hov 0%, $btn-blu-bot-hov 100%);
+				}
+			}
+
+			#technical {
+				display: none;
+				order: 55;
+			}
+
+			#end-technical {
+				display: none;
+				order: 60;
+			}
+
+			#adjust-time {
+				order: 70;
+				background: linear-gradient(to bottom, $btn-gry-top 0%, $btn-gry-bot 100%);
+				&:hover:not(:disabled) {
+					background: linear-gradient(to bottom, $btn-gry-top-hov 0%, $btn-gry-bot-hov 100%);
+				}
+			}
+
+			#begin-extra-end {
+				order: 1;
+				background: linear-gradient(to bottom, $btn-gry-top 0%, $btn-gry-bot 100%);
+				&:hover:not(:disabled) {
+					background: linear-gradient(to bottom, $btn-gry-top-hov 0%, $btn-gry-bot-hov 100%);
+				}
+			}
+
+			#begin-midgame-break {
+				order: 24;
+				background: linear-gradient(to bottom, $btn-grn-top 0%, $btn-grn-bot 100%);
+				&:hover:not(:disabled) {
+					background: linear-gradient(to bottom, $btn-grn-top-hov 0%, $btn-grn-bot-hov 100%);
+				}
+			}
+
+			#reset {
+				order: 75;
+				background: linear-gradient(to bottom, $btn-gry-top 0%, $btn-gry-bot 100%);
+				&:hover:not(:disabled) {
+					background: linear-gradient(to bottom, $btn-gry-top-hov 0%, $btn-gry-bot-hov 100%);
 				}
 			}
 		}
 	}
 
-	.debug {
-		position: fixed;
-		bottom: 10px;
-		right: 10px;
-		background-color: rgba(248, 248, 248, 0.7);
-		z-index: 5;
-
-		transition: all 0.4s;
-
-		&.hidden {
-			bottom: -25%;
-			opacity: 0;
-		}
-	}
-
-	.controls {
-		text-transform: capitalize;
-		@include exactWidth(100px);
-		height: 100%;
+	.confirm-dialog {
+		position: absolute;
+		width: 50vw;
+		height: 250px; 
+		top: 15vh;
+		left: calc(50% - 25vw);
+		background-color: #f8f8f8;
+		z-index: 15;
 		display: flex;
 		flex-direction: column;
-		order: -1;
+		box-shadow: 0px 0px 3px 1px rgba(0,0,0,0.4);
 
-		button {
-			font-size: 16px;
-			height: 10%;
-			border: 1px solid #666;
+		.confirm-dialog-title {
+			display: flex;
+			align-items: center;
+			padding-left: 10px;
+			height: 30px;
+			border-bottom: 1px solid #ddd;
+			text-transform: uppercase;
+		}
+		.confirm-dialog-message {
+			flex-grow: 1;
+			margin: 50px;
+			font-size: 24px;
+		}
+		.confirm-dialog-buttons {
+			height: 50px;
+			display: flex;
+			align-items: center;
+			justify-content: flex-end;
+			padding-right: 10px;
+			
+			button {
+				background-color: #2196f3;
+				border: 1px solid #0d47a1;
+				padding-left: 6px;
+				padding-right: 6px;
+				border-radius: 3px;
+				color: #fff;
+				height: 30px;
+				min-width: 90px;
+				margin-left: 20px;
+				text-align: middle;
+				text-transform: capitalize;
 
-			&:hover {
-				border-color: $yel-border;
-
-				&:disabled {
-					border-color: #666;
-					cursor: not-allowed;
+				&:hover {
+					background-color: lighten(#2196f3, 10%);
+				}
+				&:active,&:focus {
+					background-color: darken(#2196f3, 10%);
+					outline: 0;
 				}
 			}
 		}
+	}
 
-		#game-start-warmup {
-			&:disabled {
-				display: none;
-			}
-			position: absolute;
-			top: 25%;
-			left: calc(50% - 150px);
-			height: 100px;
-			width: 300px;
-		}
-
-		#game-start-no-warmup {
-			&:disabled {
-				display: none;
-			}
-			position: absolute;
-			height: 100px;
-			width: 300px;
-			top: calc(25% + 110px);
-			left: calc(50% - 150px);
-		}
-
-		#yellow-begin-thinking {
-			order: 50;
-			background: linear-gradient(to bottom, $btn-yel-top 0%, $btn-yel-bot 100%);
-			&:hover:not(:disabled) {
-				background: linear-gradient(to bottom, $btn-yel-top-hov 0%, $btn-yel-bot-hov 100%);
-			}
-		}
-
-		#red-begin-thinking {
-			order: 20;
-			background: linear-gradient(to bottom, $btn-red-top 0%, $btn-red-bot 100%);
-			&:hover:not(:disabled) {
-				background: linear-gradient(to bottom, $btn-red-top-hov 0%, $btn-red-bot-hov 100%);
-			}
-		}
-
-		#end-red-thinking {
-			order: 21;
-			background: linear-gradient(to bottom, $btn-red-top 0%, $btn-red-bot 100%);
-			&:hover:not(:disabled) {
-				background: linear-gradient(to bottom, $btn-red-top-hov 0%, $btn-red-bot-hov 100%);
-			}
-		}
-
-		#end-yellow-thinking {
-			order: 51;
-			background: linear-gradient(to bottom, $btn-yel-top 0%, $btn-yel-bot 100%);
-			&:hover:not(:disabled) {
-				background: linear-gradient(to bottom, $btn-yel-top-hov 0%, $btn-yel-bot-hov 100%);
-			}
-		}
-
-		#end-end {
-			order: 22;
-			background: linear-gradient(to bottom, $btn-grn-top 0%, $btn-grn-bot 100%);
-			&:hover:not(:disabled) {
-				background: linear-gradient(to bottom, $btn-grn-top-hov 0%, $btn-grn-bot-hov 100%);
-			}
-		}
-
-		#begin-timeout {
-			order: 23;
-			background: linear-gradient(to bottom, $btn-blu-top 0%, $btn-blu-bot 100%);
-			&:hover:not(:disabled) {
-				background: linear-gradient(to bottom, $btn-blu-top-hov 0%, $btn-blu-bot-hov 100%);
-			}
-		}
-
-		#technical {
-			display: none;
-			order: 55;
-		}
-
-		#end-technical {
-			display: none;
-			order: 60;
-		}
-
-		#adjust-time {
-			order: 70;
-			background: linear-gradient(to bottom, $btn-gry-top 0%, $btn-gry-bot 100%);
-			&:hover:not(:disabled) {
-				background: linear-gradient(to bottom, $btn-gry-top-hov 0%, $btn-gry-bot-hov 100%);
-			}
-		}
-
-		#begin-extra-end {
-			order: 1;
-			background: linear-gradient(to bottom, $btn-gry-top 0%, $btn-gry-bot 100%);
-			&:hover:not(:disabled) {
-				background: linear-gradient(to bottom, $btn-gry-top-hov 0%, $btn-gry-bot-hov 100%);
-			}
-		}
-
-		#begin-midgame-break {
-			order: 24;
-			background: linear-gradient(to bottom, $btn-grn-top 0%, $btn-grn-bot 100%);
-			&:hover:not(:disabled) {
-				background: linear-gradient(to bottom, $btn-grn-top-hov 0%, $btn-grn-bot-hov 100%);
-			}
-		}
-
-		#reset {
-			order: 75;
-			background: linear-gradient(to bottom, $btn-gry-top 0%, $btn-gry-bot 100%);
-			&:hover:not(:disabled) {
-				background: linear-gradient(to bottom, $btn-gry-top-hov 0%, $btn-gry-bot-hov 100%);
-			}
-		}
+	.modal-overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: #000;
+		opacity: 0.15;
+		z-index: 10;
 	}
 }
+
 
 div.debug {
 	white-space: pre;

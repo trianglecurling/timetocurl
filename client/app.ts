@@ -192,7 +192,7 @@ class TimeToCurl {
 	}
 
 	private setUpEvents() {
-		document.addEventListener("DOMContentLoaded", () => {
+		document.addEventListener("DOMContentLoaded", async () => {
 			document.getElementById("createTimer")!.addEventListener("click", async () => {
 				const timerName = (document.getElementById("timerName") as HTMLInputElement).value || "Timer";
 				const response = await this.emitAction<Partial<TimerOptions>, StateAndOptions>(
@@ -244,8 +244,11 @@ class TimeToCurl {
 	}
 
 	public setTheme(themeName: string) {
+		if (this.currentTheme) {
+			document.body.classList.remove(this.currentTheme);
+		}
 		this.currentTheme = themeName;
-		document.body.className = this.currentTheme;
+		document.body.classList.add(this.currentTheme);
 	}
 
 	public emitAction<TAction, TResponse>(action: SocketAction<TAction>): PromiseLike<SocketResponse<TResponse>> {

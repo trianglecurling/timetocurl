@@ -346,8 +346,18 @@ class CurlingMachineUI {
 			if (action === "begin-thinking") {
 				return;
 			}
-			elem.addEventListener("click", () => {
-				this.sendPhaseTransition(action);
+			elem.addEventListener("click", async () => {
+				let proceed = true;
+				if (action === "begin-extra-end") {
+					proceed = await confirm(
+						`Are you sure you want to start an extra end? Both clocks will be reset to ${secondsToStr(
+							this.options.midGameBreakTime,
+						)}.`,
+					);
+				}
+				if (proceed) {
+					this.sendPhaseTransition(action);
+				}
 			});
 		});
 
@@ -679,6 +689,38 @@ function setMonospaceText(elem: HTMLElement, text: string) {
 	elem.innerHTML = "";
 	elem.textContent = text;
 	forceMonospace(elem);
+}
+
+// 1 => 1st, 10 => 10th, 13 => 13th, 101 => 101st, etc.
+function getOrdinalAdjective(num: number): HTMLElement {
+	const elem = document.createElement("span");
+	elem.classList.add("ordinal-adjective");
+
+	const cardinalNumber = document.createElement("span");
+	cardinalNumber.classList.add("cardinal-number");
+	cardinalNumber.textContent = String(num);
+
+	const superScript = document.createElement("sup");
+	if (num % 100 > 10 && num % 100 < 14) {
+		superScript.textContent = "th";
+	} else {
+		switch (num % 10) {
+			case 1:
+				superScript.textContent = "st";
+				break;
+			case 2:
+				superScript.textContent = "nd";
+				break;
+			case 3:
+				superScript.textContent = "rd";
+				break;
+			default:
+				superScript.textContent = "th";
+		}
+	}
+	elem.appendChild(cardinalNumber);
+	elem.appendChild(superScript);
+	return elem;
 }
 
 new TimeToCurl().init();

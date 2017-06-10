@@ -1,11 +1,14 @@
-const TimeMinder = require("./time-minder");
+const { TimeMinder } = require("./time-minder");
 const uuidV4 = require("uuid/v4");
 
 const defaultOptions = {
 	betweenEndTime: 10,
+	extraEndThinkingTime: 60 * 4.5,
 	lengthOfSecond: 1000,
 	midGameBreakTime: 5 * 60,
+	numEnds: 8,
 	numTimeouts: 1,
+	numTimeoutsPerExtraEnd: 1,
 	teams: ["Red", "Yellow"],
 	thinkingTime: 30 * 60,
 	timeoutTime: 60,
@@ -91,6 +94,7 @@ class CurlingMachine {
 			currentlyThinking: null,
 			currentTimerRunningTime: 0,
 			end: null,
+			extraEnd: null,
 			id: this.id,
 			legalActions: this.getLegalActions("pregame"),
 			phase: "pregame",
@@ -337,7 +341,7 @@ class CurlingMachine {
 					state.phaseData.team + ":" + state.end + "-" + state.currentStone[state.phaseData.team];
 				currentTimerRunningTime = state.timer.getTotalSegmentTime(segmentName);
 			} else {
-				currentTimerRunningTime = state.timer.getTimeSpent();
+				currentTimerRunningTime = state.timer.elapsedTime();
 			}
 		}
 
@@ -356,17 +360,21 @@ class CurlingMachine {
 		delete currentState.currentlyRunningTimeout;
 		delete currentState.currentlyThinking;
 		const phase = this.nextPhaseMap[this.state.phase][action.transition];
-		const end = this.getNextEnd(action);
-
+		const [{ end, extraEnd }, isExtraEnd] = this.getNextEnd(action);
 		const id = this.id;
 
-		return Object.assign(currentState, {
+		const nextState = Object.assign(currentState, {
 			phase,
 			end,
+			extraEnd,
 			id,
 			phaseData: Object.assign({}, action.data),
 			legalActions: this.getLegalActions(phase),
 		});
+		if (isExtraEnd) {
+			this.beginExtraEnd(nextState);
+		}
+		return nextState;
 	}
 
 	getLegalActions(phase) {
@@ -380,11 +388,25 @@ class CurlingMachine {
 	}
 
 	getNextEnd(action) {
-		if (this.state.phase === "between-ends" && action.transition === "between-end-end") {
-			return this.state.end + 1;
-		} else {
-			return this.state.end;
+		const result = { end: this.state.end, extraEnd: this.state.extraEnd };
+		let isExtraEnd = false;
+		if (
+			(this.state.phase === "between-ends" && action.transition === "between-end-end") ||
+			action.transition === "begin-extra-end"
+		) {
+			if (
+				result.end >= this.options.numEnds ||
+				result.extraEnd !== null ||
+				action.transition === "begin-extra-end"
+			) {
+				result.extraEnd = !result.extraEnd ? 1 : result.extraEnd + 1;
+				isExtraEnd = true;
+			} else {
+				result.end = !result.end ? 1 : result.end + 1;
+			}
 		}
+		console.log(JSON.stringify(result));
+		return [result, isExtraEnd];
 	}
 
 	getPhaseData(action) {
@@ -392,6 +414,18 @@ class CurlingMachine {
 			return { team: action.data.team };
 		}
 		return {};
+	}
+
+	beginExtraEnd(nextState) {
+		Object.keys(this.thinkingTimers).forEach(k => {
+			this.thinkingTimers[k].setTimeRemaining(this.options.extraEndThinkingTime * this.lengthOfSecond);
+		});
+		Object.keys(nextState.currentStone).forEach(k => {
+			nextState.currentStone[k] = 0;
+		});
+		Object.keys(this.timeoutsRemaining).forEach(k => {
+			this.timeoutsRemaining[k] = this.numTimeoutsPerExtraEnd;
+		});
 	}
 }
 

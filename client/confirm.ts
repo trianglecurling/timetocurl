@@ -3,8 +3,8 @@ let currentDialog: HTMLElement | null = null;
 let resolver: ((value?: boolean | PromiseLike<boolean>) => void) | undefined = undefined;
 
 export async function confirm(
-	title: string | null,
 	message: string | HTMLElement,
+	title: string | null = null,
 	okText: string = "OK",
 	cancelText: string = "Cancel",
 ) {
@@ -21,7 +21,7 @@ export async function confirm(
 	const titleElement = document.createElement("span");
 	titleElement.classList.add("title");
 
-	if (title === null || title === undefined) {
+	if (title === null) {
 		titleArea.classList.add("irrelevant");
 	} else {
 		titleElement.textContent = title;
@@ -70,7 +70,7 @@ export async function confirm(
 	currentOverlay = overlay;
 	currentDialog = dialog;
 
-	return promise.then(onConfirmButtonClick.bind(null, true), onConfirmButtonClick.bind(null, false));
+	return promise.then<boolean>(onConfirmButtonClick.bind(null, true), onConfirmButtonClick.bind(null, false));
 }
 
 function onConfirmButtonClick(value: boolean) {

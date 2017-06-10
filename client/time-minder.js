@@ -194,22 +194,30 @@ class TimeMinder {
 		this.disposed = true;
 	}
 
-	start() {
+	start(segmentName) {
 		if (this.isRunning() || this.getTimeRemaining() <= 0) {
 			return;
 		}
 		this.started = true;
-		this.unpause();
+		this.unpause(segmentName);
 		for (const task of this.startupTasks) {
 			task.call(this);
 		}
 	}
 
-	unpause() {
-		this.intervals.push({
+	unpause(segmentName) {
+		if (!this.started) {
+			this.start(segmentName);
+			return;
+		}
+		const newInterval = {
 			start: new Date(),
 			end: null,
-		});
+		};
+		if (segmentName) {
+			newInterval.segmentName = segmentName;
+		}
+		this.intervals.push(newInterval);
 		this.timeout = setTimeout(() => {
 			this.intervals[this.intervals.length - 1].end = new Date();
 			if (this.onComplete) {
@@ -248,8 +256,8 @@ class TimeMinder {
 		this.tickTimers.push({ timer, runWhenPaused });
 	}
 
-	elapsedTime() {
-		return this.intervals
+	elapsedTime(intervals) {
+		return (intervals || this.intervals)
 			.map(i => {
 				if (typeof i.adjustment !== "undefined") {
 					return i.adjustment;
@@ -267,10 +275,19 @@ class TimeMinder {
 		return Date.now() - this.intervals[0].start.getTime();
 	}
 
+	getTotalSegmentTime(segmentName) {
+		return this.getTimeSpent(this.intervals.filter(i => i.segmentName === segmentName));
+	}
+
 	setTimeRemaining(ms) {
-		this.pause();
-		this.intervals.push({ adjustment: ms - this.getTimeRemaining() });
-		this.unpause();
+		const wasRunning = this.isRunning();
+		if (wasRunning) {
+			this.pause();
+		}
+		this.intervals.push({ adjustment: this.getTimeRemaining() - ms });
+		if (wasRunning) {
+			this.unpause();
+		}
 	}
 
 	pause() {

@@ -1,6 +1,179 @@
-const { setTimeout, clearTimeout, setInterval, clearInterval } = require("timers");
-const { ManagedTimer } = require("./managed-timer");
-const { inspect } = require("util");
+class ManagedTimer {
+	constructor(callback, ms, recurring, st, ct, si, ci) {
+		this.callback = callback;
+		this.recurring = recurring;
+		this.ms = ms;
+		this.si = si;
+		this.ci = ci;
+		this.st = st;
+		this.ct = ct;
+		this.elapsed = 0;
+	}
+
+	start() {
+		if (this.firstStarted) {
+			throw new Error("Timer already started.");
+		}
+
+		this.firstStarted = Date.now();
+		this._start();
+	}
+
+	reset() {
+		this.cancel();
+		this.firstStarted = null;
+	}
+
+	_start() {
+		const setMethod = this.recurring ? this.si : this.st;
+		this.clearMethod = this.recurring ? this.ci : this.ct;
+
+		this.startedAt = Date.now();
+		const handle = setMethod(() => {
+			this._invoke();
+		}, this.ms);
+		this.clear = this.clearMethod.bind(this, handle);
+	}
+
+	_invoke() {
+		this.callback();
+		this.startedAt = Date.now();
+		this.elapsed = 0;
+	}
+
+	setTimeRemaining(ms) {
+		this.pause();
+		this.elapsed = this.ms - ms;
+		this.unpause();
+	}
+
+	cancel() {
+		if (this.clear) {
+			this.clear();
+		}
+	}
+
+	pause() {
+		this.elapsed += Date.now() - this.startedAt;
+		this.clear();
+	}
+
+	unpause() {
+		this.startedAt = Date.now();
+		const handle = this.st(() => {
+			this._invoke();
+			if (this.recurring) {
+				this._start();
+			}
+		}, this.ms - this.elapsed);
+		this.clear = this.ct.bind(this, handle);
+	}
+}
+
+class Stopwatch {
+	constructor() {
+		this.splits = [];
+		this.intervals = [];
+		this.startupTasks = [];
+		this.started = false;
+		this.disposed = false;
+		this.tickTimers = [];
+	}
+
+	dispose() {
+		for (const timer of this.tickTimers) {
+			timer.timer.cancel();
+		}
+		this.disposed = true;
+	}
+
+	start() {
+		if (this.isRunning()) {
+			return;
+		}
+		this.started = true;
+		this.unpause();
+		for (const task of this.startupTasks) {
+			task.call(this);
+		}
+	}
+
+	unpause() {
+		this.intervals.push({
+			start: new Date(),
+			end: null,
+		});
+
+		// Unpause all tick timers that were paused
+		for (const timer of this.tickTimers) {
+			if (!timer.runWhenPaused) {
+				timer.timer.unpause();
+			}
+		}
+	}
+
+	every(ms, callback, runWhenPaused = false) {
+		if (!this.started) {
+			this.startupTasks.push(this.every.bind(this, ms, callback, runWhenPaused));
+			return;
+		}
+
+		const timer = new ManagedTimer(
+			callback,
+			ms,
+			true, // recurring
+			window.setTimeout.bind(window),
+			window.clearTimeout.bind(window),
+			window.setInterval.bind(window),
+			window.clearInterval.bind(window),
+		);
+
+		if (runWhenPaused || this.isRunning()) {
+			timer.start();
+		}
+		this.tickTimers.push({ timer, runWhenPaused });
+	}
+
+	split() {
+		this.splits.push(this.elapsedTime());
+	}
+
+	getSplits() {
+		return this.splits;
+	}
+
+	elapsedTime() {
+		return this.intervals
+			.map(i => {
+				return ((i.end && i.end.getTime()) || Date.now()) - i.start.getTime();
+			})
+			.reduce((prev, current) => current + prev, 0);
+	}
+
+	getTotalTimeSinceStart() {
+		return Date.now() - this.intervals[0].start.getTime();
+	}
+
+	pause() {
+		if (!this.isRunning()) {
+			return;
+		}
+
+		// People running around with chainsaws is not Leah's thing.
+		this.intervals[this.intervals.length - 1].end = new Date();
+
+		// Pause all tick timers that don't run when paused.
+		for (const timer of this.tickTimers) {
+			if (!timer.runWhenPaused) {
+				timer.timer.pause();
+			}
+		}
+	}
+
+	isRunning() {
+		return this.intervals.length && this.intervals[this.intervals.length - 1].end === null;
+	}
+}
 
 class TimeMinder {
 	constructor(totalTime, onComplete) {
@@ -69,33 +242,52 @@ class TimeMinder {
 			return;
 		}
 
-		const timer = new ManagedTimer(callback, ms, true, setTimeout, clearTimeout, setInterval, clearInterval);
+		const timer = new ManagedTimer(
+			callback,
+			ms,
+			true, // recurring
+			window.setTimeout.bind(window),
+			window.clearTimeout.bind(window),
+			window.setInterval.bind(window),
+			window.clearInterval.bind(window),
+		);
+
 		timer.start();
 		this.tickTimers.push({ timer, runWhenPaused });
 	}
 
-	getTimeSpent(intervals) {
+	elapsedTime(intervals) {
 		return (intervals || this.intervals)
-			.map(i => ((i.end && i.end.getTime()) || Date.now()) - i.start.getTime())
+			.map(i => {
+				if (typeof i.adjustment !== "undefined") {
+					return i.adjustment;
+				}
+				return ((i.end && i.end.getTime()) || Date.now()) - i.start.getTime();
+			})
 			.reduce((prev, current) => current + prev, 0);
 	}
 
 	getTimeRemaining() {
-		return this.totalTime - this.getTimeSpent();
+		return this.totalTime - this.elapsedTime();
 	}
 
 	getTotalTimeSinceStart() {
 		return Date.now() - this.intervals[0].start.getTime();
 	}
 
-	setTimeRemaining(ms) {
-		this.pause();
-		this.intervals.push({ adjustment: ms - this.getTimeRemaining() });
-		this.unpause();
+	getTotalSegmentTime(segmentName) {
+		return this.elapsedTime(this.intervals.filter(i => i.segmentName === segmentName));
 	}
 
-	getTotalSegmentTime(segmentName) {
-		return this.getTimeSpent(this.intervals.filter(i => i.segmentName === segmentName));
+	setTimeRemaining(ms) {
+		const wasRunning = this.isRunning();
+		if (wasRunning) {
+			this.pause();
+		}
+		this.intervals.push({ adjustment: this.getTimeRemaining() - ms });
+		if (wasRunning) {
+			this.unpause();
+		}
 	}
 
 	pause() {
@@ -104,10 +296,8 @@ class TimeMinder {
 		}
 		clearTimeout(this.timeout);
 
-		const interval = this.intervals[this.intervals.length - 1];
-
 		// People running around with chainsaws is not Leah's thing.
-		interval.end = new Date();
+		this.intervals[this.intervals.length - 1].end = new Date();
 
 		// Pause all tick timers that don't run when paused.
 		for (const timer of this.tickTimers) {
@@ -122,61 +312,4 @@ class TimeMinder {
 	}
 }
 
-module.exports = TimeMinder;
-
-/****** TEST CASES *******/
-
-if (require.main === module) {
-	const expect = require("expect");
-	const testStartTime = Date.now();
-	const marginOfError = 50;
-
-	const oneSecondTimer = new TimeMinder(1000, intervals => {
-		const doneTime = Date.now();
-		setTimeout(() => {
-			expect(oneSecondTimer.getTotalTimeSinceStart())
-				.toBeGreaterThanOrEqualTo(2000 - marginOfError)
-				.toBeLessThan(2000 + marginOfError);
-		}, 1000);
-		console.log("Finished after " + (doneTime - testStartTime) + " ms.");
-	});
-	oneSecondTimer.start();
-
-	const fiveSecondTimer = new TimeMinder(5000, intervals => {
-		const doneTime = Date.now();
-		expect(intervals.length).toEqual(1);
-		expect(intervals[0].start).toExist();
-		expect(intervals[0].end).toExist();
-		expect(doneTime - testStartTime)
-			.toBeGreaterThanOrEqualTo(5000 - marginOfError)
-			.toBeLessThan(5000 + marginOfError);
-		console.log("Finished after " + (doneTime - testStartTime) + " ms.");
-	});
-	fiveSecondTimer.start();
-
-	const tenSecondTimer = new TimeMinder(10000, intervals => {
-		const doneTime = Date.now();
-		expect(intervals.length).toEqual(3);
-		expect(doneTime - testStartTime)
-			.toBeGreaterThanOrEqualTo(11000 - marginOfError)
-			.toBeLessThan(11000 + marginOfError);
-		console.log("Finished after " + (doneTime - testStartTime) + " ms.");
-	});
-	tenSecondTimer.start();
-
-	setTimeout(() => {
-		tenSecondTimer.pause();
-	}, 1000);
-	setTimeout(() => {
-		expect(tenSecondTimer.getTimeRemaining())
-			.toBeGreaterThanOrEqualTo(9000 - marginOfError)
-			.toBeLessThan(9000 + marginOfError);
-		tenSecondTimer.start();
-	}, 1500);
-	setTimeout(() => {
-		tenSecondTimer.pause();
-	}, 4000);
-	setTimeout(() => {
-		tenSecondTimer.start();
-	}, 4500);
-}
+module.exports = { TimeMinder, Stopwatch, ManagedTimer };

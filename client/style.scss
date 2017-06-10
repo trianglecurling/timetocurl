@@ -600,7 +600,7 @@ body.classic {
 	}
 
 	.confirm-dialog {
-		position: absolute;
+		position: fixed;
 		width: 50vw;
 		height: 250px; 
 		top: 15vh;
@@ -656,7 +656,7 @@ body.classic {
 	}
 
 	.modal-overlay {
-		position: absolute;
+		position: fixed;
 		top: 0;
 		left: 0;
 		right: 0;

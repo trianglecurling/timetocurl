@@ -8,6 +8,20 @@
 - Automatic generation of game log
 - Full audit log
 
+## Features (including planned features)
+- Client-server timer model - allows multiple clients to view a timer
+- Instantaneous updates
+- Fully configurable, but still works out of the box
+- Easy error correction
+- Replay an end at the touch of a button
+- Automatic generation of game log (PDF)
+- Full audit log
+- Fault-tolerant - can recover even after a network outage
+- Auto-scaling UI fits the given screen size
+- Supports multiple concurrent timers
+- Choose between basic timing (simple countdown) and WCF official timing (active timekeeper required)
+- Keyboard shortcuts (configurable tbd)
+
 ## Installing and running Time to Curl
 There are plans to run this application on a public server with a domain name. Until then, you must host it yourself. To do that, follow these instructions (Windows):
 
@@ -22,8 +36,8 @@ At this point the program is running. You can open a web browser and navigate to
 ## Remaining tasks
 - [x] Fix *loaded* timers not working (30 min?) - 27:11
 - [x] Show remaining timeouts for each team (30 min) - 24:13
-- [ ] Show the elapsed time for current thinking session (30 min) - N/A
-- [ ] Implement extra ends (45 min)
+- [x] Show the elapsed time for current thinking session (30 min) - N/A
+- [x] Implement extra ends (45 min)
 - [ ] Implement time/state adjustments (evantually will include things like "replay this end") (3 hrs) - N/A
 - [ ] Implement coach travel time for timeouts (1 hr)
 - [ ] Implement a UI for selecting timer options (super custom configuration) (3 hrs)

@@ -64,8 +64,16 @@
 				<div class="thinking-time-container" data-key="thinking-time-container">
 					<h2>Thinking time remaining</h2>
 					<div class="thinking-times">
-						<div class="time-with-controls">
-							<div class="team-A thinking-time time-value" data-key="thinking-time"></div>
+						<div class="time-with-controls team-A">
+							<div data-key="minute-controls" class="minute-controls time-controls">
+								<button data-command="ADD_TIME" data-data='{"value": 60}' class="add-minute time-control-button">+</button>
+								<button data-command="ADD_TIME" data-data='{"value": -60}' class="subtract-minute time-control-button">-</button>
+							</div>
+							<div class="thinking-time time-value" data-key="thinking-time"></div>
+							<div data-key="second-controls" class="second-controls time-controls">
+								<button data-command="ADD_TIME" data-data='{"value": 1}' class="add-second time-control-button">+</button>
+								<button data-command="ADD_TIME" data-data='{"value": -1}' class="subtract-second time-control-button">-</button>
+							</div>
 						</div>
 						<div class="spacer" data-key="spacer">
 							<div class="left"></div>
@@ -77,8 +85,16 @@
 							</div>
 							<div class="right"></div>
 						</div>
-						<div class="time-with-controls">
-							<div class="team-B thinking-time time-value" data-key="thinking-time"></div>
+						<div class="time-with-controls team-B">
+							<div data-key="minute-controls" class="minute-controls time-controls">
+								<button data-command="ADD_TIME" data-data='{"value": 60}' class="add-minute time-control-button">+</button>
+								<button data-command="ADD_TIME" data-data='{"value": -60}' class="subtract-minute time-control-button">-</button>
+							</div>
+							<div class="thinking-time time-value" data-key="thinking-time"></div>
+							<div data-key="second-controls" class="second-controls time-controls">
+								<button data-command="ADD_TIME" data-data='{"value": 1}' class="add-second time-control-button">+</button>
+								<button data-command="ADD_TIME" data-data='{"value": -1}' class="subtract-second time-control-button">-</button>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -121,7 +137,7 @@
 					<button id="begin-timeout" data-action="begin-timeout" class="btn">Timeout</button>
 					<button id="begin-midgame-break" data-action="begin-midgame-break" class="btn">Mid game break</button>
 					<!--<button id="end-timeout" data-action="end-timeout" class="btn">End timeout</button>-->
-					<button id="begin-extra-end" data-action="begin-extra-end" class="btn">Extra End</button>
+					<button id="begin-extra-end" data-action="begin-extra-end" class="btn">Extra end</button>
 					<button id="technical" data-action="technical" class="btn">Technical timeout</button>
 					<button id="end-technical" data-action="end-technical" class="btn">End technical</button>
 					<button id="adjust-time" class="btn">Adjust time</button>

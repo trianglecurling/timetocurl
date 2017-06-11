@@ -227,7 +227,7 @@ class TimeToCurl {
 	private onSpeedyClocksToggled() {
 		const speedyClocks = document.getElementById("speedyClocks")! as HTMLInputElement;
 		const isSpeedy = speedyClocks.checked;
-		this.lengthOfSecond = isSpeedy ? 100 : 1000;
+		this.lengthOfSecond = isSpeedy ? 50 : 1000;
 	}
 
 	private onDebugToggled() {
@@ -296,6 +296,7 @@ class CurlingMachineUI {
 	private technicalTimeoutTitle: HTMLElement;
 	private thinkingButtons: IMap<HTMLButtonElement>;
 	private thinkingTimeText: IMap<HTMLElement>;
+	private timeControls: IMap<HTMLElement[]>;
 	private timeoutsRemainingContainerElement: HTMLElement;
 	private timeoutsRemainingText: IMap<HTMLElement>;
 	private timeoutTimeText: HTMLElement;
@@ -312,6 +313,7 @@ class CurlingMachineUI {
 		this.teamsToDesignation = {};
 		this.thinkingButtons = {};
 		this.thinkingTimeText = {};
+		this.timeControls = {};
 		this.timeoutsRemainingText = {};
 		this.state = initParams.state;
 		this.subtractTimeoutButtons = {};
@@ -530,10 +532,26 @@ class CurlingMachineUI {
 			this.technicalInfo.classList.add("irrelevant");
 		}
 
+		// Hide timeouts remaining box between ends, etc.
 		if (["thinking", "stone-moving"].indexOf(this.state.phase) >= 0) {
 			this.timeoutsRemainingContainerElement.classList.remove("irrelevant");
 		} else if (this.state.phase !== "technical") {
 			this.timeoutsRemainingContainerElement.classList.add("irrelevant");
+		}
+
+		// Hide time adjustment controls when timers are running
+		if (this.state.phase === "thinking") {
+			Object.keys(this.timeControls).forEach(k => {
+				for (const elem of this.timeControls[k]) {
+					elem.classList.add("irrelevant");
+				}
+			});
+		} else {
+			Object.keys(this.timeControls).forEach(k => {
+				for (const elem of this.timeControls[k]) {
+					elem.classList.remove("irrelevant");
+				}
+			});
 		}
 
 		// Title
@@ -630,6 +648,18 @@ class CurlingMachineUI {
 			}
 			if (this.elements[`${key}subtract-timeout`]) {
 				this.subtractTimeoutButtons[teamId] = this.elements[`${key}subtract-timeout`][0] as HTMLButtonElement;
+			}
+			if (this.elements[`${key}minute-controls`]) {
+				if (!this.timeControls[teamId]) {
+					this.timeControls[teamId] = [];
+				}
+				this.timeControls[teamId].push(this.elements[`${key}minute-controls`][0] as HTMLElement);
+			}
+			if (this.elements[`${key}second-controls`]) {
+				if (!this.timeControls[teamId]) {
+					this.timeControls[teamId] = [];
+				}
+				this.timeControls[teamId].push(this.elements[`${key}second-controls`][0] as HTMLElement);
 			}
 		}
 

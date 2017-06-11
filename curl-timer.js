@@ -137,8 +137,10 @@ class CurlingMachine {
 					break;
 				case "ADD_TIME":
 					if (this.thinkingTimers[action.data.team]) {
+						console.log("Adding " + action.data.value + " to " + action.data.team);
 						this.thinkingTimers[action.data.team].setTimeRemaining(
-							this.thinkingTimers[action.data.team].getTimeRemaining() + parseInt(action.data.value),
+							this.thinkingTimers[action.data.team].getTimeRemaining() +
+								parseInt(action.data.value) * this.lengthOfSecond,
 						);
 					}
 					break;

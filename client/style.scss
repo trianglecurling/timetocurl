@@ -37,6 +37,14 @@ button,label {
 	cursor: pointer;
 }
 
+button {
+	background: none;
+	border: 0;
+	outline: 0;
+	color: inherit;
+	font-size: inherit;
+}
+
 header {
 	display: flex;
 	align-items: center;
@@ -342,9 +350,6 @@ body.classic {
 				}
 
 				.add-timeout, .subtract-timeout {
-					background: none;
-					border: 0;
-					outline: 0;
 					cursor: pointer;
 					width: 1.5vmin;
 					height: 1.5vmin;
@@ -425,6 +430,29 @@ body.classic {
 				.time-with-controls {
 					height: 48vh;
 					width: 100%;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+
+					&.team-A {
+						color: #fff;
+						background-color: $red-bg;
+
+						button.time-control-button {
+							&:hover {
+								background-color: rgba(255, 255, 255, 0.3);
+							}
+						}
+					}
+					&.team-B {
+						background-color: $yel-bg;
+
+						button.time-control-button {
+							&:hover {
+								background-color: rgba(0, 0, 0, 0.1);
+							}
+						}
+					}
 
 					.thinking-time {
 						height: 100%;
@@ -433,14 +461,25 @@ body.classic {
 						align-items: center;
 						justify-content: center;
 						font-weight: bold;
+					}
 
-						&.team-A {
-							color: #fff;
-							background-color: $red-bg;
+					.time-controls {
+						display: flex;
+						flex-direction: column;
+						justify-content: space-between;
+						align-items: center;
+						font-size: 3vmin;
+						height: 8vmin;
+						
+						.time-control-button {
+							width: 2vw;
 						}
-						&.team-B {
-							background-color: $yel-bg;
-						}
+					}
+					.minute-controls {
+						margin-right: 1vw;
+					}
+					.second-controls {
+						margin-left: 1vw;
 					}
 				}
 			}
@@ -462,21 +501,21 @@ body.classic {
 
 				.time-with-controls {
 					height: 20vh;
+					pointer-events: all;
+					position: absolute;
+					width: 50%;
+					left: 25%;
+
+					&.team-A {
+						top: 9%;
+					}
+					&.team-B {
+						top: 71%;
+					}
 
 					.thinking-time {
-						height: inherit;
-						pointer-events: all;
-						position: absolute;
-						width: 50%;
-						left: 25%;
 						font-size: 18vmin;
-
-						&.team-A {
-							top: 9%;
-						}
-						&.team-B {
-							top: 71%;
-						}
+						width: 87%;
 					}
 				}
 			}

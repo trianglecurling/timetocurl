@@ -424,7 +424,7 @@ class CurlingMachine {
 			nextState.currentStone[k] = 0;
 		});
 		Object.keys(this.timeoutsRemaining).forEach(k => {
-			this.timeoutsRemaining[k] = this.numTimeoutsPerExtraEnd;
+			this.timeoutsRemaining[k] = this.options.numTimeoutsPerExtraEnd;
 		});
 	}
 }

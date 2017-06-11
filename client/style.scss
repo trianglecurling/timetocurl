@@ -337,7 +337,7 @@ body.classic {
 				}
 
 				&::before {
-					content: "Time Outs";
+					content: "Timeouts";
 					display: block;
 				}
 
@@ -376,14 +376,49 @@ body.classic {
 				flex-direction: column;
 
 				.spacer {
-					height: 4%;
+					height: 4vh;
 					width: 100%;
-					font-size: 4vmin;
-					text-align: center;
+					font-size: 2.5vmin;
 					border: 2px solid #c0c0c0;
 
-					&::after {
-						content: "It's time to curl!";
+					display: flex;
+					flex-direction: row;
+					justify-content: space-between;
+
+					.left {
+						text-align: left;
+					}
+					.center {
+						flex-grow: 1;
+						text-align:center;
+
+						.technical-info {
+							display: flex;
+							flex-direction: column;
+							
+							&.irrelevant {
+								transition: opacity 3s ease-in 0.5s;
+								display: flex !important;
+								opacity: 0;
+								pointer-events: none;
+							}
+
+							.technical-timeout-title {
+								font-size: 2vmin;
+								font-style: italic;
+
+								&::before {
+									content: "Technical Timeout";
+								}
+							}
+							.technical-timeout-time {
+								font-size: 3vmin;
+								margin-top: -0.6vh;
+							}
+						}
+					}
+					.right {
+						text-align: right;
 					}
 				}
 
@@ -465,14 +500,14 @@ body.classic {
 		.controls {
 			text-transform: capitalize;
 			@include exactWidth(100px);
-			height: 100%;
+			height: 100vh;
 			display: flex;
 			flex-direction: column;
 			order: -1;
 
 			button {
 				font-size: 16px;
-				height: 10%;
+				height: 10vh;
 				border: 1px solid #666;
 
 				&:hover {
@@ -553,16 +588,29 @@ body.classic {
 				&:hover:not(:disabled) {
 					background: linear-gradient(to bottom, $btn-blu-top-hov 0%, $btn-blu-bot-hov 100%);
 				}
+				height: 5vh;
 			}
 
 			#technical {
-				display: none;
-				order: 55;
+				order: 24;
+				background: linear-gradient(to bottom, $btn-blu-top 0%, $btn-blu-bot 100%);
+				&:hover:not(:disabled) {
+					background: linear-gradient(to bottom, $btn-blu-top-hov 0%, $btn-blu-bot-hov 100%);
+				}
+				height: 5vh;
 			}
 
 			#end-technical {
-				display: none;
-				order: 60;
+				order: 24;
+				background: linear-gradient(to bottom, $btn-blu-top 0%, $btn-blu-bot 100%);
+				&:hover:not(:disabled) {
+					background: linear-gradient(to bottom, $btn-blu-top-hov 0%, $btn-blu-bot-hov 100%);
+				}
+				height: 5vh;
+
+				&:disabled {
+					display: none;
+				}
 			}
 
 			#adjust-time {
@@ -582,7 +630,7 @@ body.classic {
 			}
 
 			#begin-midgame-break {
-				order: 24;
+				order: 25;
 				background: linear-gradient(to bottom, $btn-grn-top 0%, $btn-grn-bot 100%);
 				&:hover:not(:disabled) {
 					background: linear-gradient(to bottom, $btn-grn-top-hov 0%, $btn-grn-bot-hov 100%);

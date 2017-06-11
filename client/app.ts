@@ -26,6 +26,7 @@ interface IMap<TVal> {
 
 interface TimerOptions {
 	betweenEndTime: number;
+	extraEndThinkingTime: number;
 	lengthOfSecond: number;
 	midGameBreakTime: number;
 	numTimeouts: number;
@@ -283,9 +284,16 @@ class CurlingMachineUI {
 	private options: TimerOptions;
 	private rootTimerElement: HTMLElement;
 	private runningTimers: Stopwatch[];
+	private spacer: HTMLElement;
+	private spacerCenter: HTMLElement;
+	private spacerLeft: HTMLElement;
+	private spacerRight: HTMLElement;
 	private state: CurlingMachineState;
 	private subtractTimeoutButtons: IMap<HTMLButtonElement>;
 	private teamsToDesignation: IMap<string>;
+	private technicalInfo: HTMLElement;
+	private technicalTimeoutTime: HTMLElement;
+	private technicalTimeoutTitle: HTMLElement;
 	private thinkingButtons: IMap<HTMLButtonElement>;
 	private thinkingTimeText: IMap<HTMLElement>;
 	private timeoutsRemainingContainerElement: HTMLElement;
@@ -351,7 +359,7 @@ class CurlingMachineUI {
 				if (action === "begin-extra-end") {
 					proceed = await confirm(
 						`Are you sure you want to start an extra end? Both clocks will be reset to ${secondsToStr(
-							this.options.midGameBreakTime,
+							this.options.extraEndThinkingTime,
 						)}.`,
 					);
 				}
@@ -398,8 +406,10 @@ class CurlingMachineUI {
 		this.clearTimers();
 		for (const teamId of this.options.teams) {
 			setTimeToElem(this.thinkingTimeText[teamId], this.state.timeRemaining[teamId]);
-			this.elapsedThinkingTime[teamId].classList.remove("running");
-			this.thinkingTimeText[teamId].classList.remove("running");
+			if (this.state.phase !== "technical") {
+				this.elapsedThinkingTime[teamId].classList.remove("running");
+				this.thinkingTimeText[teamId].classList.remove("running");
+			}
 			if (this.state.phase === "thinking") {
 				const thinkingTeam = this.state.phaseData["team"];
 				if (thinkingTeam === teamId) {
@@ -501,9 +511,28 @@ class CurlingMachineUI {
 			this.elements["timeout-time-container"][0].classList.add("irrelevant");
 		}
 
+		if (this.state.phase === "technical") {
+			this.elements["technical"][0].classList.add("irrelevant");
+			this.technicalInfo.classList.remove("irrelevant");
+
+			const techTime = new Stopwatch();
+			techTime.every(
+				this.lengthOfSecond / 10,
+				() => {
+					setTimeToElem(this.technicalTimeoutTime, techTime.elapsedTime() / this.lengthOfSecond);
+				},
+				true,
+			);
+			techTime.start();
+			this.runningTimers.push(techTime);
+		} else {
+			this.elements["technical"][0].classList.remove("irrelevant");
+			this.technicalInfo.classList.add("irrelevant");
+		}
+
 		if (["thinking", "stone-moving"].indexOf(this.state.phase) >= 0) {
 			this.timeoutsRemainingContainerElement.classList.remove("irrelevant");
-		} else {
+		} else if (this.state.phase !== "technical") {
 			this.timeoutsRemainingContainerElement.classList.add("irrelevant");
 		}
 
@@ -631,6 +660,27 @@ class CurlingMachineUI {
 		}
 		if (this.elements["elapsed-thinking-time-container"] && this.elements["elapsed-thinking-time-container"][0]) {
 			this.elapsedThinkingTimeContainer = this.elements["elapsed-thinking-time-container"][0] as HTMLElement;
+		}
+		if (this.elements["spacer"] && this.elements["spacer"][0]) {
+			this.spacer = this.elements["spacer"][0] as HTMLElement;
+		}
+		if (this.elements["spacer-left"] && this.elements["spacer-left"][0]) {
+			this.spacerLeft = this.elements["spacer-left"][0] as HTMLElement;
+		}
+		if (this.elements["spacer-right"] && this.elements["spacer-right"][0]) {
+			this.spacerRight = this.elements["spacer-right"][0] as HTMLElement;
+		}
+		if (this.elements["spacer-center"] && this.elements["spacer-center"][0]) {
+			this.spacerCenter = this.elements["spacer-center"][0] as HTMLElement;
+		}
+		if (this.elements["technical-info"] && this.elements["technical-info"][0]) {
+			this.technicalInfo = this.elements["technical-info"][0] as HTMLElement;
+		}
+		if (this.elements["technical-timeout-time"] && this.elements["technical-timeout-time"][0]) {
+			this.technicalTimeoutTime = this.elements["technical-timeout-time"][0] as HTMLElement;
+		}
+		if (this.elements["technical-timeout-title"] && this.elements["technical-timeout-title"][0]) {
+			this.technicalTimeoutTitle = this.elements["technical-timeout-title"][0] as HTMLElement;
 		}
 	}
 

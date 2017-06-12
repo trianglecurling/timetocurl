@@ -38,7 +38,7 @@ At this point the program is running. You can open a web browser and navigate to
 - [x] Show remaining timeouts for each team (30 min) - 24:13
 - [x] Show the elapsed time for current thinking session (30 min) - N/A
 - [x] Implement extra ends (45 min)
-- [ ] Implement time/state adjustments (evantually will include things like "replay this end") (3 hrs) - N/A
+- [x] Implement time/state adjustments (3 hrs) - N/A
 - [ ] Implement coach travel time for timeouts (1 hr)
 - [ ] Implement a UI for selecting timer options (super custom configuration) (3 hrs)
 - [ ] Implement presets for 6, 8, 10 end games, and mixed doubles (1 hr)

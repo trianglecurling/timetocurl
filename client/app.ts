@@ -382,6 +382,57 @@ class CurlingMachineUI {
 			});
 		});
 
+		const adjustTimeButton = this.elements["adjust-time"][0];
+		adjustTimeButton.addEventListener("click", async () => {
+			const initialValues = this.options.teams.map(t => this.state.timeRemaining[t]);
+
+			const form = document.createElement("div");
+			for (let i = 0; i < this.options.teams.length; ++i) {
+				const teamId = this.options.teams[i];
+				const inputId = `team${this.teamsToDesignation[teamId]}TimeInput`;
+
+				const teamTime = document.createElement("div");
+				teamTime.classList.add("team-time-input");
+				const label = document.createElement("label");
+				label.textContent = `${teamId} time`;
+				label.setAttribute("for", inputId);
+
+				const input = document.createElement("input");
+				input.setAttribute("id", inputId);
+				input.setAttribute("type", "text");
+				input.setAttribute("value", secondsToStr(this.state.timeRemaining[teamId]));
+				input.addEventListener("input", () => {
+					const seconds = strToSeconds(input.value);
+					if (seconds !== null) {
+						// send state
+						const newState: Partial<CurlingMachineState> = {};
+						newState.timeRemaining = {};
+						newState.timeRemaining[teamId] = seconds;
+						this.sendNewState(newState);
+					} else {
+						// send initial value
+						const newState: Partial<CurlingMachineState> = {};
+						newState.timeRemaining = {};
+						newState.timeRemaining[teamId] = initialValues[i];
+						this.sendNewState(newState);
+					}
+				});
+				teamTime.appendChild(label);
+				teamTime.appendChild(input);
+				form.appendChild(teamTime);
+			}
+
+			if (!await confirm(form, "Set time")) {
+				// reset initial values
+				const newState: Partial<CurlingMachineState> = {};
+				newState.timeRemaining = {};
+				for (let i = 0; i < this.options.teams.length; ++i) {
+					newState.timeRemaining[this.options.teams[i]] = initialValues[i];
+				}
+				this.sendNewState(newState);
+			}
+		});
+
 		this.setNewState(this.state);
 		this.container.appendChild(newUI);
 	}
@@ -624,6 +675,17 @@ class CurlingMachineUI {
 		});
 	}
 
+	private async sendNewState(state: Partial<CurlingMachineState>) {
+		const result = await this.application.emitAction<{}, string>({
+			request: "QUERY_TIMER",
+			clientId: clientId,
+			options: {
+				state: state,
+				timerId: this.state.id,
+			},
+		});
+	}
+
 	private initElements(elem: Element) {
 		this.populateElements(elem);
 
@@ -759,6 +821,14 @@ function secondsToStr(seconds: number) {
 	const s = roundPrecision(clampedSeconds, 0) % 60;
 	const slz = s < 10 ? "0" + String(s) : String(s);
 	return `${m}:${slz}`;
+}
+
+function strToSeconds(str: string) {
+	const [m, s, ...rest] = str.split(":").map(v => Number(v));
+	if (isNaN(m) || isNaN(s) || rest.length !== 0) {
+		return null;
+	}
+	return m * 60 + s;
 }
 
 function setTimeToElem(elem: HTMLElement, seconds: number) {

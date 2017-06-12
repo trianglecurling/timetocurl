@@ -1,4 +1,5 @@
 const { TimeMinder } = require("./time-minder");
+const merge = require("lodash.merge");
 const uuidV4 = require("uuid/v4");
 
 const defaultOptions = {
@@ -115,10 +116,13 @@ class CurlingMachine {
 
 	getFullState(newState) {
 		// const nextState = { ...this.state };
-		const nextState = Object.assign({}, this.state);
-		Object.keys(newState).forEach(k => {
-			nextState[k] = newState[k];
+		const nextState = merge({}, this.state, newState);
+
+		// Set the timers
+		Object.keys(nextState.timeRemaining).forEach(k => {
+			this.thinkingTimers[k].setTimeRemaining(nextState.timeRemaining[k] * this.lengthOfSecond);
 		});
+
 		return nextState;
 	}
 

@@ -71,13 +71,14 @@ class ManagedTimer {
 }
 
 class Stopwatch {
-	constructor() {
+	constructor(onDispose) {
 		this.splits = [];
 		this.intervals = [];
 		this.startupTasks = [];
 		this.started = false;
 		this.disposed = false;
 		this.tickTimers = [];
+		this.onDispose = onDispose;
 	}
 
 	dispose() {
@@ -85,6 +86,9 @@ class Stopwatch {
 			timer.timer.cancel();
 		}
 		this.disposed = true;
+		if (typeof this.onDispose === "function") {
+			this.onDispose(this.intervals);
+		}
 	}
 
 	start() {
@@ -112,26 +116,36 @@ class Stopwatch {
 		}
 	}
 
-	every(ms, callback, runWhenPaused = false) {
+	/**
+	 * 
+	 * @param {*} ms 
+	 * @param {*} callback 
+	 * @param {*} runWhenPaused 
+	 * @param {*} invokeImmediately - whether or not paused
+	 */
+	every(ms, callback, runWhenPaused = false, invokeImmediately = true) {
 		if (!this.started) {
 			this.startupTasks.push(this.every.bind(this, ms, callback, runWhenPaused));
-			return;
+		} else {
+			const timer = new ManagedTimer(
+				callback,
+				ms,
+				true, // recurring
+				window.setTimeout.bind(window),
+				window.clearTimeout.bind(window),
+				window.setInterval.bind(window),
+				window.clearInterval.bind(window),
+			);
+
+			if (runWhenPaused || this.isRunning()) {
+				timer.start();
+			}
+			this.tickTimers.push({ timer, runWhenPaused });
 		}
 
-		const timer = new ManagedTimer(
-			callback,
-			ms,
-			true, // recurring
-			window.setTimeout.bind(window),
-			window.clearTimeout.bind(window),
-			window.setInterval.bind(window),
-			window.clearInterval.bind(window),
-		);
-
-		if (runWhenPaused || this.isRunning()) {
-			timer.start();
+		if (invokeImmediately) {
+			callback.call(null, true);
 		}
-		this.tickTimers.push({ timer, runWhenPaused });
 	}
 
 	split() {
@@ -176,7 +190,7 @@ class Stopwatch {
 }
 
 class TimeMinder {
-	constructor(totalTime, onComplete) {
+	constructor(totalTime, onComplete, onDispose) {
 		this.totalTime = totalTime;
 		this.intervals = [];
 		this.onComplete = onComplete;
@@ -184,12 +198,16 @@ class TimeMinder {
 		this.started = false;
 		this.disposed = false;
 		this.tickTimers = [];
+		this.onDispose = onDispose;
 	}
 
 	dispose() {
 		clearTimeout(this.timeout);
 		for (const timer of this.tickTimers) {
 			timer.timer.cancel();
+		}
+		if (typeof this.onDispose === "function") {
+			this.onDispose.call(this.intervals);
 		}
 		this.disposed = true;
 	}
@@ -223,6 +241,9 @@ class TimeMinder {
 			if (this.onComplete) {
 				this.onComplete(this.intervals);
 			}
+			if (typeof this.onDispose === "function") {
+				this.onDispose(this.intervals);
+			}
 			for (const timer of this.tickTimers) {
 				timer.timer.cancel();
 			}
@@ -236,24 +257,26 @@ class TimeMinder {
 		}
 	}
 
-	every(ms, callback, runWhenPaused = false) {
+	every(ms, callback, runWhenPaused = false, invokeImmediately = true) {
 		if (!this.started) {
 			this.startupTasks.push(this.every.bind(this, ms, callback, runWhenPaused));
-			return;
+		} else {
+			const timer = new ManagedTimer(
+				callback,
+				ms,
+				true, // recurring
+				window.setTimeout.bind(window),
+				window.clearTimeout.bind(window),
+				window.setInterval.bind(window),
+				window.clearInterval.bind(window),
+			);
+
+			timer.start();
+			this.tickTimers.push({ timer, runWhenPaused });
 		}
-
-		const timer = new ManagedTimer(
-			callback,
-			ms,
-			true, // recurring
-			window.setTimeout.bind(window),
-			window.clearTimeout.bind(window),
-			window.setInterval.bind(window),
-			window.clearInterval.bind(window),
-		);
-
-		timer.start();
-		this.tickTimers.push({ timer, runWhenPaused });
+		if (invokeImmediately) {
+			callback.call(null, true);
+		}
 	}
 
 	elapsedTime(intervals) {
@@ -268,7 +291,7 @@ class TimeMinder {
 	}
 
 	getTimeRemaining() {
-		return this.totalTime - this.elapsedTime();
+		return Math.max(0, this.totalTime - this.elapsedTime());
 	}
 
 	getTotalTimeSinceStart() {

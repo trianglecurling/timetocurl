@@ -14,6 +14,7 @@ const defaultOptions = {
 	thinkingTime: 30 * 60,
 	timeoutTime: 60,
 	timerName: "Timer",
+	travelTime: { home: 20, away: 40 },
 	warmupTime: 9 * 60,
 };
 
@@ -144,7 +145,15 @@ class CurlingMachine {
 						console.log("Adding " + action.data.value + " to " + action.data.team);
 						this.thinkingTimers[action.data.team].setTimeRemaining(
 							this.thinkingTimers[action.data.team].getTimeRemaining() +
-								parseInt(action.data.value) * this.lengthOfSecond,
+								parseInt(action.data.value, 10) * this.lengthOfSecond,
+						);
+					}
+					break;
+				case "ADD_TIMEOUT_TIME":
+					if (this.state.timer) {
+						console.log(parseInt(action.data.value, 10));
+						this.state.timer.setTimeRemaining(
+							this.state.timer.getTimeRemaining() + parseInt(action.data.value, 10) * this.lengthOfSecond,
 						);
 					}
 					break;
@@ -284,9 +293,14 @@ class CurlingMachine {
 				console.log("next phase is timeout: " + whoseTimeout);
 				nextState.currentlyRunningTimeout = whoseTimeout;
 				if (nextState.timer) {
+					// Technical timeout occurred during timeout
 					nextState.timer.unpause();
 				} else {
-					nextState.timer = this.createTimer(this.options.timeoutTime, () => {
+					// Odd ends = home travel time
+					const extraTravelTime = this.state.end % 2 === 1
+						? this.options.travelTime["home"]
+						: this.options.travelTime["away"];
+					nextState.timer = this.createTimer(this.options.timeoutTime + extraTravelTime, () => {
 						// Only deduct a timeout when it has been used completey.
 						// It may have been canceled.
 						this.timeoutsRemaining[whoseTimeout]--;
@@ -312,7 +326,10 @@ class CurlingMachine {
 		}
 
 		if (nextState) {
-			this.history.push(this.state);
+			// only push to history if phase has changed
+			if (this.state.phase !== nextState.phase) {
+				this.history.push(this.state);
+			}
 			this.state = nextState;
 			this.onStateChange(Object.keys(this.sockets).map(s => this.sockets[s]));
 		}

@@ -43,6 +43,10 @@ button {
 	outline: 0;
 	color: inherit;
 	font-size: inherit;
+
+	&:disabled {
+		cursor: not-allowed;
+	}
 }
 
 header {
@@ -162,7 +166,7 @@ body.classic {
 	$misc-timer-cancel-gry-bot-hov: #d1d1cb;
 	$misc-timer-cancel-border: #1b4f7f;
 
-	.irrelevant:not(.placeholder) {
+	.irrelevant:not(.placeholder):not(.travel-time-container) {
 		display: none !important;
 	}
 	.irrelevant.placeholder {
@@ -223,7 +227,7 @@ body.classic {
 			background-color: $misc-timer-gry;
 			z-index: 2;
 
-			.time-value {
+			&>.time-value {
 				position: absolute;
 				width: 75%;
 				height: 40%;
@@ -256,6 +260,48 @@ body.classic {
 				text-align: center;
 				margin-top: 6%;
 				font-size: 32px;
+			}
+
+			.travel-time-container {
+				position: absolute;
+				width: 25vw;
+				height: 6vh;
+				top: 32vh;
+				left: calc(50% - 12.5vw);
+				border: 1px solid #212121;
+				display: flex;
+				align-items: flex-start;
+				justify-content: center;
+				z-index: 15;
+				font-size: 3vmin;
+				padding-top: 0.5vh;
+				padding-bottom: 0.5vh;
+				flex-wrap: wrap;
+
+				.travel-time-label {
+					margin-right: 1.5vw;
+				}
+
+				button.travel-time-cancel {
+					flex-basis: 100%;
+					border: 2px solid $misc-timer-cancel-border;
+					background: linear-gradient(to bottom, $misc-timer-cancel-gry-top 0%, $misc-timer-cancel-gry-bot 100%);
+					border-radius: 2px;
+					max-width: 10vw;
+					height: 2vh;
+					font-size: 1.6vmin;
+
+					&:hover:not(:disabled) {
+						background: linear-gradient(to bottom, $misc-timer-cancel-gry-top-hov 0%, $misc-timer-cancel-gry-bot-hov 100%);
+					}
+				}
+
+				&.irrelevant {
+					transition: opacity 3s ease-in 0.5s;
+					display: flex !important;
+					opacity: 0;
+					pointer-events: all;
+				}
 			}
 		}
 

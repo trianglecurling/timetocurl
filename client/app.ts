@@ -2,11 +2,16 @@ import { confirm } from "./confirm";
 require("./style.scss");
 
 declare class Stopwatch {
-	constructor();
+	constructor(onDispose?: (timerData: any) => void);
 	public dispose(): void;
 	public start(): void;
 	public unpause(): void;
-	public every(ms: number, callback: () => void, runWhenPaused: boolean): void;
+	public every(
+		ms: number,
+		callback: (isImmediateInvocation?: boolean) => void,
+		runWhenPaused?: boolean,
+		invokeImmediately?: boolean,
+	): void;
 	public split(): void;
 	public getSplits(): number[];
 	public elapsedTime(): number;
@@ -16,7 +21,7 @@ declare class Stopwatch {
 }
 
 declare class TimeMinder extends Stopwatch {
-	constructor(totalTime: number, onComplete?: (timerData: any) => void);
+	constructor(totalTime: number, onComplete?: (timerData: any) => void, onDispose?: (timerData: any) => void);
 	public getTimeRemaining(): number;
 }
 
@@ -33,6 +38,7 @@ interface TimerOptions {
 	teams: string[];
 	thinkingTime: number;
 	timeoutTime: number;
+	travelTime: { home: number; away: number };
 	warmupTime: number;
 }
 
@@ -227,7 +233,7 @@ class TimeToCurl {
 	private onSpeedyClocksToggled() {
 		const speedyClocks = document.getElementById("speedyClocks")! as HTMLInputElement;
 		const isSpeedy = speedyClocks.checked;
-		this.lengthOfSecond = isSpeedy ? 50 : 1000;
+		this.lengthOfSecond = isSpeedy ? 150 : 1000;
 	}
 
 	private onDebugToggled() {
@@ -302,6 +308,9 @@ class CurlingMachineUI {
 	private timeoutTimeText: HTMLElement;
 	private timerContainerElement: HTMLElement;
 	private titleElement: HTMLElement;
+	private travelTimeCancelButton: HTMLButtonElement;
+	private travelTimeContainer: HTMLElement;
+	private travelTimeValue: HTMLElement;
 	private warmupTimeText: HTMLElement;
 
 	constructor(initParams: StateAndOptions, private container: Element, private application: TimeToCurl) {
@@ -372,14 +381,28 @@ class CurlingMachineUI {
 		});
 
 		this.forEachCommand((elem: HTMLButtonElement, command: string, team: string | null) => {
-			const data = JSON.parse(elem.dataset["data"] || "{}");
-			if (team) {
-				data.team = this.designationToTeam[team];
-			}
-
 			elem.addEventListener("click", () => {
+				const data = JSON.parse(elem.dataset["data"] || "{}");
+				if (team) {
+					data.team = this.designationToTeam[team];
+				}
 				this.sendCommand(command, data);
 			});
+		});
+
+		this.travelTimeCancelButton.addEventListener("click", () => {
+			const travelTime = (this.state.end || 0) % 2 === 0
+				? this.options.travelTime["away"]
+				: this.options.travelTime["home"];
+			if (this.travelTimeCancelButton.textContent === "Undo") {
+				this.travelTimeCancelButton.textContent = "No coach";
+				this.travelTimeCancelButton.dataset["data"] = JSON.stringify({ value: -1 * travelTime });
+				this.travelTimeContainer.classList.remove("irrelevant");
+			} else {
+				this.travelTimeCancelButton.textContent = "Undo";
+				this.travelTimeCancelButton.dataset["data"] = JSON.stringify({ value: travelTime });
+				this.travelTimeContainer.classList.add("irrelevant");
+			}
 		});
 
 		const adjustTimeButton = this.elements["adjust-time"][0];
@@ -550,16 +573,61 @@ class CurlingMachineUI {
 
 		if (this.state.phase === "timeout") {
 			this.elements["timeout-time-container"][0].classList.remove("irrelevant");
-			const timer = new TimeMinder(this.state.timeoutTimeRemaining * this.lengthOfSecond);
-			timer.every(
-				this.lengthOfSecond / 10,
+			const scheduledTravelTime = (this.state.end || 0) % 2 === 0
+				? this.options.travelTime["away"]
+				: this.options.travelTime["home"];
+
+			// timeoutTimeRemaining includes travel time
+			const travelTime = Math.max(0, this.state.timeoutTimeRemaining - this.options.timeoutTime);
+
+			const timeoutTimer = new TimeMinder(
+				(this.state.timeoutTimeRemaining - travelTime) * this.lengthOfSecond,
+				undefined,
 				() => {
-					setTimeToElem(this.timeoutTimeText, timer.getTimeRemaining() / this.lengthOfSecond);
+					this.travelTimeCancelButton.textContent = "No coach";
+					this.travelTimeCancelButton.dataset["data"] = JSON.stringify({ value: -1 * scheduledTravelTime });
+					this.travelTimeContainer.classList.remove("irrelevant");
+				},
+			);
+			timeoutTimer.every(
+				this.lengthOfSecond / 10,
+				isImmediateInvocation => {
+					if (
+						this.options.timeoutTime >= this.state.timeoutTimeRemaining + scheduledTravelTime ||
+						(this.travelTimeCancelButton.textContent === "No coach" && !isImmediateInvocation)
+					) {
+						this.travelTimeCancelButton.disabled = true;
+					} else {
+						this.travelTimeCancelButton.disabled = false;
+					}
+					setTimeToElem(this.timeoutTimeText, timeoutTimer.getTimeRemaining() / this.lengthOfSecond);
 				},
 				false,
+				true,
 			);
-			timer.start();
-			this.runningTimers.push(timer);
+			const travelTimer = new TimeMinder(travelTime * this.lengthOfSecond, () => {
+				timeoutTimer.start();
+				this.runningTimers.push(timeoutTimer);
+				this.travelTimeContainer.classList.add("irrelevant");
+			});
+			travelTimer.every(
+				this.lengthOfSecond / 10,
+				() => {
+					setTimeToElem(this.travelTimeValue, travelTimer.getTimeRemaining() / this.lengthOfSecond);
+				},
+				false,
+				true,
+			);
+			if (travelTime > 0) {
+				this.travelTimeCancelButton.dataset["data"] = JSON.stringify({ value: scheduledTravelTime * -1 });
+				this.travelTimeContainer.classList.remove("irrelevant");
+				travelTimer.start();
+				this.runningTimers.push(travelTimer);
+			} else {
+				timeoutTimer.start();
+				this.runningTimers.push(timeoutTimer);
+				this.travelTimeContainer.classList.add("irrelevant");
+			}
 		} else if (this.state.phase !== "technical") {
 			this.elements["timeout-time-container"][0].classList.add("irrelevant");
 		}
@@ -773,6 +841,15 @@ class CurlingMachineUI {
 		}
 		if (this.elements["technical-timeout-title"] && this.elements["technical-timeout-title"][0]) {
 			this.technicalTimeoutTitle = this.elements["technical-timeout-title"][0] as HTMLElement;
+		}
+		if (this.elements["travel-time-cancel"] && this.elements["travel-time-cancel"][0]) {
+			this.travelTimeCancelButton = this.elements["travel-time-cancel"][0] as HTMLButtonElement;
+		}
+		if (this.elements["travel-time-container"] && this.elements["travel-time-container"][0]) {
+			this.travelTimeContainer = this.elements["travel-time-container"][0] as HTMLElement;
+		}
+		if (this.elements["travel-time-value"] && this.elements["travel-time-value"][0]) {
+			this.travelTimeValue = this.elements["travel-time-value"][0] as HTMLElement;
 		}
 	}
 

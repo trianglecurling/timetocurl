@@ -34,14 +34,14 @@ There are plans to run this application on a public server with a domain name. U
 At this point the program is running. You can open a web browser and navigate to http://localhost:3001 to use it. **From now on, to run Time to Curl, you only need to do step 5 above from within the application directory in a command prompt.
 
 ## Remaining tasks
-- [x] Fix *loaded* timers not working (30 min?) - 27:11
-- [x] Show remaining timeouts for each team (30 min) - 24:13
-- [x] Show the elapsed time for current thinking session (30 min) - N/A
+- [x] Fix *loaded* timers not working (30 min?)
+- [x] Show remaining timeouts for each team (30 min)
+- [x] Show the elapsed time for current thinking session (30 min)
 - [x] Implement extra ends (45 min)
-- [x] Implement time/state adjustments (3 hrs) - N/A
+- [x] Implement time/state adjustments (3 hrs)
 - [ ] Implement coach travel time for timeouts (1 hr)
 - [ ] Implement a UI for selecting timer options (super custom configuration) (3 hrs)
-- [ ] Implement presets for 6, 8, 10 end games, and mixed doubles (1 hr)
+- [x] Implement presets for 6, 8, 10 end games, and mixed doubles (1 hr)
 - [ ] Implement a read-only mode (1 hr)
 - [ ] Implement some kind of token security (3 hrs)
 - [ ] Implement one or two new themes (8+ hrs)

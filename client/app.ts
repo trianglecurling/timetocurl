@@ -1,4 +1,15 @@
 import { confirm } from "./confirm";
+import {
+	ActionMessage,
+	CurlingMachineState,
+	IMap,
+	SocketAction,
+	SocketResponse,
+	StateAndOptions,
+	TimerOptions,
+} from "./interfaces";
+import { TimerPresets } from "./presets";
+
 require("./style.scss");
 
 declare class Stopwatch {
@@ -23,64 +34,6 @@ declare class Stopwatch {
 declare class TimeMinder extends Stopwatch {
 	constructor(totalTime: number, onComplete?: (timerData: any) => void, onDispose?: (timerData: any) => void);
 	public getTimeRemaining(): number;
-}
-
-interface IMap<TVal> {
-	[key: string]: TVal;
-}
-
-interface TimerOptions {
-	betweenEndTime: number;
-	extraEndThinkingTime: number;
-	lengthOfSecond: number;
-	midGameBreakTime: number;
-	numTimeouts: number;
-	teams: string[];
-	thinkingTime: number;
-	timeoutTime: number;
-	travelTime: { home: number; away: number };
-	warmupTime: number;
-}
-
-interface SocketAction<TOptions> {
-	request: string;
-	options: TOptions;
-	clientId: string;
-	token?: string;
-}
-
-interface SocketResponse<TData> {
-	data: TData;
-	response: string;
-	token: string;
-}
-
-interface CurlingMachineState {
-	betweenEndTimeRemaining: number;
-	currentlyRunningTimeout: string | null;
-	currentlyThinking: string | null;
-	currentTimerRunningTime: number;
-	end: number | null;
-	id: string;
-	legalActions: string[];
-	phase: string;
-	phaseData: { [key: string]: string };
-	timeoutsRemaining: IMap<number>;
-	timeoutTimeRemaining: number;
-	timeRemaining: IMap<number>;
-	timerName: string;
-	warmupTimeRemaining: number;
-}
-
-interface StateAndOptions {
-	options: TimerOptions;
-	state: CurlingMachineState;
-}
-
-interface ActionMessage {
-	data: any;
-	machineId: string;
-	message: string;
 }
 
 function getDisplayedTimers(): string[] {
@@ -141,7 +94,7 @@ class TimeToCurl {
 	private machines: IMap<CurlingMachineUI>;
 	private machineOrder: IMap<number>;
 	private currentTheme: string;
-	private lengthOfSecond: number = 1000;
+	private speedyClocks: boolean = false;
 
 	public init() {
 		this.setUpEvents();
@@ -198,24 +151,76 @@ class TimeToCurl {
 		}
 	}
 
+	private populateTimerOptions() {
+		const timerOptionsDropdown = document.getElementById("timerPresets")!;
+		for (const preset of TimerPresets) {
+			const option = document.createElement("option");
+			option.value = preset.id;
+			option.textContent = preset.name;
+			timerOptionsDropdown.appendChild(option);
+		}
+	}
+
+	private getTimerOptions() {
+		const selectedPreset = (document.getElementById("timerPresets")! as HTMLSelectElement).value;
+		const presetOptions = { ...TimerPresets.filter(p => p.id === selectedPreset)[0].options };
+		const timerName = (document.getElementById("timerName") as HTMLInputElement).value;
+		if (this.speedyClocks) {
+			presetOptions.lengthOfSecond = 100;
+		}
+		if (timerName) {
+			presetOptions.timerName = timerName;
+		}
+		return presetOptions;
+	}
+
+	private restoreSettingsFromStorage() {
+		const speedyClocks = window.localStorage["speedy-clocks"];
+		const showDebug = window.localStorage["show-debug"];
+		const timerPreset = window.localStorage["timer-preset"];
+		const theme = window.localStorage["theme"];
+
+		const speedyClocksCheckbox = document.getElementById("speedyClocks")! as HTMLInputElement;
+		const showDebugCheckbox = document.getElementById("showDebug")! as HTMLInputElement;
+		const timerPresetSelect = document.getElementById("timerPresets")! as HTMLSelectElement;
+		const themeSelect = document.getElementById("themeSelector") as HTMLSelectElement;
+
+		if (speedyClocks) {
+			speedyClocksCheckbox.checked = speedyClocks === "true";
+		}
+		if (showDebug) {
+			showDebugCheckbox.checked = showDebug === "true";
+		}
+		if (timerPreset) {
+			timerPresetSelect.value = timerPreset;
+		}
+		if (theme) {
+			themeSelect.value = theme;
+		}
+	}
+
 	private setUpEvents() {
 		document.addEventListener("DOMContentLoaded", async () => {
+			this.populateTimerOptions();
+			this.restoreSettingsFromStorage();
+
 			document.getElementById("createTimer")!.addEventListener("click", async () => {
-				const timerName = (document.getElementById("timerName") as HTMLInputElement).value || "Timer";
+				const options = this.getTimerOptions();
 				const response = await this.emitAction<Partial<TimerOptions>, StateAndOptions>(
 					<SocketAction<Partial<TimerOptions>>>{
 						request: "CREATE_TIMER",
 						clientId: clientId,
-						options: {
-							name: timerName,
-							lengthOfSecond: this.lengthOfSecond,
-						},
+						options,
 					},
 				);
 				this.addCurlingMachine(response.data);
 			});
 			const showDebug = document.getElementById("showDebug")! as HTMLInputElement;
+			const timerPresets = document.getElementById("timerPresets")! as HTMLSelectElement;
 			showDebug.addEventListener("change", this.onDebugToggled);
+			timerPresets.addEventListener("change", () => {
+				window.localStorage["timer-preset"] = timerPresets.value;
+			});
 			document.getElementById("speedyClocks")!.addEventListener("change", this.onSpeedyClocksToggled.bind(this));
 			document.getElementById("themeSelector")!.addEventListener("change", this.onThemeChanged);
 			window.addEventListener("keydown", (event: KeyboardEvent) => {
@@ -232,8 +237,8 @@ class TimeToCurl {
 
 	private onSpeedyClocksToggled() {
 		const speedyClocks = document.getElementById("speedyClocks")! as HTMLInputElement;
-		const isSpeedy = speedyClocks.checked;
-		this.lengthOfSecond = isSpeedy ? 150 : 1000;
+		this.speedyClocks = speedyClocks.checked;
+		window.localStorage["speedy-clocks"] = this.speedyClocks;
 	}
 
 	private onDebugToggled() {
@@ -243,11 +248,13 @@ class TimeToCurl {
 			const elem = debugElements.item(i);
 			elem.classList[showDebug.checked ? "remove" : "add"]("hidden");
 		}
+		window.localStorage["show-debug"] = showDebug.checked;
 	}
 
 	private onThemeChanged() {
 		const selector = document.getElementById("themeSelector") as HTMLSelectElement;
 		this.setTheme(selector.value);
+		window.localStorage["theme"] = selector.value;
 	}
 
 	public setTheme(themeName: string) {
@@ -957,4 +964,3 @@ console.log(
 console.log(
 	'Those looking a bit more closely may notice that the layout of this page is fairly horrendous. Lots of overlayed DIVs with absolute positioning—yuck! Here\'s my reasoning. When I first created the app, I started with the most bare-bones HTML possible with almost no CSS. Once I got a good amount of the functionality done, I decided to go back and add CSS to skin the app. However, the plan was to make the first skin as similar as possible to "CurlTime" to make for an easy transition. However, I wanted to keep my options open for re-skinning in the future, so I wanted the HTML to be easily modified without affecting the "Classic" layout. We\'ll see in time if that was a good decision. I\'m starting to regret it!',
 );
-/* keep the last line short... */

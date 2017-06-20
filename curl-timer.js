@@ -13,7 +13,7 @@ const defaultOptions = {
 	teams: ["Red", "Yellow"],
 	thinkingTime: 30 * 60,
 	timeoutTime: 60,
-	timerName: "Timer",
+	timerName: "",
 	travelTime: { home: 20, away: 40 },
 	warmupTime: 9 * 60,
 };
@@ -44,6 +44,9 @@ class CurlingMachine {
 	}
 
 	initialize() {
+		if (!this.options.timerName) {
+			this.options.timerName = `Timer ${String(this.id)}`;
+		}
 		this.state = this.getInitialState();
 		this.history = [this.state];
 		this.thinkingTimers = {};

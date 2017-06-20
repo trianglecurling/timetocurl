@@ -33,6 +33,7 @@
 	<header>
 		<h1><a href="/">Time to Curl</a></h1>
 		<input class="timer-name" type="text" id="timerName" placeholder="Sheet B" />
+		<select id="timerPresets" class="timer-presets"></select>
 		<button id="createTimer" class="btn btn-primary">Create New Timer</button>
 		<div class="view-settings-container">
 			<div class="theme-selector-container">
@@ -54,7 +55,7 @@
 	</main>
 	<div id="timerTemplate">
 		<div class="timer" data-key="timer">
-			<div class="timer-title" data-key="timer-title"></div>
+			<div id="timerName" class="timer-title" data-key="timer-title"></div>
 			<div class="timer-container" data-key="timer-container">
 				<div class="overlay-time-container warmup-time-container" data-key="warmup-time-container">
 					<h2>Warmup time remaining</h2>

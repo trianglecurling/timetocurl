@@ -67,10 +67,17 @@ header {
 	background-color: #e6e6e6;
 
 	.timer-name {
-		width: 125px;
+		width: 150px;
 		margin-right: 6px;
 		height: 28px;
 		font-size: 22px;
+	}
+
+	.timer-presets {
+		width: 150px;
+		margin-right: 6px;
+		height: 28px;
+		font-size: 18px;
 	}
 
 	button {
@@ -814,7 +821,6 @@ body.classic {
 		}
 	}
 }
-
 
 div.debug {
 	white-space: pre;

@@ -22,6 +22,23 @@
 - Choose between basic timing (simple countdown) and WCF official timing (active timekeeper required)
 - Keyboard shortcuts (configurable tbd)
 
+## Screenshots
+
+### Main UI
+![Main ui](assets/main-ui.png)
+
+Classic theme is familiar to experienced timekeepers.
+
+### Between ends UI.
+![Between ends](assets/between-end-time-ui.png)
+
+Includes controls for adjusting time during breaks such as timeouts, between ends, and mid-game.
+
+### Synchronized timers
+![Synchronized timers](assets/synchronized-ui.png)
+
+Timers are always perfectly synchronized between browsers, even on multiple machines.
+
 ## Installing and running Time to Curl
 There are plans to run this application on a public server with a domain name. Until then, you must host it yourself. To do that, follow these instructions (Windows):
 

@@ -9,18 +9,18 @@
 	max-height: $size;
 }
 
-* { 
-	margin: 0; 
-	padding: 0; 
-	box-sizing: inherit; 
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: inherit;
 }
 
 html {
 	box-sizing: border-box;
 }
 
-body { 
-	font: 13px Helvetica, Arial; 
+body {
+	font: 13px Helvetica, Arial;
 	background-color: #f8f8f8;
 	position: absolute;
 	top: 0;
@@ -33,7 +33,7 @@ body {
 	}
 }
 
-button,label {
+button, label {
 	cursor: pointer;
 }
 
@@ -80,7 +80,7 @@ header {
 		font-size: 18px;
 	}
 
-	button {
+	button.create-timer {
 		$button-color: #43a047;
 		background-color: $button-color;
 		border: 1px solid darken($button-color, 30%);
@@ -89,13 +89,30 @@ header {
 		border-radius: 3px;
 		color: #fff;
 		height: 28px;
+		margin-right: 3px;
 
 		&:hover {
 			background-color: darken($button-color, 6%);
 		}
-		&:active,&:focus {
+		&:active, &:focus {
 			background-color: darken($button-color, 10%);
 			outline: 0;
+		}
+	}
+
+	button.customize-settings {
+		font-size: 18px;
+		width: 28px;
+		height: 28px;
+		padding-left: 2px;
+		padding-bottom: 1px;
+		border-radius: 3px;
+
+		&:hover {
+			background-color: rgba(0, 0, 0, 0.2);
+		}
+		&:active {
+			background-color: rgba(0, 0, 0, 0.3);
 		}
 	}
 
@@ -137,7 +154,6 @@ main {
 #timerTemplate {
 	display: none;
 }
-
 
 body.classic {
 	$btn-red-top: #febfbf;
@@ -193,7 +209,6 @@ body.classic {
 			opacity: 0.4;
 		}
 
-
 		.timer-container {
 			height: 100%;
 			position: relative;
@@ -234,7 +249,7 @@ body.classic {
 			background-color: $misc-timer-gry;
 			z-index: 2;
 
-			&>.time-value {
+			& > .time-value {
 				position: absolute;
 				width: 75%;
 				height: 40%;
@@ -259,16 +274,18 @@ body.classic {
 				top: 92%;
 
 				&:hover {
-					background: linear-gradient(to bottom, $misc-timer-cancel-gry-top-hov 0%, $misc-timer-cancel-gry-bot-hov 100%);
+					background: linear-gradient(
+						to bottom,
+						$misc-timer-cancel-gry-top-hov 0%,
+						$misc-timer-cancel-gry-bot-hov 100%
+					);
 				}
 			}
-
 			h2 {
 				text-align: center;
 				margin-top: 6%;
 				font-size: 32px;
 			}
-
 			.travel-time-container {
 				position: absolute;
 				width: 25vw;
@@ -284,25 +301,29 @@ body.classic {
 				padding-top: 0.5vh;
 				padding-bottom: 0.5vh;
 				flex-wrap: wrap;
-
 				.travel-time-label {
 					margin-right: 1.5vw;
 				}
-
 				button.travel-time-cancel {
 					flex-basis: 100%;
 					border: 2px solid $misc-timer-cancel-border;
-					background: linear-gradient(to bottom, $misc-timer-cancel-gry-top 0%, $misc-timer-cancel-gry-bot 100%);
+					background: linear-gradient(
+						to bottom,
+						$misc-timer-cancel-gry-top 0%,
+						$misc-timer-cancel-gry-bot 100%
+					);
 					border-radius: 2px;
 					max-width: 10vw;
 					height: 2vh;
 					font-size: 1.6vmin;
-
 					&:hover:not(:disabled) {
-						background: linear-gradient(to bottom, $misc-timer-cancel-gry-top-hov 0%, $misc-timer-cancel-gry-bot-hov 100%);
+						background: linear-gradient(
+							to bottom,
+							$misc-timer-cancel-gry-top-hov 0%,
+							$misc-timer-cancel-gry-bot-hov 100%
+						);
 					}
 				}
-
 				&.irrelevant {
 					transition: opacity 3s ease-in 0.5s;
 					display: flex !important;
@@ -311,54 +332,44 @@ body.classic {
 				}
 			}
 		}
-
 		.timer-container {
 			display: flex;
 		}
-
 		.elapsed-thinking-time-container {
 			position: absolute;
 			width: 100%;
 			height: 100%;
 			pointer-events: none;
-
 			h2 {
 				display: none;
 			}
-
 			.elapsed-thinking-time {
 				position: absolute;
 				right: 2vw;
 				opacity: 0.5;
 				font-size: 1.5vmin;
-
 				&.running {
 					opacity: 1;
 					font-size: 2.4vmin;
 					text-decoration: none;
 				}
-
 				&.team-A {
 					top: 44vh;
 					color: #fff;
 				}
-
 				&.team-B {
 					top: 96vh;
 				}
 			}
 		}
-
 		.timeouts-remaining-container {
 			position: absolute;
 			width: 100%;
 			height: 100%;
 			pointer-events: none;
-
 			h2 {
 				display: none;
 			}
-
 			.timeouts-remaining {
 				position: absolute;
 				width: 15vmin;
@@ -369,15 +380,12 @@ body.classic {
 				font-size: 2.5vmin;
 				font-weight: bold;
 				pointer-events: all;
-
 				&.team-A {
 					border: 2px solid #fff;
 					color: #fff;
 					top: 4%;
-
 					.add-timeout, .subtract-timeout {
 						color: #fff;
-
 						&:hover {
 							background-color: rgba(255, 255, 255, 0.3);
 						}
@@ -387,21 +395,17 @@ body.classic {
 					border: 2px solid #000;
 					color: #000;
 					top: 56%;
-					
 					.add-timeout, .subtract-timeout {
 						color: #000;
-
 						&:hover {
 							background-color: rgba(0, 0, 0, 0.1);
 						}
 					}
 				}
-
 				&::before {
 					content: "Timeouts";
 					display: block;
 				}
-
 				.add-timeout, .subtract-timeout {
 					cursor: pointer;
 					width: 1.5vmin;
@@ -418,53 +422,43 @@ body.classic {
 				}
 			}
 		}
-
 		.thinking-time-container {
 			order: 5;
 			width: 100%;
-
 			h2 {
 				display: none;
 			}
-
 			.thinking-times {
 				height: 100%;
 				display: flex;
 				align-items: center;
 				flex-direction: column;
-
 				.spacer {
 					height: 4vh;
 					width: 100%;
 					font-size: 2.5vmin;
 					border: 2px solid #c0c0c0;
-
 					display: flex;
 					flex-direction: row;
 					justify-content: space-between;
-
 					.left {
 						text-align: left;
 					}
 					.center {
 						flex-grow: 1;
-						text-align:center;
-
+						text-align: center;
 						.technical-info {
 							display: flex;
 							flex-direction: column;
-							
 							&.irrelevant {
 								transition: opacity 3s ease-in 0.5s;
 								display: flex !important;
 								opacity: 0;
 								pointer-events: none;
 							}
-
 							.technical-timeout-title {
 								font-size: 2vmin;
 								font-style: italic;
-
 								&::before {
 									content: "Technical Timeout";
 								}
@@ -479,18 +473,15 @@ body.classic {
 						text-align: right;
 					}
 				}
-
 				.time-with-controls {
 					height: 48vh;
 					width: 100%;
 					display: flex;
 					align-items: center;
 					justify-content: center;
-
 					&.team-A {
 						color: #fff;
 						background-color: $red-bg;
-
 						button.time-control-button {
 							&:hover {
 								background-color: rgba(255, 255, 255, 0.3);
@@ -499,14 +490,12 @@ body.classic {
 					}
 					&.team-B {
 						background-color: $yel-bg;
-
 						button.time-control-button {
 							&:hover {
 								background-color: rgba(0, 0, 0, 0.1);
 							}
 						}
 					}
-
 					.thinking-time {
 						height: 100%;
 						font-size: 34vmin;
@@ -515,7 +504,6 @@ body.classic {
 						justify-content: center;
 						font-weight: bold;
 					}
-
 					.time-controls {
 						display: flex;
 						flex-direction: column;
@@ -523,7 +511,6 @@ body.classic {
 						align-items: center;
 						font-size: 3vmin;
 						height: 8vmin;
-						
 						.time-control-button {
 							width: 2vw;
 						}
@@ -536,10 +523,8 @@ body.classic {
 					}
 				}
 			}
-
 		}
-
-		&.between-ends,&.warm-up,&.timeout {
+		&.between-ends, &.warm-up, &.timeout {
 			.thinking-time-container {
 				position: absolute;
 				width: 100%;
@@ -551,21 +536,18 @@ body.classic {
 				.spacer {
 					display: none;
 				}
-
 				.time-with-controls {
 					height: 20vh;
 					pointer-events: all;
 					position: absolute;
 					width: 50%;
 					left: 25%;
-
 					&.team-A {
 						top: 9%;
 					}
 					&.team-B {
 						top: 71%;
 					}
-
 					.thinking-time {
 						font-size: 18vmin;
 						width: 87%;
@@ -573,22 +555,18 @@ body.classic {
 				}
 			}
 		}
-
 		.debug {
 			position: fixed;
 			bottom: 10px;
 			right: 10px;
 			background-color: rgba(248, 248, 248, 0.7);
 			z-index: 5;
-
 			transition: all 0.4s;
-
 			&.hidden {
 				bottom: -25%;
 				opacity: 0;
 			}
 		}
-
 		.controls {
 			text-transform: capitalize;
 			@include exactWidth(100px);
@@ -596,22 +574,18 @@ body.classic {
 			display: flex;
 			flex-direction: column;
 			order: -1;
-
 			button {
 				font-size: 16px;
 				height: 10vh;
 				border: 1px solid #666;
-
 				&:hover {
 					border-color: $yel-border;
-
 					&:disabled {
 						border-color: #666;
 						cursor: not-allowed;
 					}
 				}
 			}
-
 			#game-start-warmup {
 				&:disabled {
 					display: none;
@@ -622,7 +596,6 @@ body.classic {
 				height: 100px;
 				width: 300px;
 			}
-
 			#game-start-no-warmup {
 				&:disabled {
 					display: none;
@@ -633,7 +606,6 @@ body.classic {
 				top: calc(25% + 110px);
 				left: calc(50% - 150px);
 			}
-
 			#yellow-begin-thinking {
 				order: 50;
 				background: linear-gradient(to bottom, $btn-yel-top 0%, $btn-yel-bot 100%);
@@ -641,7 +613,6 @@ body.classic {
 					background: linear-gradient(to bottom, $btn-yel-top-hov 0%, $btn-yel-bot-hov 100%);
 				}
 			}
-
 			#red-begin-thinking {
 				order: 20;
 				background: linear-gradient(to bottom, $btn-red-top 0%, $btn-red-bot 100%);
@@ -649,7 +620,6 @@ body.classic {
 					background: linear-gradient(to bottom, $btn-red-top-hov 0%, $btn-red-bot-hov 100%);
 				}
 			}
-
 			#end-red-thinking {
 				order: 21;
 				background: linear-gradient(to bottom, $btn-red-top 0%, $btn-red-bot 100%);
@@ -657,7 +627,6 @@ body.classic {
 					background: linear-gradient(to bottom, $btn-red-top-hov 0%, $btn-red-bot-hov 100%);
 				}
 			}
-
 			#end-yellow-thinking {
 				order: 51;
 				background: linear-gradient(to bottom, $btn-yel-top 0%, $btn-yel-bot 100%);
@@ -665,7 +634,6 @@ body.classic {
 					background: linear-gradient(to bottom, $btn-yel-top-hov 0%, $btn-yel-bot-hov 100%);
 				}
 			}
-
 			#end-end {
 				order: 22;
 				background: linear-gradient(to bottom, $btn-grn-top 0%, $btn-grn-bot 100%);
@@ -673,7 +641,6 @@ body.classic {
 					background: linear-gradient(to bottom, $btn-grn-top-hov 0%, $btn-grn-bot-hov 100%);
 				}
 			}
-
 			#begin-timeout {
 				order: 23;
 				background: linear-gradient(to bottom, $btn-blu-top 0%, $btn-blu-bot 100%);
@@ -682,7 +649,6 @@ body.classic {
 				}
 				height: 5vh;
 			}
-
 			#technical {
 				order: 24;
 				background: linear-gradient(to bottom, $btn-blu-top 0%, $btn-blu-bot 100%);
@@ -691,7 +657,6 @@ body.classic {
 				}
 				height: 5vh;
 			}
-
 			#end-technical {
 				order: 24;
 				background: linear-gradient(to bottom, $btn-blu-top 0%, $btn-blu-bot 100%);
@@ -699,12 +664,10 @@ body.classic {
 					background: linear-gradient(to bottom, $btn-blu-top-hov 0%, $btn-blu-bot-hov 100%);
 				}
 				height: 5vh;
-
 				&:disabled {
 					display: none;
 				}
 			}
-
 			#adjust-time {
 				order: 70;
 				background: linear-gradient(to bottom, $btn-gry-top 0%, $btn-gry-bot 100%);
@@ -712,7 +675,6 @@ body.classic {
 					background: linear-gradient(to bottom, $btn-gry-top-hov 0%, $btn-gry-bot-hov 100%);
 				}
 			}
-
 			#begin-extra-end {
 				order: 1;
 				background: linear-gradient(to bottom, $btn-gry-top 0%, $btn-gry-bot 100%);
@@ -720,7 +682,6 @@ body.classic {
 					background: linear-gradient(to bottom, $btn-gry-top-hov 0%, $btn-gry-bot-hov 100%);
 				}
 			}
-
 			#begin-midgame-break {
 				order: 25;
 				background: linear-gradient(to bottom, $btn-grn-top 0%, $btn-grn-bot 100%);
@@ -728,7 +689,6 @@ body.classic {
 					background: linear-gradient(to bottom, $btn-grn-top-hov 0%, $btn-grn-bot-hov 100%);
 				}
 			}
-
 			#reset {
 				order: 75;
 				background: linear-gradient(to bottom, $btn-gry-top 0%, $btn-gry-bot 100%);
@@ -738,19 +698,16 @@ body.classic {
 			}
 		}
 	}
-
 	.confirm-dialog {
 		position: fixed;
-		width: 50vw;
-		height: 250px; 
-		top: calc(50vh - 125px);
-		left: calc(50% - 25vw);
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
 		background-color: #f8f8f8;
 		z-index: 15;
 		display: flex;
 		flex-direction: column;
-		box-shadow: 0px 0px 3px 1px rgba(0,0,0,0.4);
-
+		box-shadow: 0px 0px 3px 1px rgba(0, 0, 0, 0.4);
 		.confirm-dialog-title {
 			display: flex;
 			align-items: center;
@@ -761,7 +718,7 @@ body.classic {
 		}
 		.confirm-dialog-message {
 			flex-grow: 1;
-			margin: 50px;
+			margin: 20px;
 			font-size: 24px;
 		}
 		.confirm-dialog-buttons {
@@ -770,7 +727,6 @@ body.classic {
 			align-items: center;
 			justify-content: flex-end;
 			padding-right: 10px;
-			
 			button {
 				background-color: #2196f3;
 				border: 1px solid #0d47a1;
@@ -783,18 +739,16 @@ body.classic {
 				margin-left: 20px;
 				text-align: middle;
 				text-transform: capitalize;
-
 				&:hover {
 					background-color: lighten(#2196f3, 10%);
 				}
-				&:active,&:focus {
+				&:active, &:focus {
 					background-color: darken(#2196f3, 10%);
 					outline: 0;
 				}
 			}
 		}
 	}
-
 	.modal-overlay {
 		position: fixed;
 		top: 0;
@@ -805,14 +759,12 @@ body.classic {
 		opacity: 0.15;
 		z-index: 10;
 	}
-
 	.team-time-input {
 		width: 280px;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		margin-bottom: 10px;
-
 		input {
 			height: 25px;
 			font-size: 20px;
@@ -820,8 +772,21 @@ body.classic {
 			padding-top: 2px;
 		}
 	}
+	.simple-input {
+		width: 100%;
+		display: flex;
+		justify-content: flex-end;
+		margin-bottom: 5px;
+		.simple-input-label {
+			font-size: 14px;
+			text-align: right;
+			margin-right: 20px;
+		}
+		.simple-input-field {
+			width: 45px;
+		}
+	}
 }
-
 div.debug {
 	white-space: pre;
 	font-family: Consolas, Courier New, Courier, monospace;

@@ -8,7 +8,8 @@ import {
 	StateAndOptions,
 	TimerOptions,
 } from "./interfaces";
-import { TimerPresets } from "./presets";
+import { BaseOptions, TimerPresets } from "./presets";
+import { cloneDeep, isEqual } from "lodash";
 
 require("./style.scss");
 
@@ -95,6 +96,8 @@ class TimeToCurl {
 	private machineOrder: IMap<number>;
 	private currentTheme: string;
 	private speedyClocks: boolean = false;
+	private nextTimerOptions: TimerOptions;
+	private timerPresetsDropdown: HTMLSelectElement;
 
 	public init() {
 		this.setUpEvents();
@@ -103,6 +106,7 @@ class TimeToCurl {
 		this.requestResolvers = {};
 		this.machines = {};
 		this.machineOrder = {};
+		this.nextTimerOptions = cloneDeep(BaseOptions);
 
 		this.socket.on("response", (result: string) => {
 			let response: SocketResponse<any>;
@@ -152,37 +156,26 @@ class TimeToCurl {
 	}
 
 	private populateTimerOptions() {
-		const timerOptionsDropdown = document.getElementById("timerPresets")!;
 		for (const preset of TimerPresets) {
 			const option = document.createElement("option");
 			option.value = preset.id;
 			option.textContent = preset.name;
-			timerOptionsDropdown.appendChild(option);
+			this.timerPresetsDropdown.appendChild(option);
 		}
-	}
-
-	private getTimerOptions() {
-		const selectedPreset = (document.getElementById("timerPresets")! as HTMLSelectElement).value;
-		const presetOptions = { ...TimerPresets.filter(p => p.id === selectedPreset)[0].options };
-		const timerName = (document.getElementById("timerName") as HTMLInputElement).value;
-		if (this.speedyClocks) {
-			presetOptions.lengthOfSecond = 100;
-		}
-		if (timerName) {
-			presetOptions.timerName = timerName;
-		}
-		return presetOptions;
+		const customOption = document.createElement("option");
+		customOption.value = "custom";
+		customOption.textContent = "Custom";
+		this.timerPresetsDropdown.appendChild(customOption);
 	}
 
 	private restoreSettingsFromStorage() {
 		const speedyClocks = window.localStorage["speedy-clocks"];
 		const showDebug = window.localStorage["show-debug"];
-		const timerPreset = window.localStorage["timer-preset"];
+		const timerOptions = window.localStorage["timer-options"];
 		const theme = window.localStorage["theme"];
 
 		const speedyClocksCheckbox = document.getElementById("speedyClocks")! as HTMLInputElement;
 		const showDebugCheckbox = document.getElementById("showDebug")! as HTMLInputElement;
-		const timerPresetSelect = document.getElementById("timerPresets")! as HTMLSelectElement;
 		const themeSelect = document.getElementById("themeSelector") as HTMLSelectElement;
 
 		if (speedyClocks) {
@@ -191,38 +184,173 @@ class TimeToCurl {
 		if (showDebug) {
 			showDebugCheckbox.checked = showDebug === "true";
 		}
-		if (timerPreset) {
-			timerPresetSelect.value = timerPreset;
+		if (timerOptions) {
+			this.nextTimerOptions = JSON.parse(timerOptions);
+			this.evaluatePresetDropdown();
 		}
 		if (theme) {
 			themeSelect.value = theme;
 		}
 	}
 
+	private simpleInput(labelText: string, id: string, defaultValue?: any) {
+		const container = document.createElement("div");
+		container.classList.add("simple-input");
+
+		const label = document.createElement("label");
+		label.classList.add("simple-input-label");
+		label.setAttribute("for", id);
+		label.textContent = labelText;
+
+		const field = document.createElement("input");
+		field.setAttribute("type", "text");
+		field.setAttribute("id", id);
+		field.classList.add("simple-input-field");
+		if (defaultValue !== undefined) {
+			field.value = defaultValue.toString();
+		}
+
+		container.appendChild(label);
+		container.appendChild(field);
+		return container;
+	}
+
+	private evaluatePresetDropdown() {
+		for (const preset of TimerPresets) {
+			if (isEqual(preset.options, this.nextTimerOptions)) {
+				this.timerPresetsDropdown.value = preset.id;
+				return;
+			}
+		}
+		this.timerPresetsDropdown.value = "custom";
+	}
+
+	private async customizeSettings() {
+		const thinkingTime = this.simpleInput("Thinking time", "thinkingTime", this.nextTimerOptions.thinkingTime);
+		const numEnds = this.simpleInput("Number of ends", "numEnds", this.nextTimerOptions.numEnds);
+		const extraEndThinkingTime = this.simpleInput(
+			"Thinking time added for an extra end",
+			"extraEndThinkingTime",
+			this.nextTimerOptions.extraEndThinkingTime,
+		);
+		const numTimeouts = this.simpleInput(
+			"Number of timeouts per team",
+			"numTimeouts",
+			this.nextTimerOptions.numTimeouts,
+		);
+		const timeoutTime = this.simpleInput("Timeout time", "timeoutTime", this.nextTimerOptions.timeoutTime);
+		const homeTravelTime = this.simpleInput(
+			"Travel time (home end)",
+			"homeTravelTime",
+			this.nextTimerOptions.travelTime.home,
+		);
+		const awayTravelTime = this.simpleInput(
+			"Travel time (away end)",
+			"awayTravelTime",
+			this.nextTimerOptions.travelTime.away,
+		);
+		const warmupTime = this.simpleInput("Warmup time", "warmupTime", this.nextTimerOptions.warmupTime);
+		const betweenEndTime = this.simpleInput(
+			"Time between ends",
+			"betweenEndTime",
+			this.nextTimerOptions.betweenEndTime,
+		);
+		const midGameBreakTime = this.simpleInput(
+			"Mid game break time",
+			"midGameBreakTime",
+			this.nextTimerOptions.midGameBreakTime,
+		);
+
+		const container = document.createElement("div");
+		container.classList.add("custom-settings-fields-container");
+		container.appendChild(thinkingTime);
+		container.appendChild(numEnds);
+		container.appendChild(extraEndThinkingTime);
+		container.appendChild(numTimeouts);
+		container.appendChild(timeoutTime);
+		container.appendChild(homeTravelTime);
+		container.appendChild(awayTravelTime);
+		container.appendChild(warmupTime);
+		container.appendChild(betweenEndTime);
+		container.appendChild(midGameBreakTime);
+
+		container.addEventListener(
+			"input",
+			() => {
+				const valThinkingTime = parseInt((thinkingTime.children[1] as HTMLInputElement).value, 10);
+				const valNumEnds = parseInt((numEnds.children[1] as HTMLInputElement).value, 10);
+				const valXEndThinkingTime = parseInt((extraEndThinkingTime.children[1] as HTMLInputElement).value, 10);
+				const valNumTimeouts = parseInt((numTimeouts.children[1] as HTMLInputElement).value, 10);
+				const valTimeoutTime = parseInt((timeoutTime.children[1] as HTMLInputElement).value, 10);
+				const valHomeTravelTime = parseInt((homeTravelTime.children[1] as HTMLInputElement).value, 10);
+				const valAwayTravelTime = parseInt((awayTravelTime.children[1] as HTMLInputElement).value, 10);
+				const valWarmupTime = parseInt((warmupTime.children[1] as HTMLInputElement).value, 10);
+				const valBetweenEndTime = parseInt((betweenEndTime.children[1] as HTMLInputElement).value, 10);
+				const valMidGameBreakTime = parseInt((midGameBreakTime.children[1] as HTMLInputElement).value, 10);
+
+				this.nextTimerOptions.thinkingTime = valThinkingTime;
+				this.nextTimerOptions.numEnds = valNumEnds;
+				this.nextTimerOptions.extraEndThinkingTime = valXEndThinkingTime;
+				this.nextTimerOptions.numTimeouts = valNumTimeouts;
+				this.nextTimerOptions.timeoutTime = valTimeoutTime;
+				this.nextTimerOptions.travelTime.home = valHomeTravelTime;
+				this.nextTimerOptions.travelTime.away = valAwayTravelTime;
+				this.nextTimerOptions.warmupTime = valWarmupTime;
+				this.nextTimerOptions.betweenEndTime = valBetweenEndTime;
+				this.nextTimerOptions.midGameBreakTime = valMidGameBreakTime;
+
+				this.evaluatePresetDropdown();
+				this.saveTimerOptions();
+			},
+			true,
+		);
+
+		const prevSettings = cloneDeep(this.nextTimerOptions);
+		if (!await confirm(container, "Customize timer settings")) {
+			this.nextTimerOptions = prevSettings;
+			this.evaluatePresetDropdown();
+		}
+	}
+
+	private setNextTimerOptionsFromDropdown() {
+		const dropdownValue = this.timerPresetsDropdown.value;
+		const matchedPreset = TimerPresets.filter(p => p.id === dropdownValue)[0];
+		if (matchedPreset) {
+			this.nextTimerOptions = cloneDeep(matchedPreset).options;
+			this.saveTimerOptions();
+		}
+	}
+
+	private saveTimerOptions() {
+		window.localStorage["timer-options"] = JSON.stringify(this.nextTimerOptions);
+	}
+
 	private setUpEvents() {
 		document.addEventListener("DOMContentLoaded", async () => {
+			this.timerPresetsDropdown = document.getElementById("timerPresets")! as HTMLSelectElement;
 			this.populateTimerOptions();
 			this.restoreSettingsFromStorage();
 
 			document.getElementById("createTimer")!.addEventListener("click", async () => {
-				const options = this.getTimerOptions();
 				const response = await this.emitAction<Partial<TimerOptions>, StateAndOptions>(
 					<SocketAction<Partial<TimerOptions>>>{
 						request: "CREATE_TIMER",
 						clientId: clientId,
-						options,
+						options: { ...this.nextTimerOptions, lengthOfSecond: this.speedyClocks ? 100 : 1000 },
 					},
 				);
 				this.addCurlingMachine(response.data);
 			});
 			const showDebug = document.getElementById("showDebug")! as HTMLInputElement;
-			const timerPresets = document.getElementById("timerPresets")! as HTMLSelectElement;
 			showDebug.addEventListener("change", this.onDebugToggled);
-			timerPresets.addEventListener("change", () => {
-				window.localStorage["timer-preset"] = timerPresets.value;
+			this.timerPresetsDropdown.addEventListener("change", () => {
+				this.setNextTimerOptionsFromDropdown();
 			});
 			document.getElementById("speedyClocks")!.addEventListener("change", this.onSpeedyClocksToggled.bind(this));
 			document.getElementById("themeSelector")!.addEventListener("change", this.onThemeChanged);
+			document.getElementById("customizeSettings")!.addEventListener("click", () => {
+				this.customizeSettings();
+			});
 			window.addEventListener("keydown", (event: KeyboardEvent) => {
 				if (event.code === "Backquote" && event.ctrlKey) {
 					showDebug.checked = !showDebug.checked;

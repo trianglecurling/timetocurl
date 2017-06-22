@@ -56,8 +56,8 @@ At this point the program is running. You can open a web browser and navigate to
 - [x] Show the elapsed time for current thinking session (30 min)
 - [x] Implement extra ends (45 min)
 - [x] Implement time/state adjustments (3 hrs)
-- [ ] Implement coach travel time for timeouts (1 hr)
-- [ ] Implement a UI for selecting timer options (super custom configuration) (3 hrs)
+- [x] Implement coach travel time for timeouts (1 hr)
+- [x] Implement a UI for selecting timer options (super custom configuration) (3 hrs)
 - [x] Implement presets for 6, 8, 10 end games, and mixed doubles (1 hr)
 - [ ] Implement a read-only mode (1 hr)
 - [ ] Implement some kind of token security (3 hrs)
@@ -66,6 +66,8 @@ At this point the program is running. You can open a web browser and navigate to
 - [ ] Implement generation of official game log (4 hrs)
 - [ ] Implement an end-of-game experience (1 hr)
 - [ ] Figure out how to handle no remaining timeouts (30 min)
+- [ ] Allow configuration of colors (1 hr)
+- [ ] Keyboard shortcuts (2 hr)
 - [ ] Testing, fit and finish (∞ hrs)
 
 **Total: 28+ hours**

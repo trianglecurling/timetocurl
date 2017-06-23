@@ -174,6 +174,6 @@ if (!port && process.env.NODE_ENV) {
     }
 }
 
-const listener = http.listen(port || 3001, () => {
+const listener = http.listen(process.env.PORT || 3001, () => {
     console.log(`listening on *:${String(port)}`);
 });

@@ -11,6 +11,9 @@
     "postinstall": "npm run build",
     "start": "node index.js"
   },
+  "engines": {
+    "node": ">=8.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/trianglecurling/timetocurl.git"

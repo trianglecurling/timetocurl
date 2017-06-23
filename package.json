@@ -5,11 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --context client/ --config client/webpack.config.js",
-    "watch": "webpack --context client/ --config client/webpack.config.js --watch",
-    "mon": "nodemon index.js",
+    "build": "tsc -p . && webpack --config ./client/webpack.config.js",
+    "watch": "webpack --config ./client/webpack.config.js --watch",
+    "mon": "nodemon ./bin/index.js",
     "postinstall": "npm run build",
-    "start": "node index.js"
+    "start": "node ./bin/index.js"
   },
   "engines": {
     "node": ">=8.0.0"

@@ -1,0 +1,564 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: inherit; }
+
+html {
+  box-sizing: border-box; }
+
+body {
+  font: 13px Helvetica, Arial;
+  background-color: #f8f8f8;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0; }
+  body.scroll-disabled {
+    overflow: hidden !important; }
+
+button, label {
+  cursor: pointer; }
+
+button {
+  background: none;
+  border: 0;
+  outline: 0;
+  color: inherit;
+  font-size: inherit; }
+  button:disabled {
+    cursor: not-allowed; }
+
+header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #ccc;
+  background-color: #e6e6e6; }
+  header h1 {
+    margin: 10px;
+    margin-right: 16px; }
+    header h1 a {
+      color: #333;
+      text-decoration: none; }
+  header .timer-name {
+    width: 150px;
+    margin-right: 6px;
+    height: 28px;
+    font-size: 22px; }
+  header .timer-presets {
+    width: 150px;
+    margin-right: 6px;
+    height: 28px;
+    font-size: 18px; }
+  header button.create-timer {
+    background-color: #43a047;
+    border: 1px solid #163417;
+    padding-left: 6px;
+    padding-right: 6px;
+    border-radius: 3px;
+    color: #fff;
+    height: 28px;
+    margin-right: 3px; }
+    header button.create-timer:hover {
+      background-color: #3a8a3d; }
+    header button.create-timer:active, header button.create-timer:focus {
+      background-color: #347c37;
+      outline: 0; }
+  header button.customize-settings {
+    font-size: 18px;
+    width: 28px;
+    height: 28px;
+    padding-left: 2px;
+    padding-bottom: 1px;
+    border-radius: 3px; }
+    header button.customize-settings:hover {
+      background-color: rgba(0, 0, 0, 0.2); }
+    header button.customize-settings:active {
+      background-color: rgba(0, 0, 0, 0.3); }
+  header .view-settings-container {
+    margin: 4px 10px 4px auto;
+    text-align: right; }
+    header .view-settings-container .theme-selector-container {
+      margin-bottom: 4px; }
+      header .view-settings-container .theme-selector-container select {
+        min-width: 150px; }
+    header .view-settings-container .debug-toggle-container {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end; }
+      header .view-settings-container .debug-toggle-container label {
+        margin-left: 16px; }
+    header .view-settings-container label {
+      margin-right: 8px; }
+
+main {
+  height: 100%; }
+
+#timersContainer {
+  height: 100%; }
+
+#timerTemplate {
+  display: none; }
+
+body.classic .irrelevant:not(.placeholder):not(.travel-time-container) {
+  display: none !important; }
+
+body.classic .irrelevant.placeholder {
+  visibility: hidden !important; }
+
+body.classic .timer {
+  position: relative;
+  width: 100%;
+  height: 100%; }
+  body.classic .timer.pregame .thinking-time-container {
+    display: none; }
+  body.classic .timer :disabled {
+    opacity: 0.4; }
+  body.classic .timer .timer-container {
+    height: 100%;
+    position: relative; }
+  body.classic .timer .time-value {
+    font-weight: bold; }
+    body.classic .timer .time-value .char {
+      width: 11vmin;
+      text-align: center; }
+      body.classic .timer .time-value .char.digit {
+        width: 18vmin; }
+    body.classic .timer .time-value.running {
+      text-decoration: underline; }
+  body.classic .timer .timer-title {
+    margin-left: 10px;
+    font-size: 22px; }
+    body.classic .timer .timer-title:hover {
+      color: #1565c0;
+      cursor: pointer; }
+  body.classic .timer .overlay-time-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    background-color: #c0c0c0;
+    z-index: 2; }
+    body.classic .timer .overlay-time-container > .time-value {
+      position: absolute;
+      width: 75%;
+      height: 40%;
+      top: 30%;
+      left: 12.5%;
+      background-color: #80ff80;
+      border: 2px solid #333;
+      font-size: 32vmin;
+      display: flex;
+      align-items: center;
+      justify-content: center; }
+    body.classic .timer .overlay-time-container .cancel-timer-button {
+      position: absolute;
+      width: 120px;
+      height: 40px;
+      left: calc(50% - 60px);
+      border: 2px solid #1b4f7f;
+      background: linear-gradient(to bottom, #e0e0e0 0%, #b0afc2 100%);
+      border-radius: 2px;
+      top: 92%; }
+      body.classic .timer .overlay-time-container .cancel-timer-button:hover {
+        background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%); }
+    body.classic .timer .overlay-time-container h2 {
+      text-align: center;
+      margin-top: 6%;
+      font-size: 32px; }
+    body.classic .timer .overlay-time-container .travel-time-container {
+      position: absolute;
+      width: 25vw;
+      height: 6vh;
+      top: 32vh;
+      left: calc(50% - 12.5vw);
+      border: 1px solid #212121;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      z-index: 15;
+      font-size: 3vmin;
+      padding-top: 0.5vh;
+      padding-bottom: 0.5vh;
+      flex-wrap: wrap; }
+      body.classic .timer .overlay-time-container .travel-time-container .travel-time-label {
+        margin-right: 1.5vw; }
+      body.classic .timer .overlay-time-container .travel-time-container button.travel-time-cancel {
+        flex-basis: 100%;
+        border: 2px solid #1b4f7f;
+        background: linear-gradient(to bottom, #e0e0e0 0%, #b0afc2 100%);
+        border-radius: 2px;
+        max-width: 10vw;
+        height: 2vh;
+        font-size: 1.6vmin; }
+        body.classic .timer .overlay-time-container .travel-time-container button.travel-time-cancel:hover:not(:disabled) {
+          background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%); }
+      body.classic .timer .overlay-time-container .travel-time-container.irrelevant {
+        transition: opacity 3s ease-in 0.5s;
+        display: flex !important;
+        opacity: 0;
+        pointer-events: all; }
+  body.classic .timer .timer-container {
+    display: flex; }
+  body.classic .timer .elapsed-thinking-time-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; }
+    body.classic .timer .elapsed-thinking-time-container h2 {
+      display: none; }
+    body.classic .timer .elapsed-thinking-time-container .elapsed-thinking-time {
+      position: absolute;
+      right: 2vw;
+      opacity: 0.5;
+      font-size: 1.5vmin; }
+      body.classic .timer .elapsed-thinking-time-container .elapsed-thinking-time.running {
+        opacity: 1;
+        font-size: 2.4vmin;
+        text-decoration: none; }
+      body.classic .timer .elapsed-thinking-time-container .elapsed-thinking-time.team-A {
+        top: 44vh;
+        color: #fff; }
+      body.classic .timer .elapsed-thinking-time-container .elapsed-thinking-time.team-B {
+        top: 96vh; }
+  body.classic .timer .timeouts-remaining-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; }
+    body.classic .timer .timeouts-remaining-container h2 {
+      display: none; }
+    body.classic .timer .timeouts-remaining-container .timeouts-remaining {
+      position: absolute;
+      width: 15vmin;
+      height: 7vmin;
+      left: 80%;
+      padding: 0.5vmin;
+      text-align: center;
+      font-size: 2.5vmin;
+      font-weight: bold;
+      pointer-events: all; }
+      body.classic .timer .timeouts-remaining-container .timeouts-remaining.team-A {
+        border: 2px solid #fff;
+        color: #fff;
+        top: 4%; }
+        body.classic .timer .timeouts-remaining-container .timeouts-remaining.team-A .add-timeout, body.classic .timer .timeouts-remaining-container .timeouts-remaining.team-A .subtract-timeout {
+          color: #fff; }
+          body.classic .timer .timeouts-remaining-container .timeouts-remaining.team-A .add-timeout:hover, body.classic .timer .timeouts-remaining-container .timeouts-remaining.team-A .subtract-timeout:hover {
+            background-color: rgba(255, 255, 255, 0.3); }
+      body.classic .timer .timeouts-remaining-container .timeouts-remaining.team-B {
+        border: 2px solid #000;
+        color: #000;
+        top: 56%; }
+        body.classic .timer .timeouts-remaining-container .timeouts-remaining.team-B .add-timeout, body.classic .timer .timeouts-remaining-container .timeouts-remaining.team-B .subtract-timeout {
+          color: #000; }
+          body.classic .timer .timeouts-remaining-container .timeouts-remaining.team-B .add-timeout:hover, body.classic .timer .timeouts-remaining-container .timeouts-remaining.team-B .subtract-timeout:hover {
+            background-color: rgba(0, 0, 0, 0.1); }
+      body.classic .timer .timeouts-remaining-container .timeouts-remaining::before {
+        content: "Timeouts";
+        display: block; }
+      body.classic .timer .timeouts-remaining-container .timeouts-remaining .add-timeout, body.classic .timer .timeouts-remaining-container .timeouts-remaining .subtract-timeout {
+        cursor: pointer;
+        width: 1.5vmin;
+        height: 1.5vmin;
+        font-size: 1.4vmin;
+        position: absolute;
+        right: 0; }
+      body.classic .timer .timeouts-remaining-container .timeouts-remaining .add-timeout {
+        bottom: 1.2vh; }
+      body.classic .timer .timeouts-remaining-container .timeouts-remaining .subtract-timeout {
+        bottom: 0; }
+  body.classic .timer .thinking-time-container {
+    order: 5;
+    width: 100%; }
+    body.classic .timer .thinking-time-container h2 {
+      display: none; }
+    body.classic .timer .thinking-time-container .thinking-times {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      flex-direction: column; }
+      body.classic .timer .thinking-time-container .thinking-times .spacer {
+        height: 4vh;
+        width: 100%;
+        font-size: 2.5vmin;
+        border: 2px solid #c0c0c0;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between; }
+        body.classic .timer .thinking-time-container .thinking-times .spacer .left {
+          text-align: left; }
+        body.classic .timer .thinking-time-container .thinking-times .spacer .center {
+          flex-grow: 1;
+          text-align: center; }
+          body.classic .timer .thinking-time-container .thinking-times .spacer .center .technical-info {
+            display: flex;
+            flex-direction: column; }
+            body.classic .timer .thinking-time-container .thinking-times .spacer .center .technical-info.irrelevant {
+              transition: opacity 3s ease-in 0.5s;
+              display: flex !important;
+              opacity: 0;
+              pointer-events: none; }
+            body.classic .timer .thinking-time-container .thinking-times .spacer .center .technical-info .technical-timeout-title {
+              font-size: 2vmin;
+              font-style: italic; }
+              body.classic .timer .thinking-time-container .thinking-times .spacer .center .technical-info .technical-timeout-title::before {
+                content: "Technical Timeout"; }
+            body.classic .timer .thinking-time-container .thinking-times .spacer .center .technical-info .technical-timeout-time {
+              font-size: 3vmin;
+              margin-top: -0.6vh; }
+        body.classic .timer .thinking-time-container .thinking-times .spacer .right {
+          text-align: right; }
+      body.classic .timer .thinking-time-container .thinking-times .time-with-controls {
+        height: 48vh;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center; }
+        body.classic .timer .thinking-time-container .thinking-times .time-with-controls.team-A {
+          color: #fff;
+          background-color: #c00000; }
+          body.classic .timer .thinking-time-container .thinking-times .time-with-controls.team-A button.time-control-button:hover {
+            background-color: rgba(255, 255, 255, 0.3); }
+        body.classic .timer .thinking-time-container .thinking-times .time-with-controls.team-B {
+          background-color: #ffff00; }
+          body.classic .timer .thinking-time-container .thinking-times .time-with-controls.team-B button.time-control-button:hover {
+            background-color: rgba(0, 0, 0, 0.1); }
+        body.classic .timer .thinking-time-container .thinking-times .time-with-controls .thinking-time {
+          height: 100%;
+          font-size: 34vmin;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: bold; }
+        body.classic .timer .thinking-time-container .thinking-times .time-with-controls .time-controls {
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 3vmin;
+          height: 8vmin; }
+          body.classic .timer .thinking-time-container .thinking-times .time-with-controls .time-controls .time-control-button {
+            width: 2vw; }
+        body.classic .timer .thinking-time-container .thinking-times .time-with-controls .minute-controls {
+          margin-right: 1vw; }
+        body.classic .timer .thinking-time-container .thinking-times .time-with-controls .second-controls {
+          margin-left: 1vw; }
+  body.classic .timer.between-ends .thinking-time-container, body.classic .timer.warm-up .thinking-time-container, body.classic .timer.timeout .thinking-time-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    z-index: 3;
+    pointer-events: none; }
+    body.classic .timer.between-ends .thinking-time-container .spacer, body.classic .timer.warm-up .thinking-time-container .spacer, body.classic .timer.timeout .thinking-time-container .spacer {
+      display: none; }
+    body.classic .timer.between-ends .thinking-time-container .time-with-controls, body.classic .timer.warm-up .thinking-time-container .time-with-controls, body.classic .timer.timeout .thinking-time-container .time-with-controls {
+      height: 20vh;
+      pointer-events: all;
+      position: absolute;
+      width: 50%;
+      left: 25%; }
+      body.classic .timer.between-ends .thinking-time-container .time-with-controls.team-A, body.classic .timer.warm-up .thinking-time-container .time-with-controls.team-A, body.classic .timer.timeout .thinking-time-container .time-with-controls.team-A {
+        top: 9%; }
+      body.classic .timer.between-ends .thinking-time-container .time-with-controls.team-B, body.classic .timer.warm-up .thinking-time-container .time-with-controls.team-B, body.classic .timer.timeout .thinking-time-container .time-with-controls.team-B {
+        top: 71%; }
+      body.classic .timer.between-ends .thinking-time-container .time-with-controls .thinking-time, body.classic .timer.warm-up .thinking-time-container .time-with-controls .thinking-time, body.classic .timer.timeout .thinking-time-container .time-with-controls .thinking-time {
+        font-size: 18vmin;
+        width: 87%; }
+  body.classic .timer .debug {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background-color: rgba(248, 248, 248, 0.7);
+    z-index: 5;
+    transition: all 0.4s; }
+    body.classic .timer .debug.hidden {
+      bottom: -25%;
+      opacity: 0; }
+  body.classic .timer .controls {
+    text-transform: capitalize;
+    width: 100px;
+    min-width: 100px;
+    max-width: 100px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    order: -1; }
+    body.classic .timer .controls button {
+      font-size: 16px;
+      height: 10vh;
+      border: 1px solid #666; }
+      body.classic .timer .controls button:hover {
+        border-color: #f8b330; }
+        body.classic .timer .controls button:hover:disabled {
+          border-color: #666;
+          cursor: not-allowed; }
+    body.classic .timer .controls #game-start-warmup {
+      position: absolute;
+      top: 25%;
+      left: calc(50% - 150px);
+      height: 100px;
+      width: 300px; }
+      body.classic .timer .controls #game-start-warmup:disabled {
+        display: none; }
+    body.classic .timer .controls #game-start-no-warmup {
+      position: absolute;
+      height: 100px;
+      width: 300px;
+      top: calc(25% + 110px);
+      left: calc(50% - 150px); }
+      body.classic .timer .controls #game-start-no-warmup:disabled {
+        display: none; }
+    body.classic .timer .controls #yellow-begin-thinking {
+      order: 50;
+      background: linear-gradient(to bottom, #fefebf 0%, #f0f0ab 100%); }
+      body.classic .timer .controls #yellow-begin-thinking:hover:not(:disabled) {
+        background: linear-gradient(to bottom, #fefe00 0%, #f0f000 100%); }
+    body.classic .timer .controls #red-begin-thinking {
+      order: 20;
+      background: linear-gradient(to bottom, #febfbf 0%, #f0b1ab 100%); }
+      body.classic .timer .controls #red-begin-thinking:hover:not(:disabled) {
+        background: linear-gradient(to bottom, #fe7f7f 0%, #f0716b 100%); }
+    body.classic .timer .controls #end-red-thinking {
+      order: 21;
+      background: linear-gradient(to bottom, #febfbf 0%, #f0b1ab 100%); }
+      body.classic .timer .controls #end-red-thinking:hover:not(:disabled) {
+        background: linear-gradient(to bottom, #fe7f7f 0%, #f0716b 100%); }
+    body.classic .timer .controls #end-yellow-thinking {
+      order: 51;
+      background: linear-gradient(to bottom, #fefebf 0%, #f0f0ab 100%); }
+      body.classic .timer .controls #end-yellow-thinking:hover:not(:disabled) {
+        background: linear-gradient(to bottom, #fefe00 0%, #f0f000 100%); }
+    body.classic .timer .controls #end-end {
+      order: 22;
+      background: linear-gradient(to bottom, #bffebf 0%, #b2f0ab 100%); }
+      body.classic .timer .controls #end-end:hover:not(:disabled) {
+        background: linear-gradient(to bottom, #7ffe7f 0%, #71f06b 100%); }
+    body.classic .timer .controls #begin-timeout {
+      order: 23;
+      background: linear-gradient(to bottom, #bfbffe 0%, #b2b2ea 100%);
+      height: 5vh; }
+      body.classic .timer .controls #begin-timeout:hover:not(:disabled) {
+        background: linear-gradient(to bottom, #7f7ffe 0%, #7171ea 100%); }
+    body.classic .timer .controls #technical {
+      order: 24;
+      background: linear-gradient(to bottom, #bfbffe 0%, #b2b2ea 100%);
+      height: 5vh; }
+      body.classic .timer .controls #technical:hover:not(:disabled) {
+        background: linear-gradient(to bottom, #7f7ffe 0%, #7171ea 100%); }
+    body.classic .timer .controls #end-technical {
+      order: 24;
+      background: linear-gradient(to bottom, #bfbffe 0%, #b2b2ea 100%);
+      height: 5vh; }
+      body.classic .timer .controls #end-technical:hover:not(:disabled) {
+        background: linear-gradient(to bottom, #7f7ffe 0%, #7171ea 100%); }
+      body.classic .timer .controls #end-technical:disabled {
+        display: none; }
+    body.classic .timer .controls #adjust-time {
+      order: 70;
+      background: linear-gradient(to bottom, #fefefe 0%, #efefe9 100%); }
+      body.classic .timer .controls #adjust-time:hover:not(:disabled) {
+        background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%); }
+    body.classic .timer .controls #begin-extra-end {
+      order: 1;
+      background: linear-gradient(to bottom, #fefefe 0%, #efefe9 100%); }
+      body.classic .timer .controls #begin-extra-end:hover:not(:disabled) {
+        background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%); }
+    body.classic .timer .controls #begin-midgame-break {
+      order: 25;
+      background: linear-gradient(to bottom, #bffebf 0%, #b2f0ab 100%); }
+      body.classic .timer .controls #begin-midgame-break:hover:not(:disabled) {
+        background: linear-gradient(to bottom, #7ffe7f 0%, #71f06b 100%); }
+    body.classic .timer .controls #reset {
+      order: 75;
+      background: linear-gradient(to bottom, #fefefe 0%, #efefe9 100%); }
+      body.classic .timer .controls #reset:hover:not(:disabled) {
+        background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%); }
+
+body.classic .confirm-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #f8f8f8;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0px 0px 3px 1px rgba(0, 0, 0, 0.4); }
+  body.classic .confirm-dialog .confirm-dialog-title {
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    height: 30px;
+    border-bottom: 1px solid #ddd;
+    text-transform: uppercase; }
+  body.classic .confirm-dialog .confirm-dialog-message {
+    flex-grow: 1;
+    margin: 20px;
+    font-size: 24px; }
+  body.classic .confirm-dialog .confirm-dialog-buttons {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px; }
+    body.classic .confirm-dialog .confirm-dialog-buttons button {
+      background-color: #2196f3;
+      border: 1px solid #0d47a1;
+      padding-left: 6px;
+      padding-right: 6px;
+      border-radius: 3px;
+      color: #fff;
+      height: 30px;
+      min-width: 90px;
+      margin-left: 20px;
+      text-align: middle;
+      text-transform: capitalize; }
+      body.classic .confirm-dialog .confirm-dialog-buttons button:hover {
+        background-color: #51adf6; }
+      body.classic .confirm-dialog .confirm-dialog-buttons button:active, body.classic .confirm-dialog .confirm-dialog-buttons button:focus {
+        background-color: #0c7cd5;
+        outline: 0; }
+
+body.classic .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #000;
+  opacity: 0.15;
+  z-index: 10; }
+
+body.classic .team-time-input {
+  width: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px; }
+  body.classic .team-time-input input {
+    height: 25px;
+    font-size: 20px;
+    width: 100px;
+    padding-top: 2px; }
+
+body.classic .simple-input {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 5px; }
+  body.classic .simple-input .simple-input-label {
+    font-size: 14px;
+    text-align: right;
+    margin-right: 20px; }
+  body.classic .simple-input .simple-input-field {
+    width: 45px; }
+
+div.debug {
+  white-space: pre;
+  font-family: Consolas, Courier New, Courier, monospace;
+  pointer-events: none; }

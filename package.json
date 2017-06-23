@@ -5,10 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc -p client/",
-    "watch": "tsc -w -p client/",
-    "run": "node index.js",
-    "mon": "nodemon index.js"
+    "build": "webpack --context client/ --config client/webpack.config.js",
+    "watch": "webpack --context client/ --config client/webpack.config.js --watch",
+    "mon": "nodemon index.js",
+    "postinstall": "npm run build",
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",

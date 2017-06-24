@@ -556,7 +556,11 @@ body.classic .simple-input {
     text-align: right;
     margin-right: 20px; }
   body.classic .simple-input .simple-input-field {
-    width: 45px; }
+    width: 45px;
+    margin-right: 8px; }
+  body.classic .simple-input .input-value-preview {
+    font-size: 14px;
+    width: 66px; }
 
 div.debug {
   white-space: pre;

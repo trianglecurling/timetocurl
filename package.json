@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --config ./client/webpack.config.js",
-    "watch": "webpack --config ./client/webpack.config.js --watch",
+    "build": "tsc -p . && webpack --config ./client/webpack.config.js",
+    "watch:client": "webpack --config ./client/webpack.config.js --watch",
+    "watch:server": "tsc -w -p .",
     "mon": "nodemon ./bin/index.js",
     "start": "node ./bin/index.js"
   },

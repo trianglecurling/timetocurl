@@ -206,12 +206,17 @@ class TimeToCurl {
 		field.setAttribute("type", "text");
 		field.setAttribute("id", id);
 		field.classList.add("simple-input-field");
+
+		const currentValue = document.createElement("div");
+		currentValue.classList.add("input-value-preview");
+		currentValue.setAttribute("id", `${id}Value`);
 		if (defaultValue !== undefined) {
-			field.value = defaultValue.toString();
+			currentValue.textContent = defaultValue.toString();
 		}
 
 		container.appendChild(label);
 		container.appendChild(field);
+		container.appendChild(currentValue);
 		return container;
 	}
 
@@ -226,39 +231,51 @@ class TimeToCurl {
 	}
 
 	private async customizeSettings() {
-		const thinkingTime = this.simpleInput("Thinking time", "thinkingTime", this.nextTimerOptions.thinkingTime);
+		const thinkingTime = this.simpleInput(
+			"Thinking time",
+			"thinkingTime",
+			secondsToStr(this.nextTimerOptions.thinkingTime),
+		);
 		const numEnds = this.simpleInput("Number of ends", "numEnds", this.nextTimerOptions.numEnds);
 		const extraEndThinkingTime = this.simpleInput(
 			"Thinking time added for an extra end",
 			"extraEndThinkingTime",
-			this.nextTimerOptions.extraEndThinkingTime,
+			secondsToStr(this.nextTimerOptions.extraEndThinkingTime),
 		);
 		const numTimeouts = this.simpleInput(
 			"Number of timeouts per team",
 			"numTimeouts",
 			this.nextTimerOptions.numTimeouts,
 		);
-		const timeoutTime = this.simpleInput("Timeout time", "timeoutTime", this.nextTimerOptions.timeoutTime);
+		const timeoutTime = this.simpleInput(
+			"Timeout time",
+			"timeoutTime",
+			secondsToStr(this.nextTimerOptions.timeoutTime),
+		);
 		const homeTravelTime = this.simpleInput(
 			"Travel time (home end)",
 			"homeTravelTime",
-			this.nextTimerOptions.travelTime.home,
+			secondsToStr(this.nextTimerOptions.travelTime.home),
 		);
 		const awayTravelTime = this.simpleInput(
 			"Travel time (away end)",
 			"awayTravelTime",
-			this.nextTimerOptions.travelTime.away,
+			secondsToStr(this.nextTimerOptions.travelTime.away),
 		);
-		const warmupTime = this.simpleInput("Warmup time", "warmupTime", this.nextTimerOptions.warmupTime);
+		const warmupTime = this.simpleInput(
+			"Warmup time",
+			"warmupTime",
+			secondsToStr(this.nextTimerOptions.warmupTime),
+		);
 		const betweenEndTime = this.simpleInput(
 			"Time between ends",
 			"betweenEndTime",
-			this.nextTimerOptions.betweenEndTime,
+			secondsToStr(this.nextTimerOptions.betweenEndTime),
 		);
 		const midGameBreakTime = this.simpleInput(
 			"Mid game break time",
 			"midGameBreakTime",
-			this.nextTimerOptions.midGameBreakTime,
+			secondsToStr(this.nextTimerOptions.midGameBreakTime),
 		);
 
 		const container = document.createElement("div");
@@ -274,30 +291,42 @@ class TimeToCurl {
 		container.appendChild(betweenEndTime);
 		container.appendChild(midGameBreakTime);
 
+		const prevSettings = cloneDeep(this.nextTimerOptions);
 		container.addEventListener(
 			"input",
 			() => {
-				const valThinkingTime = parseInt((thinkingTime.children[1] as HTMLInputElement).value, 10);
-				const valNumEnds = parseInt((numEnds.children[1] as HTMLInputElement).value, 10);
-				const valXEndThinkingTime = parseInt((extraEndThinkingTime.children[1] as HTMLInputElement).value, 10);
-				const valNumTimeouts = parseInt((numTimeouts.children[1] as HTMLInputElement).value, 10);
-				const valTimeoutTime = parseInt((timeoutTime.children[1] as HTMLInputElement).value, 10);
-				const valHomeTravelTime = parseInt((homeTravelTime.children[1] as HTMLInputElement).value, 10);
-				const valAwayTravelTime = parseInt((awayTravelTime.children[1] as HTMLInputElement).value, 10);
-				const valWarmupTime = parseInt((warmupTime.children[1] as HTMLInputElement).value, 10);
-				const valBetweenEndTime = parseInt((betweenEndTime.children[1] as HTMLInputElement).value, 10);
-				const valMidGameBreakTime = parseInt((midGameBreakTime.children[1] as HTMLInputElement).value, 10);
+				const valThinkingTime = strToSeconds((thinkingTime.children[1] as HTMLInputElement).value);
+				const valNumEnds = Number((numEnds.children[1] as HTMLInputElement).value);
+				const valXEndThinkingTime = strToSeconds((extraEndThinkingTime.children[1] as HTMLInputElement).value);
+				const valNumTimeouts = Number((numTimeouts.children[1] as HTMLInputElement).value);
+				const valTimeoutTime = strToSeconds((timeoutTime.children[1] as HTMLInputElement).value);
+				const valHomeTravelTime = strToSeconds((homeTravelTime.children[1] as HTMLInputElement).value);
+				const valAwayTravelTime = strToSeconds((awayTravelTime.children[1] as HTMLInputElement).value);
+				const valWarmupTime = strToSeconds((warmupTime.children[1] as HTMLInputElement).value);
+				const valBetweenEndTime = strToSeconds((betweenEndTime.children[1] as HTMLInputElement).value);
+				const valMidGameBreakTime = strToSeconds((midGameBreakTime.children[1] as HTMLInputElement).value);
 
-				this.nextTimerOptions.thinkingTime = valThinkingTime;
-				this.nextTimerOptions.numEnds = valNumEnds;
-				this.nextTimerOptions.extraEndThinkingTime = valXEndThinkingTime;
-				this.nextTimerOptions.numTimeouts = valNumTimeouts;
-				this.nextTimerOptions.timeoutTime = valTimeoutTime;
-				this.nextTimerOptions.travelTime.home = valHomeTravelTime;
-				this.nextTimerOptions.travelTime.away = valAwayTravelTime;
-				this.nextTimerOptions.warmupTime = valWarmupTime;
-				this.nextTimerOptions.betweenEndTime = valBetweenEndTime;
-				this.nextTimerOptions.midGameBreakTime = valMidGameBreakTime;
+				this.nextTimerOptions.thinkingTime = valThinkingTime || prevSettings.thinkingTime;
+				this.nextTimerOptions.numEnds = valNumEnds || prevSettings.numEnds;
+				this.nextTimerOptions.extraEndThinkingTime = valXEndThinkingTime || prevSettings.extraEndThinkingTime;
+				this.nextTimerOptions.numTimeouts = valNumTimeouts || prevSettings.numTimeouts;
+				this.nextTimerOptions.timeoutTime = valTimeoutTime || prevSettings.timeoutTime;
+				this.nextTimerOptions.travelTime.home = valHomeTravelTime || prevSettings.travelTime.home;
+				this.nextTimerOptions.travelTime.away = valAwayTravelTime || prevSettings.travelTime.away;
+				this.nextTimerOptions.warmupTime = valWarmupTime || prevSettings.warmupTime;
+				this.nextTimerOptions.betweenEndTime = valBetweenEndTime || prevSettings.betweenEndTime;
+				this.nextTimerOptions.midGameBreakTime = valMidGameBreakTime || prevSettings.midGameBreakTime;
+
+				thinkingTime.children[2].textContent = secondsToStr(this.nextTimerOptions.thinkingTime);
+				numEnds.children[2].textContent = String(this.nextTimerOptions.numEnds);
+				extraEndThinkingTime.children[2].textContent = secondsToStr(this.nextTimerOptions.extraEndThinkingTime);
+				numTimeouts.children[2].textContent = String(this.nextTimerOptions.numTimeouts);
+				timeoutTime.children[2].textContent = secondsToStr(this.nextTimerOptions.timeoutTime);
+				homeTravelTime.children[2].textContent = secondsToStr(this.nextTimerOptions.travelTime.home);
+				awayTravelTime.children[2].textContent = secondsToStr(this.nextTimerOptions.travelTime.away);
+				warmupTime.children[2].textContent = secondsToStr(this.nextTimerOptions.warmupTime);
+				betweenEndTime.children[2].textContent = secondsToStr(this.nextTimerOptions.betweenEndTime);
+				midGameBreakTime.children[2].textContent = secondsToStr(this.nextTimerOptions.midGameBreakTime);
 
 				this.evaluatePresetDropdown();
 				this.saveTimerOptions();
@@ -305,7 +334,6 @@ class TimeToCurl {
 			true,
 		);
 
-		const prevSettings = cloneDeep(this.nextTimerOptions);
 		if (!await confirm(container, "Customize timer settings")) {
 			this.nextTimerOptions = prevSettings;
 			this.evaluatePresetDropdown();
@@ -1036,11 +1064,31 @@ function secondsToStr(seconds: number) {
 }
 
 function strToSeconds(str: string) {
-	const [m, s, ...rest] = str.split(":").map(v => Number(v));
-	if (isNaN(m) || isNaN(s) || rest.length !== 0) {
-		return null;
+	const sanitized = str.trim();
+	const justSeconds = sanitized.match(/^(\d+)\s*((s|sec|second|seconds)\.?)?$/);
+	if (justSeconds && justSeconds.length >= 2) {
+		// Just one number - assume seconds
+		return Number(justSeconds[1]);
 	}
-	return m * 60 + s;
+
+	const colonTime = sanitized.match(/^(\d*):(\d*)$/);
+	if (colonTime && colonTime.length >= 3) {
+		// In the format of mm:ss, e.g. 8:22, :56, or 20:
+		return 60 * Number(colonTime[1]) + Number(colonTime[2]);
+	}
+
+	const verbose = sanitized
+		.replace(",", "")
+		.match(
+			/^(?:(\d+)\s*(?:(?:h|hr|hrs|hour|hours)\.?))?\s*(?:(\d+)\s*(?:(?:m|min|mins|minute|minutes)\.?))?\s*(?:(\d+)\s*(?:(?:s|sec|secs|second|seconds)\.?))?$/,
+		);
+	if (verbose && verbose.length >= 4) {
+		// In the format of hh hours mm minutes ss seconds, e.g.
+		// 2h3m1s, 3 hours, 1 hour, 2 minutes, 3 seconds, etc.
+		return 3600 * Number(verbose[1] || "0") + 60 * Number(verbose[2] || "0") + Number(verbose[3] || "0");
+	}
+
+	return null;
 }
 
 function setTimeToElem(elem: HTMLElement, seconds: number) {

@@ -17250,7 +17250,7 @@ function onConfirmButtonClick(value) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BaseOptions = {
+exports.StandardBaseOptions = {
     betweenEndTime: 60,
     extraEndThinkingTime: 4.5 * 60,
     lengthOfSecond: 1000,
@@ -17264,21 +17264,45 @@ exports.BaseOptions = {
     travelTime: { home: 20, away: 40 },
     warmupTime: 9 * 60,
 };
+exports.SimpleBaseOptions = {
+    allowableAdditionalEnds: 0,
+    lengthOfSecond: 1000,
+    noMoreEndsTime: 10 * 60,
+    numEnds: 8,
+    warningTime: 15 * 60,
+    timerName: "",
+    totalTime: 120 * 60,
+};
 exports.TimerPresets = [
     {
         id: "10-end",
         name: "10 Ends",
-        options: Object.assign({}, exports.BaseOptions),
+        options: Object.assign({}, exports.StandardBaseOptions),
+        type: 1 /* Standard */,
     },
     {
         id: "8-end",
         name: "8 Ends",
-        options: Object.assign({}, exports.BaseOptions, { thinkingTime: 30 * 60, numEnds: 8 }),
+        options: Object.assign({}, exports.StandardBaseOptions, { thinkingTime: 30 * 60, numEnds: 8 }),
+        type: 1 /* Standard */,
     },
     {
         id: "mixed-doubles",
         name: "Mixed Doubles",
-        options: Object.assign({}, exports.BaseOptions, { thinkingTime: 22 * 60, numEnds: 8 }),
+        options: Object.assign({}, exports.StandardBaseOptions, { thinkingTime: 22 * 60, numEnds: 8 }),
+        type: 1 /* Standard */,
+    },
+    {
+        id: "2-hour",
+        name: "2 Hours (8 Ends)",
+        options: Object.assign({}, exports.SimpleBaseOptions),
+        type: 0 /* Simple */,
+    },
+    {
+        id: "3-hour",
+        name: "3 Hours (10 Ends)",
+        options: Object.assign({}, exports.SimpleBaseOptions, { numEnds: 10, totalTime: 180 * 60 }),
+        type: 0 /* Simple */,
     },
 ];
 
@@ -17346,7 +17370,9 @@ class TimeToCurl {
         this.requestResolvers = {};
         this.machines = {};
         this.machineOrder = {};
-        this.nextTimerOptions = lodash_1.cloneDeep(presets_1.BaseOptions);
+        this.nextSimpleTimerOptions = lodash_1.cloneDeep(presets_1.SimpleBaseOptions);
+        this.nextStandardTimerOptions = lodash_1.cloneDeep(presets_1.StandardBaseOptions);
+        this.nextTimerType = 1 /* Standard */;
         this.socket.on("response", (result) => {
             let response;
             try {
@@ -17391,12 +17417,23 @@ class TimeToCurl {
         }
     }
     populateTimerOptions() {
+        const simpleGroup = document.createElement("optgroup");
+        simpleGroup.setAttribute("label", "Basic timers");
+        const standardGroup = document.createElement("optgroup");
+        standardGroup.setAttribute("label", "Full timers");
         for (const preset of presets_1.TimerPresets) {
             const option = document.createElement("option");
             option.value = preset.id;
             option.textContent = preset.name;
-            this.timerPresetsDropdown.appendChild(option);
+            if (preset.type === 0 /* Simple */) {
+                simpleGroup.appendChild(option);
+            }
+            else {
+                standardGroup.appendChild(option);
+            }
         }
+        this.timerPresetsDropdown.appendChild(simpleGroup);
+        this.timerPresetsDropdown.appendChild(standardGroup);
         const customOption = document.createElement("option");
         customOption.value = "custom";
         customOption.textContent = "Custom";
@@ -17405,8 +17442,10 @@ class TimeToCurl {
     restoreSettingsFromStorage() {
         const speedyClocks = window.localStorage["speedy-clocks"];
         const showDebug = window.localStorage["show-debug"];
-        const timerOptions = window.localStorage["timer-options"];
+        const simpleTimerOptions = window.localStorage["simple-timer-options"];
+        const standardTimerOptions = window.localStorage["standard-timer-options"];
         const theme = window.localStorage["theme"];
+        const timerType = window.localStorage["timer-type"];
         const speedyClocksCheckbox = document.getElementById("speedyClocks");
         const showDebugCheckbox = document.getElementById("showDebug");
         const themeSelect = document.getElementById("themeSelector");
@@ -17416,13 +17455,19 @@ class TimeToCurl {
         if (showDebug) {
             showDebugCheckbox.checked = showDebug === "true";
         }
-        if (timerOptions) {
-            this.nextTimerOptions = JSON.parse(timerOptions);
-            this.evaluatePresetDropdown();
+        if (standardTimerOptions) {
+            this.nextStandardTimerOptions = JSON.parse(standardTimerOptions);
+        }
+        if (simpleTimerOptions) {
+            this.nextSimpleTimerOptions = JSON.parse(simpleTimerOptions);
+        }
+        if (timerType) {
+            this.nextTimerType = Number(timerType);
         }
         if (theme) {
             themeSelect.value = theme;
         }
+        this.evaluatePresetDropdown();
     }
     simpleInput(labelText, id, defaultValue) {
         const container = document.createElement("div");
@@ -17448,40 +17493,133 @@ class TimeToCurl {
     }
     evaluatePresetDropdown() {
         for (const preset of presets_1.TimerPresets) {
-            if (lodash_1.isEqual(preset.options, this.nextTimerOptions)) {
+            if (this.nextTimerType === 1 /* Standard */ && lodash_1.isEqual(preset.options, this.nextStandardTimerOptions)) {
+                this.timerPresetsDropdown.value = preset.id;
+                return;
+            }
+            if (this.nextTimerType === 0 /* Simple */ && lodash_1.isEqual(preset.options, this.nextSimpleTimerOptions)) {
                 this.timerPresetsDropdown.value = preset.id;
                 return;
             }
         }
         this.timerPresetsDropdown.value = "custom";
     }
+    getRadioValue(...radios) {
+        for (const radio of radios) {
+            if (radio.checked) {
+                return radio.value;
+            }
+        }
+        return null;
+    }
     async customizeSettings() {
-        const thinkingTime = this.simpleInput("Thinking time", "thinkingTime", secondsToStr(this.nextTimerOptions.thinkingTime));
-        const numEnds = this.simpleInput("Number of ends", "numEnds", this.nextTimerOptions.numEnds);
-        const extraEndThinkingTime = this.simpleInput("Thinking time added for an extra end", "extraEndThinkingTime", secondsToStr(this.nextTimerOptions.extraEndThinkingTime));
-        const numTimeouts = this.simpleInput("Number of timeouts per team", "numTimeouts", this.nextTimerOptions.numTimeouts);
-        const timeoutTime = this.simpleInput("Timeout time", "timeoutTime", secondsToStr(this.nextTimerOptions.timeoutTime));
-        const homeTravelTime = this.simpleInput("Travel time (home end)", "homeTravelTime", secondsToStr(this.nextTimerOptions.travelTime.home));
-        const awayTravelTime = this.simpleInput("Travel time (away end)", "awayTravelTime", secondsToStr(this.nextTimerOptions.travelTime.away));
-        const warmupTime = this.simpleInput("Warmup time", "warmupTime", secondsToStr(this.nextTimerOptions.warmupTime));
-        const betweenEndTime = this.simpleInput("Time between ends", "betweenEndTime", secondsToStr(this.nextTimerOptions.betweenEndTime));
-        const midGameBreakTime = this.simpleInput("Mid game break time", "midGameBreakTime", secondsToStr(this.nextTimerOptions.midGameBreakTime));
-        const container = document.createElement("div");
-        container.classList.add("custom-settings-fields-container");
-        container.appendChild(thinkingTime);
-        container.appendChild(numEnds);
-        container.appendChild(extraEndThinkingTime);
-        container.appendChild(numTimeouts);
-        container.appendChild(timeoutTime);
-        container.appendChild(homeTravelTime);
-        container.appendChild(awayTravelTime);
-        container.appendChild(warmupTime);
-        container.appendChild(betweenEndTime);
-        container.appendChild(midGameBreakTime);
-        const prevSettings = lodash_1.cloneDeep(this.nextTimerOptions);
-        container.addEventListener("input", () => {
+        const simpleOrStandard = document.createElement("div");
+        simpleOrStandard.classList.add("simple-or-standard-radios");
+        const radioGroupLabel = document.createElement("div");
+        radioGroupLabel.textContent = "Timer type";
+        radioGroupLabel.classList.add("simple-or-standard-radio-group-label");
+        const simpleRadio = document.createElement("div");
+        simpleRadio.classList.add("radio-label-pair");
+        const simpleRadioInput = document.createElement("input");
+        simpleRadioInput.setAttribute("type", "radio");
+        simpleRadioInput.setAttribute("id", "simpleRadioButton");
+        simpleRadioInput.setAttribute("name", "simple-or-standard-radio");
+        simpleRadioInput.value = "simple";
+        if (this.nextTimerType === 0 /* Simple */) {
+            simpleRadioInput.checked = true;
+        }
+        const simpleRadioLabel = document.createElement("label");
+        simpleRadioLabel.setAttribute("for", "simpleRadioButton");
+        simpleRadioLabel.setAttribute("title", "Simple timer that counts down to zero. No active timekeeping required.");
+        simpleRadioLabel.textContent = "Simple";
+        simpleRadio.appendChild(simpleRadioInput);
+        simpleRadio.appendChild(simpleRadioLabel);
+        const standardRadio = document.createElement("div");
+        standardRadio.classList.add("radio-label-pair");
+        const standardRadioInput = document.createElement("input");
+        standardRadioInput.setAttribute("type", "radio");
+        standardRadioInput.setAttribute("id", "standardRadioButton");
+        standardRadioInput.setAttribute("name", "simple-or-standard-radio");
+        standardRadioInput.value = "standard";
+        if (this.nextTimerType === 1 /* Standard */) {
+            standardRadioInput.checked = true;
+        }
+        const standardRadioLabel = document.createElement("label");
+        standardRadioLabel.setAttribute("for", "standardRadioButton");
+        standardRadioLabel.setAttribute("title", "Full timer with thinking time, timeouts, between end time, etc. Requires a dedicated timekeeper.");
+        standardRadioLabel.textContent = "Standard";
+        standardRadio.appendChild(standardRadioInput);
+        standardRadio.appendChild(standardRadioLabel);
+        simpleOrStandard.appendChild(radioGroupLabel);
+        simpleOrStandard.appendChild(simpleRadio);
+        simpleOrStandard.appendChild(standardRadio);
+        const standardOptions = this.nextStandardTimerOptions;
+        const thinkingTime = this.simpleInput("Thinking time", "thinkingTime", secondsToStr(standardOptions.thinkingTime));
+        const numEndsStandard = this.simpleInput("Number of ends", "numEnds", standardOptions.numEnds);
+        const extraEndThinkingTime = this.simpleInput("Thinking time added for an extra end", "extraEndThinkingTime", secondsToStr(standardOptions.extraEndThinkingTime));
+        const numTimeouts = this.simpleInput("Number of timeouts per team", "numTimeouts", standardOptions.numTimeouts);
+        const timeoutTime = this.simpleInput("Timeout time", "timeoutTime", secondsToStr(standardOptions.timeoutTime));
+        const homeTravelTime = this.simpleInput("Travel time (home end)", "homeTravelTime", secondsToStr(standardOptions.travelTime.home));
+        const awayTravelTime = this.simpleInput("Travel time (away end)", "awayTravelTime", secondsToStr(standardOptions.travelTime.away));
+        const warmupTime = this.simpleInput("Warmup time", "warmupTime", secondsToStr(standardOptions.warmupTime));
+        const betweenEndTime = this.simpleInput("Time between ends", "betweenEndTime", secondsToStr(standardOptions.betweenEndTime));
+        const midGameBreakTime = this.simpleInput("Mid game break time", "midGameBreakTime", secondsToStr(standardOptions.midGameBreakTime));
+        const standardContainer = document.createElement("div");
+        standardContainer.classList.add("custom-settings-fields-container", "standard-settings", "irrelevant");
+        standardContainer.appendChild(thinkingTime);
+        standardContainer.appendChild(numEndsStandard);
+        standardContainer.appendChild(extraEndThinkingTime);
+        standardContainer.appendChild(numTimeouts);
+        standardContainer.appendChild(timeoutTime);
+        standardContainer.appendChild(homeTravelTime);
+        standardContainer.appendChild(awayTravelTime);
+        standardContainer.appendChild(warmupTime);
+        standardContainer.appendChild(betweenEndTime);
+        standardContainer.appendChild(midGameBreakTime);
+        const simpleOptions = this.nextSimpleTimerOptions;
+        const totalTime = this.simpleInput("Total time", "totalTime", secondsToStr(simpleOptions.totalTime));
+        const endTime = this.simpleInput("Turn red at", "noMoreEndsTime", secondsToStr(simpleOptions.noMoreEndsTime));
+        const warningTime = this.simpleInput("Turn yellow at", "warningTime", secondsToStr(simpleOptions.warningTime));
+        const additionalEnds = this.simpleInput("Ends allowed after timer turns red", "allowableAdditionalEnds", simpleOptions.allowableAdditionalEnds);
+        const numEndsSimple = this.simpleInput("Number of ends", "numEnds", simpleOptions.numEnds);
+        const simpleContainer = document.createElement("div");
+        simpleContainer.classList.add("custom-settings-fields-container", "simple-settings", "irrelevant");
+        simpleContainer.appendChild(totalTime);
+        simpleContainer.appendChild(warningTime);
+        simpleContainer.appendChild(endTime);
+        simpleContainer.appendChild(additionalEnds);
+        simpleContainer.appendChild(numEndsSimple);
+        const onTimerTypeChanged = () => {
+            const result = this.getRadioValue(simpleRadioInput, standardRadioInput);
+            if (result === "standard") {
+                this.nextTimerType = 1 /* Standard */;
+                simpleContainer.classList.add("irrelevant");
+                standardContainer.classList.remove("irrelevant");
+            }
+            else if (result === "simple") {
+                this.nextTimerType = 0 /* Simple */;
+                standardContainer.classList.add("irrelevant");
+                simpleContainer.classList.remove("irrelevant");
+            }
+            this.evaluatePresetDropdown();
+            this.saveTimerOptions();
+        };
+        simpleRadioInput.addEventListener("change", onTimerTypeChanged);
+        standardRadioInput.addEventListener("change", onTimerTypeChanged);
+        onTimerTypeChanged();
+        const optionsDialog = document.createElement("div");
+        optionsDialog.classList.add("customize-timer-dialog");
+        const allOptionsContainer = document.createElement("div");
+        allOptionsContainer.appendChild(simpleContainer);
+        allOptionsContainer.appendChild(standardContainer);
+        optionsDialog.appendChild(simpleOrStandard);
+        optionsDialog.appendChild(allOptionsContainer);
+        const prevStandardSettings = lodash_1.cloneDeep(standardOptions);
+        const prevSimpleSettings = lodash_1.cloneDeep(simpleOptions);
+        const prevTimerType = this.nextTimerType;
+        allOptionsContainer.addEventListener("input", () => {
             const valThinkingTime = strToSeconds(thinkingTime.children[1].value);
-            const valNumEnds = Number(numEnds.children[1].value);
+            const valNumEndsStandard = Number(numEndsStandard.children[1].value);
             const valXEndThinkingTime = strToSeconds(extraEndThinkingTime.children[1].value);
             const valNumTimeouts = Number(numTimeouts.children[1].value);
             const valTimeoutTime = strToSeconds(timeoutTime.children[1].value);
@@ -17490,31 +17628,50 @@ class TimeToCurl {
             const valWarmupTime = strToSeconds(warmupTime.children[1].value);
             const valBetweenEndTime = strToSeconds(betweenEndTime.children[1].value);
             const valMidGameBreakTime = strToSeconds(midGameBreakTime.children[1].value);
-            this.nextTimerOptions.thinkingTime = valThinkingTime || prevSettings.thinkingTime;
-            this.nextTimerOptions.numEnds = valNumEnds || prevSettings.numEnds;
-            this.nextTimerOptions.extraEndThinkingTime = valXEndThinkingTime || prevSettings.extraEndThinkingTime;
-            this.nextTimerOptions.numTimeouts = valNumTimeouts || prevSettings.numTimeouts;
-            this.nextTimerOptions.timeoutTime = valTimeoutTime || prevSettings.timeoutTime;
-            this.nextTimerOptions.travelTime.home = valHomeTravelTime || prevSettings.travelTime.home;
-            this.nextTimerOptions.travelTime.away = valAwayTravelTime || prevSettings.travelTime.away;
-            this.nextTimerOptions.warmupTime = valWarmupTime || prevSettings.warmupTime;
-            this.nextTimerOptions.betweenEndTime = valBetweenEndTime || prevSettings.betweenEndTime;
-            this.nextTimerOptions.midGameBreakTime = valMidGameBreakTime || prevSettings.midGameBreakTime;
-            thinkingTime.children[2].textContent = secondsToStr(this.nextTimerOptions.thinkingTime);
-            numEnds.children[2].textContent = String(this.nextTimerOptions.numEnds);
-            extraEndThinkingTime.children[2].textContent = secondsToStr(this.nextTimerOptions.extraEndThinkingTime);
-            numTimeouts.children[2].textContent = String(this.nextTimerOptions.numTimeouts);
-            timeoutTime.children[2].textContent = secondsToStr(this.nextTimerOptions.timeoutTime);
-            homeTravelTime.children[2].textContent = secondsToStr(this.nextTimerOptions.travelTime.home);
-            awayTravelTime.children[2].textContent = secondsToStr(this.nextTimerOptions.travelTime.away);
-            warmupTime.children[2].textContent = secondsToStr(this.nextTimerOptions.warmupTime);
-            betweenEndTime.children[2].textContent = secondsToStr(this.nextTimerOptions.betweenEndTime);
-            midGameBreakTime.children[2].textContent = secondsToStr(this.nextTimerOptions.midGameBreakTime);
+            const valTotalTime = strToSeconds(totalTime.children[1].value);
+            const valEndTime = strToSeconds(endTime.children[1].value);
+            const valWarningTime = strToSeconds(warningTime.children[1].value);
+            const valAdditionalEnds = Number(additionalEnds.children[1].value);
+            const valNumEndsSimple = Number(numEndsSimple.children[1].value);
+            standardOptions.thinkingTime = valThinkingTime || prevStandardSettings.thinkingTime;
+            standardOptions.numEnds = valNumEndsStandard || prevStandardSettings.numEnds;
+            standardOptions.extraEndThinkingTime = valXEndThinkingTime || prevStandardSettings.extraEndThinkingTime;
+            standardOptions.numTimeouts = valNumTimeouts || prevStandardSettings.numTimeouts;
+            standardOptions.timeoutTime = valTimeoutTime || prevStandardSettings.timeoutTime;
+            standardOptions.travelTime.home = valHomeTravelTime || prevStandardSettings.travelTime.home;
+            standardOptions.travelTime.away = valAwayTravelTime || prevStandardSettings.travelTime.away;
+            standardOptions.warmupTime = valWarmupTime || prevStandardSettings.warmupTime;
+            standardOptions.betweenEndTime = valBetweenEndTime || prevStandardSettings.betweenEndTime;
+            standardOptions.midGameBreakTime = valMidGameBreakTime || prevStandardSettings.midGameBreakTime;
+            simpleOptions.totalTime = valTotalTime || prevSimpleSettings.totalTime;
+            simpleOptions.noMoreEndsTime = valEndTime || prevSimpleSettings.noMoreEndsTime;
+            simpleOptions.warningTime = valWarningTime || prevSimpleSettings.warningTime;
+            simpleOptions.allowableAdditionalEnds = isNaN(valAdditionalEnds)
+                ? prevSimpleSettings.allowableAdditionalEnds
+                : valAdditionalEnds;
+            simpleOptions.numEnds = valNumEndsSimple || prevSimpleSettings.numEnds;
+            thinkingTime.children[2].textContent = secondsToStr(standardOptions.thinkingTime);
+            numEndsStandard.children[2].textContent = String(standardOptions.numEnds);
+            extraEndThinkingTime.children[2].textContent = secondsToStr(standardOptions.extraEndThinkingTime);
+            numTimeouts.children[2].textContent = String(standardOptions.numTimeouts);
+            timeoutTime.children[2].textContent = secondsToStr(standardOptions.timeoutTime);
+            homeTravelTime.children[2].textContent = secondsToStr(standardOptions.travelTime.home);
+            awayTravelTime.children[2].textContent = secondsToStr(standardOptions.travelTime.away);
+            warmupTime.children[2].textContent = secondsToStr(standardOptions.warmupTime);
+            betweenEndTime.children[2].textContent = secondsToStr(standardOptions.betweenEndTime);
+            midGameBreakTime.children[2].textContent = secondsToStr(standardOptions.midGameBreakTime);
+            totalTime.children[2].textContent = secondsToStr(simpleOptions.totalTime);
+            endTime.children[2].textContent = secondsToStr(simpleOptions.noMoreEndsTime);
+            warningTime.children[2].textContent = secondsToStr(simpleOptions.warningTime);
+            additionalEnds.children[2].textContent = String(simpleOptions.allowableAdditionalEnds);
+            numEndsSimple.children[2].textContent = String(simpleOptions.numEnds);
             this.evaluatePresetDropdown();
             this.saveTimerOptions();
         }, true);
-        if (!await confirm_1.confirm(container, "Customize timer settings")) {
-            this.nextTimerOptions = prevSettings;
+        if (!await confirm_1.confirm(optionsDialog, "Customize timer settings")) {
+            this.nextStandardTimerOptions = prevStandardSettings;
+            this.nextSimpleTimerOptions = prevSimpleSettings;
+            this.nextTimerType = prevTimerType;
             this.evaluatePresetDropdown();
         }
     }
@@ -17522,12 +17679,21 @@ class TimeToCurl {
         const dropdownValue = this.timerPresetsDropdown.value;
         const matchedPreset = presets_1.TimerPresets.filter(p => p.id === dropdownValue)[0];
         if (matchedPreset) {
-            this.nextTimerOptions = lodash_1.cloneDeep(matchedPreset).options;
+            if (matchedPreset.type === 0 /* Simple */) {
+                this.nextSimpleTimerOptions = lodash_1.cloneDeep(matchedPreset).options;
+                this.nextTimerType = 0 /* Simple */;
+            }
+            else {
+                this.nextStandardTimerOptions = lodash_1.cloneDeep(matchedPreset).options;
+                this.nextTimerType = 1 /* Standard */;
+            }
             this.saveTimerOptions();
         }
     }
     saveTimerOptions() {
-        window.localStorage["timer-options"] = JSON.stringify(this.nextTimerOptions);
+        window.localStorage["standard-timer-options"] = JSON.stringify(this.nextStandardTimerOptions);
+        window.localStorage["simple-timer-options"] = JSON.stringify(this.nextSimpleTimerOptions);
+        window.localStorage["timer-type"] = String(this.nextTimerType);
     }
     setUpEvents() {
         document.addEventListener("DOMContentLoaded", async () => {
@@ -17538,14 +17704,19 @@ class TimeToCurl {
                 const response = await this.emitAction({
                     request: "CREATE_TIMER",
                     clientId: clientId,
-                    options: Object.assign({}, this.nextTimerOptions, { lengthOfSecond: this.speedyClocks ? 100 : 1000 }),
+                    options: Object.assign({}, this.nextStandardTimerOptions, { lengthOfSecond: this.speedyClocks ? 100 : 1000 }),
                 });
-                this.addCurlingMachine(response.data);
+                this.addCurlingMachine(response.data).scrollIntoView();
             });
             const showDebug = document.getElementById("showDebug");
             showDebug.addEventListener("change", this.onDebugToggled);
             this.timerPresetsDropdown.addEventListener("change", () => {
-                this.setNextTimerOptionsFromDropdown();
+                if (this.timerPresetsDropdown.value === "custom") {
+                    this.customizeSettings();
+                }
+                else {
+                    this.setNextTimerOptionsFromDropdown();
+                }
             });
             document.getElementById("speedyClocks").addEventListener("change", this.onSpeedyClocksToggled.bind(this));
             document.getElementById("themeSelector").addEventListener("change", this.onThemeChanged);
@@ -17605,6 +17776,7 @@ class TimeToCurl {
             displayedTimers.push(cm.state.id);
         }
         setTimersInHash(displayedTimers);
+        return this.machines[cm.state.id];
     }
 }
 class CurlingMachineUI {
@@ -17636,16 +17808,19 @@ class CurlingMachineUI {
         }
         this.initUI();
     }
+    scrollIntoView() {
+        this.timerContainerElement.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+        });
+    }
     initUI() {
         const template = document.getElementById("timerTemplate").children.item(0);
         const newUI = template.cloneNode(true);
         this.initElements(newUI);
         // set up click-to-scroll
         this.titleElement.addEventListener("click", () => {
-            this.timerContainerElement.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-            });
+            this.scrollIntoView();
         });
         for (const teamId of Object.keys(this.thinkingButtons)) {
             this.thinkingButtons[teamId].addEventListener("click", () => {

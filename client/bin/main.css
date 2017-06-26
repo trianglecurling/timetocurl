@@ -42,12 +42,12 @@ header {
       color: #333;
       text-decoration: none; }
   header .timer-name {
-    width: 150px;
+    width: 180px;
     margin-right: 6px;
     height: 28px;
     font-size: 22px; }
   header .timer-presets {
-    width: 150px;
+    width: 180px;
     margin-right: 6px;
     height: 28px;
     font-size: 18px; }
@@ -561,6 +561,28 @@ body.classic .simple-input {
   body.classic .simple-input .input-value-preview {
     font-size: 14px;
     width: 66px; }
+
+body.classic .customize-timer-dialog {
+  font-size: 14px;
+  width: 380px;
+  height: 320px; }
+  body.classic .customize-timer-dialog .simple-or-standard-radios {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    margin-bottom: 16px;
+    padding: 6px;
+    border: 1px solid #212121; }
+    body.classic .customize-timer-dialog .simple-or-standard-radios .simple-or-standard-radio-group-label {
+      flex-basis: 100%;
+      margin-bottom: 10px; }
+    body.classic .customize-timer-dialog .simple-or-standard-radios .radio-label-pair {
+      display: flex;
+      align-items: center; }
+      body.classic .customize-timer-dialog .simple-or-standard-radios .radio-label-pair label {
+        text-decoration: dotted underline rgba(0, 0, 0, 0.4); }
+    body.classic .customize-timer-dialog .simple-or-standard-radios input {
+      margin-right: 4px; }
 
 div.debug {
   white-space: pre;

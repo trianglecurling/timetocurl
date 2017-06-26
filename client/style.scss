@@ -67,14 +67,14 @@ header {
 	background-color: #e6e6e6;
 
 	.timer-name {
-		width: 150px;
+		width: 180px;
 		margin-right: 6px;
 		height: 28px;
 		font-size: 22px;
 	}
 
 	.timer-presets {
-		width: 150px;
+		width: 180px;
 		margin-right: 6px;
 		height: 28px;
 		font-size: 18px;
@@ -789,6 +789,33 @@ body.classic {
 		.input-value-preview {
 			font-size: 14px;
 			width: 66px;
+		}
+	}
+	.customize-timer-dialog {
+		font-size: 14px;
+		width: 380px;
+		height: 320px;
+		.simple-or-standard-radios {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-around;
+			margin-bottom: 16px;
+			padding: 6px;
+			border: 1px solid #212121;
+			.simple-or-standard-radio-group-label {
+				flex-basis: 100%;
+				margin-bottom: 10px;
+			}
+			.radio-label-pair {
+				display: flex;
+				align-items: center;
+				label {
+					text-decoration: dotted underline rgba(0, 0, 0, 0.4);
+				}
+			}
+			input {
+				margin-right: 4px;
+			}
 		}
 	}
 }

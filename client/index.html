@@ -54,103 +54,129 @@
 	<main>
 		<div id="timersContainer"></div>
 	</main>
-	<div id="timerTemplate">
-		<div class="timer" data-key="timer">
-			<div id="timerName" class="timer-title" data-key="timer-title"></div>
-			<div class="timer-container" data-key="timer-container">
-				<div class="overlay-time-container warmup-time-container" data-key="warmup-time-container">
-					<h2>Warmup time remaining</h2>
-					<div class="warmup-time time-value" data-key="warmup-time"></div>
-					<button data-action="cancel-timer" class="cancel-timer-button cancel-warmup">Cancel</button>
-				</div>
-				<div class="thinking-time-container" data-key="thinking-time-container">
-					<h2>Thinking time remaining</h2>
-					<div class="thinking-times">
-						<div class="time-with-controls team-A">
-							<div data-key="minute-controls" class="minute-controls time-controls">
-								<button data-command="ADD_TIME" data-data='{"value": 60}' class="add-minute time-control-button">+</button>
-								<button data-command="ADD_TIME" data-data='{"value": -60}' class="subtract-minute time-control-button">-</button>
-							</div>
-							<div class="thinking-time time-value" data-key="thinking-time"></div>
-							<div data-key="second-controls" class="second-controls time-controls">
-								<button data-command="ADD_TIME" data-data='{"value": 1}' class="add-second time-control-button">+</button>
-								<button data-command="ADD_TIME" data-data='{"value": -1}' class="subtract-second time-control-button">-</button>
-							</div>
+	<div id="templates">
+		<div id="simpleTimerTemplate">
+			<div class="timer simple-timer" data-key="timer">
+				<div id="timerName" class="timer-title" data-key="timer-title"></div>
+				<div class="timer-container" data-key="timer-container">
+					<div class="controls" data-key="controls">
+						<button data-key="start-timer" data-command="START_TIMER" class="btn btn-start">Start</button>
+						<button data-key="pause-timer" data-command="PAUSE_TIMER" class="btn btn-pause">Pause</button>
+					</div>
+					<div class="time-display">
+						<div data-key="minute-controls" class="minute-controls time-controls">
+							<button data-command="ADD_TIME" data-data='{"value": 60}' class="add-minute time-control-button">+</button>
+							<button data-command="ADD_TIME" data-data='{"value": -60}' class="subtract-minute time-control-button">-</button>
 						</div>
-						<div class="spacer" data-key="spacer">
-							<div class="left"></div>
-							<div class="center">
-								<div class="technical-info">
-									<div class="technical-timeout-title"></div>
-									<div data-key="technical-timeout-time" class="technical-timeout-time time-value"></div>
+						<div class="remaining-time time-value" data-key="remaining-time"></div>
+						<div data-key="second-controls" class="second-controls time-controls">
+							<button data-command="ADD_TIME" data-data='{"value": 1}' class="add-second time-control-button">+</button>
+							<button data-command="ADD_TIME" data-data='{"value": -1}' class="subtract-second time-control-button">-</button>
+						</div>
+					</div>
+					<div class="pacing"></div>
+					<div class="debug" data-key="debug"></div>
+				</div>
+			</div>
+		</div>
+		<div id="timerTemplate">
+			<div class="timer standard-timer" data-key="timer">
+				<div id="timerName" class="timer-title" data-key="timer-title"></div>
+				<div class="timer-container" data-key="timer-container">
+					<div class="overlay-time-container warmup-time-container" data-key="warmup-time-container">
+						<h2>Warmup time remaining</h2>
+						<div class="warmup-time time-value" data-key="warmup-time"></div>
+						<button data-action="cancel-timer" class="cancel-timer-button cancel-warmup">Cancel</button>
+					</div>
+					<div class="thinking-time-container" data-key="thinking-time-container">
+						<h2>Thinking time remaining</h2>
+						<div class="thinking-times">
+							<div class="time-with-controls team-A">
+								<div data-key="minute-controls" class="minute-controls time-controls">
+									<button data-command="ADD_TIME" data-data='{"value": 60}' class="add-minute time-control-button">+</button>
+									<button data-command="ADD_TIME" data-data='{"value": -60}' class="subtract-minute time-control-button">-</button>
+								</div>
+								<div class="thinking-time time-value" data-key="thinking-time"></div>
+								<div data-key="second-controls" class="second-controls time-controls">
+									<button data-command="ADD_TIME" data-data='{"value": 1}' class="add-second time-control-button">+</button>
+									<button data-command="ADD_TIME" data-data='{"value": -1}' class="subtract-second time-control-button">-</button>
 								</div>
 							</div>
-							<div class="right"></div>
-						</div>
-						<div class="time-with-controls team-B">
-							<div data-key="minute-controls" class="minute-controls time-controls">
-								<button data-command="ADD_TIME" data-data='{"value": 60}' class="add-minute time-control-button">+</button>
-								<button data-command="ADD_TIME" data-data='{"value": -60}' class="subtract-minute time-control-button">-</button>
+							<div class="spacer" data-key="spacer">
+								<div class="left"></div>
+								<div class="center">
+									<div class="technical-info">
+										<div class="technical-timeout-title"></div>
+										<div data-key="technical-timeout-time" class="technical-timeout-time time-value"></div>
+									</div>
+								</div>
+								<div class="right"></div>
 							</div>
-							<div class="thinking-time time-value" data-key="thinking-time"></div>
-							<div data-key="second-controls" class="second-controls time-controls">
-								<button data-command="ADD_TIME" data-data='{"value": 1}' class="add-second time-control-button">+</button>
-								<button data-command="ADD_TIME" data-data='{"value": -1}' class="subtract-second time-control-button">-</button>
+							<div class="time-with-controls team-B">
+								<div data-key="minute-controls" class="minute-controls time-controls">
+									<button data-command="ADD_TIME" data-data='{"value": 60}' class="add-minute time-control-button">+</button>
+									<button data-command="ADD_TIME" data-data='{"value": -60}' class="subtract-minute time-control-button">-</button>
+								</div>
+								<div class="thinking-time time-value" data-key="thinking-time"></div>
+								<div data-key="second-controls" class="second-controls time-controls">
+									<button data-command="ADD_TIME" data-data='{"value": 1}' class="add-second time-control-button">+</button>
+									<button data-command="ADD_TIME" data-data='{"value": -1}' class="subtract-second time-control-button">-</button>
+								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-				<div class="timeouts-remaining-container">
-					<h2>Timeouts remaining</h2>
-					<div class="team-A timeouts-remaining">
-						<span class="timeouts-num"></span>
-						<button data-command="ADD_TIMEOUTS" data-data='{"value": 1}' class="add-timeout">+</button>
-						<button data-command="ADD_TIMEOUTS" data-data='{"value": -1}' class="subtract-timeout">-</button>
+					<div class="timeouts-remaining-container">
+						<h2>Timeouts remaining</h2>
+						<div class="team-A timeouts-remaining">
+							<span class="timeouts-num"></span>
+							<button data-command="ADD_TIMEOUTS" data-data='{"value": 1}' class="add-timeout">+</button>
+							<button data-command="ADD_TIMEOUTS" data-data='{"value": -1}' class="subtract-timeout">-</button>
+						</div>
+						<div class="team-B timeouts-remaining">
+							<span class="timeouts-num"></span>
+							<button data-command="ADD_TIMEOUTS" data-data='{"value": 1}' class="add-timeout">+</button>
+							<button data-command="ADD_TIMEOUTS" data-data='{"value": -1}' class="subtract-timeout">-</button>
+						</div>
 					</div>
-					<div class="team-B timeouts-remaining">
-						<span class="timeouts-num"></span>
-						<button data-command="ADD_TIMEOUTS" data-data='{"value": 1}' class="add-timeout">+</button>
-						<button data-command="ADD_TIMEOUTS" data-data='{"value": -1}' class="subtract-timeout">-</button>
+					<div class="elapsed-thinking-time-container">
+						<h2>Elapsed thinking time</h2>
+						<div data-key="elapsed-thinking-time" class="team-A elapsed-thinking-time time-value"></div>
+						<div data-key="elapsed-thinking-time" class="team-B elapsed-thinking-time time-value"></div>
 					</div>
-				</div>
-				<div class="elapsed-thinking-time-container">
-					<h2>Elapsed thinking time</h2>
-					<div data-key="elapsed-thinking-time" class="team-A elapsed-thinking-time time-value"></div>
-					<div data-key="elapsed-thinking-time" class="team-B elapsed-thinking-time time-value"></div>
-				</div>
-				<div class="overlay-time-container between-end-time-container" data-key="between-end-time-container">
-					<h2>Between ends</h2>
-					<div class="between-end-time time-value" data-key="between-end-time"></div>
-					<button data-action="cancel-timer" class="cancel-timer-button cancel-between-ends">Cancel</button>
-				</div>
-				<div class="overlay-time-container timeout-time-container" data-key="timeout-time-container">
-					<h2>Timeout time remaining</h2>
-					<div class="travel-time-container">
-						<div class="travel-time-label">Travel time: </div>
-						<div data-key="travel-time-value" class="travel-time-value time-value"></div>
-						<button data-command="ADD_TIMEOUT_TIME" class="travel-time-cancel">No coach</button>
+					<div class="overlay-time-container between-end-time-container" data-key="between-end-time-container">
+						<h2>Between ends</h2>
+						<div class="between-end-time time-value" data-key="between-end-time"></div>
+						<button data-action="cancel-timer" class="cancel-timer-button cancel-between-ends">Cancel</button>
 					</div>
-					<div class="timeout-time time-value" data-key="timeout-time"></div>
-					<button data-action="cancel-timer" class="cancel-timer-button cancel-timeout">Cancel</button>
+					<div class="overlay-time-container timeout-time-container" data-key="timeout-time-container">
+						<h2>Timeout time remaining</h2>
+						<div class="travel-time-container">
+							<div class="travel-time-label">Travel time: </div>
+							<div data-key="travel-time-value" class="travel-time-value time-value"></div>
+							<button data-command="ADD_TIMEOUT_TIME" class="travel-time-cancel">No coach</button>
+						</div>
+						<div class="timeout-time time-value" data-key="timeout-time"></div>
+						<button data-action="cancel-timer" class="cancel-timer-button cancel-timeout">Cancel</button>
+					</div>
+					<div class="controls" data-key="controls">
+						<button id="game-start-warmup" data-action="game-start-warmup" class="btn">Begin Warmup</button>
+						<button id="game-start-no-warmup" data-action="game-start-no-warmup" class="btn">Begin pre-game countdown</button>
+						<button id="red-begin-thinking" data-action="begin-thinking" class="team-A btn">Start red thinking</button>
+						<button id="yellow-begin-thinking" data-action="begin-thinking" class="team-B btn">Start yellow thinking</button>
+						<button id="end-yellow-thinking" data-action="end-thinking" class="btn">Stop thinking</button>
+						<button id="end-red-thinking" data-action="end-thinking" class="btn">Stop thinking</button>
+						<button id="end-end" data-action="end-end" class="btn">Between ends</button>
+						<button id="begin-timeout" data-action="begin-timeout" class="btn">Timeout</button>
+						<button id="begin-midgame-break" data-action="begin-midgame-break" class="btn">Mid game break</button>
+						<!--<button id="end-timeout" data-action="end-timeout" class="btn">End timeout</button>-->
+						<button id="begin-extra-end" data-action="begin-extra-end" class="btn">Extra end</button>
+						<button id="technical" data-action="technical" class="btn">Technical timeout</button>
+						<button id="end-technical" data-action="end-technical" class="btn">End technical</button>
+						<button id="adjust-time" data-key="adjust-time" class="btn">Adjust time</button>
+						<button id="reset" class="btn">Reset</button>
+					</div>
+					<div class="debug" data-key="debug"></div>
 				</div>
-				<div class="controls" data-key="controls">
-					<button id="game-start-warmup" data-action="game-start-warmup" class="btn">Begin Warmup</button>
-					<button id="game-start-no-warmup" data-action="game-start-no-warmup" class="btn">Begin pre-game countdown</button>
-					<button id="red-begin-thinking" data-action="begin-thinking" class="team-A btn">Start red thinking</button>
-					<button id="yellow-begin-thinking" data-action="begin-thinking" class="team-B btn">Start yellow thinking</button>
-					<button id="end-yellow-thinking" data-action="end-thinking" class="btn">Stop thinking</button>
-					<button id="end-red-thinking" data-action="end-thinking" class="btn">Stop thinking</button>
-					<button id="end-end" data-action="end-end" class="btn">Between ends</button>
-					<button id="begin-timeout" data-action="begin-timeout" class="btn">Timeout</button>
-					<button id="begin-midgame-break" data-action="begin-midgame-break" class="btn">Mid game break</button>
-					<!--<button id="end-timeout" data-action="end-timeout" class="btn">End timeout</button>-->
-					<button id="begin-extra-end" data-action="begin-extra-end" class="btn">Extra end</button>
-					<button id="technical" data-action="technical" class="btn">Technical timeout</button>
-					<button id="end-technical" data-action="end-technical" class="btn">End technical</button>
-					<button id="adjust-time" data-key="adjust-time" class="btn">Adjust time</button>
-					<button id="reset" class="btn">Reset</button>
-				</div>
-				<div class="debug" data-key="debug"></div>
 			</div>
 		</div>
 	</div>

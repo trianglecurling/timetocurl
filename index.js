@@ -4,7 +4,7 @@ const app = express();
 const http = require("http").Server(app);
 const io = require("socket.io")(http);
 const { join } = require("path");
-const CurlingMachine = require("./curl-timer");
+const { CurlingMachine, SimpleTimerMachine } = require("./curl-timer");
 const fs = require("fs");
 
 function setupRoutes(app) {
@@ -58,17 +58,28 @@ function handleAction(action, socket) {
 	//console.log("Action: " + action.request);
 
 	if (action.request === "CREATE_TIMER") {
-		const curlingMachine = new CurlingMachine(action.options, sockets => {
-			dispatchStateChange(sockets, curlingMachine.id);
-		});
-		curlingMachine.registerSocket(action.clientId, socket);
-		games[curlingMachine.id] = curlingMachine;
-		const response = {
-			response: "CREATE_TIMER",
-			token: action.token,
-			data: curlingMachine.getSerializableState(),
-		};
-		socket.emit("response", JSON.stringify(response));
+		let curlingMachine;
+		if (action.options.type === "simple") {
+			curlingMachine = new SimpleTimerMachine(action.options, sockets => {
+				dispatchStateChange(sockets, curlingMachine.id);
+			});
+		} else if (action.options.type === "standard") {
+			curlingMachine = new CurlingMachine(action.options, sockets => {
+				dispatchStateChange(sockets, curlingMachine.id);
+			});
+		}
+		if (curlingMachine) {
+			curlingMachine.registerSocket(action.clientId, socket);
+			games[curlingMachine.id] = curlingMachine;
+			const response = {
+				response: "CREATE_TIMER",
+				token: action.token,
+				data: curlingMachine.getSerializableState(),
+			};
+			socket.emit("response", JSON.stringify(response));
+		} else {
+			socket.emit("response", JSON.stringify({ error: true, message: "Unknown timer type." }));
+		}
 	}
 
 	if (action.request === "GET_TIMER") {

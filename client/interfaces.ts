@@ -3,8 +3,8 @@ export interface IMap<TVal> {
 }
 
 export const enum TimerType {
-	Simple,
-	Standard,
+	Simple = "simple",
+	Standard = "standard",
 }
 
 export interface TimerOptions {
@@ -98,6 +98,12 @@ export interface SimpleTimerOptions extends TimerOptions {
 	noMoreEndsTime: number;
 
 	/**
+	 * Whether or not to display information about the
+	 * recommended pace to finish the game on time.
+	 */
+	showPacing: boolean;
+
+	/**
 	 * Total time on the clock
 	 */
 	totalTime: number;
@@ -122,27 +128,43 @@ export interface SocketResponse<TData> {
 	token: string;
 }
 
-export interface CurlingMachineState {
+export interface BaseTimerState {
+	id: string;
+	timerName: string;
+}
+
+export interface SimpleTimerState extends BaseTimerState {
+	timeRemaining: number;
+	timerIsRunning: boolean;
+}
+
+export interface CurlingMachineState extends BaseTimerState {
 	betweenEndTimeRemaining: number;
 	currentlyRunningTimeout: string | null;
 	currentlyThinking: string | null;
 	currentTimerRunningTime: number;
 	end: number | null;
-	id: string;
 	legalActions: string[];
 	phase: string;
 	phaseData: { [key: string]: string };
 	timeoutsRemaining: IMap<number>;
 	timeoutTimeRemaining: number;
 	timeRemaining: IMap<number>;
-	timerName: string;
 	warmupTimeRemaining: number;
 }
 
-export interface StateAndOptions {
-	options: StandardTimerOptions;
-	state: CurlingMachineState;
+export interface StateAndOptions<
+	TState extends BaseTimerState = BaseTimerState,
+	TOptions extends TimerOptions = TimerOptions
+> {
+	options: TOptions;
+	state: TState;
+	type: TimerType;
 }
+
+export interface SimpleStateAndOptions extends StateAndOptions<SimpleTimerState, SimpleTimerOptions> {}
+
+export interface StandardStateAndOptions extends StateAndOptions<CurlingMachineState, StandardTimerOptions> {}
 
 export interface ActionMessage {
 	data: any;

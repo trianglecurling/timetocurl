@@ -5,11 +5,15 @@ import {
 	IMap,
 	SocketAction,
 	SocketResponse,
-	StateAndOptions,
+	StandardStateAndOptions,
 	StandardTimerOptions,
 	TimerOptions,
 	TimerType,
 	SimpleTimerOptions,
+	SimpleStateAndOptions,
+	SimpleTimerState,
+	BaseTimerState,
+	StateAndOptions,
 } from "./interfaces";
 import { StandardBaseOptions, TimerPresets, SimpleBaseOptions } from "./presets";
 import { cloneDeep, isEqual } from "lodash";
@@ -60,6 +64,14 @@ function uuid(): string {
 	});
 }
 
+function isSimpleTimer(machine: StateAndOptions): machine is SimpleStateAndOptions {
+	return machine.type === "simple";
+}
+
+function isStandardTimer(machine: StateAndOptions): machine is StandardStateAndOptions {
+	return machine.type === "standard";
+}
+
 const clientId = uuid();
 
 function roundPrecision(num: number, decimalPlaces: number) {
@@ -95,7 +107,7 @@ class TimeToCurl {
 	private socket: SocketIOClient.Socket;
 	private requests: { [key: string]: any };
 	private requestResolvers: { [key: string]: (value?: any | PromiseLike<any>) => void };
-	private machines: IMap<CurlingMachineUI>;
+	private machines: IMap<TimerUIBase>;
 	private machineOrder: IMap<number>;
 	private currentTheme: string;
 	private speedyClocks: boolean = false;
@@ -148,7 +160,7 @@ class TimeToCurl {
 
 	private async loadTimers(ids: string[]) {
 		for (const timerId of ids) {
-			const timer = await this.emitAction<{ timerId: string }, StateAndOptions>(
+			const timer = await this.emitAction<{ timerId: string }, StandardStateAndOptions>(
 				<SocketAction<{ timerId: string }>>{
 					request: "GET_TIMER",
 					options: { timerId },
@@ -212,7 +224,7 @@ class TimeToCurl {
 			this.nextSimpleTimerOptions = JSON.parse(simpleTimerOptions);
 		}
 		if (timerType) {
-			this.nextTimerType = Number(timerType);
+			this.nextTimerType = timerType;
 		}
 		if (theme) {
 			themeSelect.value = theme;
@@ -382,6 +394,24 @@ class TimeToCurl {
 		);
 		const numEndsSimple = this.simpleInput("Number of ends", "numEnds", simpleOptions.numEnds);
 
+		const showPacing = document.createElement("div");
+		showPacing.classList.add("simple-input");
+		const showPacingLabel = document.createElement("label");
+		showPacingLabel.textContent = "Display recommended pacing";
+		showPacingLabel.classList.add("simple-input-label");
+		showPacingLabel.setAttribute("for", "showPacingCheckbox");
+		const showPacingCheckbox = document.createElement("input");
+		showPacingCheckbox.setAttribute("id", "showPacingCheckbox");
+		showPacingCheckbox.setAttribute("type", "checkbox");
+		showPacingCheckbox.setAttribute("value", "true");
+		showPacingCheckbox.checked = simpleOptions.showPacing;
+		showPacingCheckbox.classList.add("simple-input-field");
+		const previewDummy = document.createElement("div");
+		previewDummy.classList.add("input-value-preview");
+		showPacing.appendChild(showPacingLabel);
+		showPacing.appendChild(showPacingCheckbox);
+		showPacing.appendChild(previewDummy);
+
 		const simpleContainer = document.createElement("div");
 		simpleContainer.classList.add("custom-settings-fields-container", "simple-settings", "irrelevant");
 		simpleContainer.appendChild(totalTime);
@@ -389,6 +419,7 @@ class TimeToCurl {
 		simpleContainer.appendChild(endTime);
 		simpleContainer.appendChild(additionalEnds);
 		simpleContainer.appendChild(numEndsSimple);
+		simpleContainer.appendChild(showPacing);
 
 		const onTimerTypeChanged = () => {
 			const result = this.getRadioValue(simpleRadioInput, standardRadioInput);
@@ -419,6 +450,11 @@ class TimeToCurl {
 		const prevStandardSettings = cloneDeep(standardOptions);
 		const prevSimpleSettings = cloneDeep(simpleOptions);
 		const prevTimerType = this.nextTimerType;
+		showPacingCheckbox.addEventListener("change", () => {
+			simpleOptions.showPacing = showPacingCheckbox.checked;
+			this.evaluatePresetDropdown();
+			this.saveTimerOptions();
+		});
 		allOptionsContainer.addEventListener(
 			"input",
 			() => {
@@ -517,11 +553,17 @@ class TimeToCurl {
 			this.restoreSettingsFromStorage();
 
 			document.getElementById("createTimer")!.addEventListener("click", async () => {
-				const response = await this.emitAction<Partial<StandardTimerOptions>, StateAndOptions>(
+				const response = await this.emitAction<Partial<StandardTimerOptions>, StandardStateAndOptions>(
 					<SocketAction<Partial<StandardTimerOptions>>>{
 						request: "CREATE_TIMER",
 						clientId: clientId,
-						options: { ...this.nextStandardTimerOptions, lengthOfSecond: this.speedyClocks ? 100 : 1000 },
+						options: {
+							...this.nextTimerType === TimerType.Simple
+								? this.nextSimpleTimerOptions
+								: this.nextStandardTimerOptions,
+							lengthOfSecond: this.speedyClocks ? 100 : 1000,
+							type: this.nextTimerType,
+						},
 					},
 				);
 				this.addCurlingMachine(response.data).scrollIntoView();
@@ -593,7 +635,12 @@ class TimeToCurl {
 	}
 
 	private addCurlingMachine(cm: StateAndOptions) {
-		this.machines[cm.state.id] = new CurlingMachineUI(cm, document.getElementById("timersContainer")!, this);
+		if (isSimpleTimer(cm)) {
+			this.machines[cm.state.id] = new SimpleTimerUI(cm, document.getElementById("timersContainer")!, this);
+		} else if (isStandardTimer(cm)) {
+			this.machines[cm.state.id] = new CurlingMachineUI(cm, document.getElementById("timersContainer")!, this);
+		}
+		this.machines[cm.state.id].initUI();
 		const displayedTimers = getDisplayedTimers();
 		if (displayedTimers.indexOf(cm.state.id) === -1) {
 			displayedTimers.push(cm.state.id);
@@ -603,55 +650,259 @@ class TimeToCurl {
 	}
 }
 
-class CurlingMachineUI {
-	private addTimeoutButtons: IMap<HTMLButtonElement>;
-	private betweenEndTimeText: HTMLElement;
-	private debugElement: HTMLElement;
-	private designationToTeam: IMap<string>;
-	private elements: IMap<Element[]>;
-	private elapsedThinkingTime: IMap<HTMLElement>;
-	private elapsedThinkingTimeContainer: HTMLElement;
-	private lengthOfSecond = 1000;
-	private options: StandardTimerOptions;
-	private rootTimerElement: HTMLElement;
-	private runningTimers: Stopwatch[];
-	private spacer: HTMLElement;
-	private spacerCenter: HTMLElement;
-	private spacerLeft: HTMLElement;
-	private spacerRight: HTMLElement;
-	private state: CurlingMachineState;
-	private subtractTimeoutButtons: IMap<HTMLButtonElement>;
-	private teamsToDesignation: IMap<string>;
-	private technicalInfo: HTMLElement;
-	private technicalTimeoutTime: HTMLElement;
-	private technicalTimeoutTitle: HTMLElement;
-	private thinkingButtons: IMap<HTMLButtonElement>;
-	private thinkingTimeText: IMap<HTMLElement>;
-	private timeControls: IMap<HTMLElement[]>;
-	private timeoutsRemainingContainerElement: HTMLElement;
-	private timeoutsRemainingText: IMap<HTMLElement>;
-	private timeoutTimeText: HTMLElement;
-	private timerContainerElement: HTMLElement;
-	private titleElement: HTMLElement;
-	private travelTimeCancelButton: HTMLButtonElement;
-	private travelTimeContainer: HTMLElement;
-	private travelTimeValue: HTMLElement;
-	private warmupTimeText: HTMLElement;
+abstract class TimerUIBase<
+	TState extends BaseTimerState = BaseTimerState,
+	TOptions extends TimerOptions = TimerOptions
+> {
+	protected elements: IMap<Element[]>;
+	protected lengthOfSecond: number;
+	protected options: TOptions;
+	protected rootTimerElement: HTMLElement;
+	protected runningTimers: Stopwatch[];
+	protected state: TState;
+	protected timerContainerElement: HTMLElement;
+	protected titleElement: HTMLElement;
 
-	constructor(initParams: StateAndOptions, private container: Element, private application: TimeToCurl) {
+	constructor(
+		initParams: StateAndOptions<TState, TOptions>,
+		protected container: Element,
+		protected application: TimeToCurl,
+	) {
+		this.elements = {};
+		this.state = initParams.state;
+		this.options = initParams.options;
+		this.runningTimers = [];
+		if (initParams.options.lengthOfSecond) {
+			this.lengthOfSecond = initParams.options.lengthOfSecond;
+		}
+	}
+
+	public abstract initUI(): void;
+
+	public abstract setNewState(state: TState): void;
+
+	protected abstract initElements(template: Element): void;
+
+	public scrollIntoView() {
+		this.timerContainerElement.scrollIntoView({
+			behavior: "smooth",
+			block: "start",
+		});
+	}
+
+	protected clearTimers() {
+		if (this.runningTimers) {
+			this.runningTimers.forEach(t => t.dispose());
+			this.runningTimers = [];
+		}
+	}
+
+	protected async sendCommand(command: String, data?: any) {
+		const result = await this.application.emitAction<{}, string>({
+			request: "QUERY_TIMER",
+			clientId: clientId,
+			options: {
+				command: command,
+				data: JSON.stringify(data),
+				timerId: this.state.id,
+			},
+		});
+	}
+
+	protected forEachAction(callback: (elem: HTMLButtonElement, action: string) => void) {
+		for (const action in this.elements) {
+			for (const elem of this.elements[action]) {
+				const actionAttr = (elem as HTMLElement).dataset["action"];
+				if (elem.tagName.toLowerCase() === "button" && actionAttr) {
+					callback.call(null, elem, actionAttr);
+				}
+			}
+		}
+	}
+
+	protected forEachCommand(callback: (elem: HTMLButtonElement, command: string, team: string | null) => void) {
+		for (const commandKey in this.elements) {
+			const splitCommand = commandKey.split(":");
+			let command = commandKey;
+			let team: string | null = null;
+			if (splitCommand.length === 2) {
+				team = splitCommand[0];
+				command = splitCommand[1];
+			}
+			for (const elem of this.elements[commandKey]) {
+				const commandAttr = (elem as HTMLElement).dataset["command"];
+				if (elem.tagName.toLowerCase() === "button" && commandAttr) {
+					callback.call(null, elem, commandAttr, team);
+				}
+			}
+		}
+	}
+
+	protected populateElements(elem: Element, teamContext: string | null = null) {
+		let key = "";
+		const elemData = (elem as HTMLElement).dataset["key"] || (elem as HTMLElement).dataset["action"];
+		if (elemData) {
+			key = elemData;
+		} else {
+			const nonTeamClasses = Array.prototype.filter.call(
+				elem.classList,
+				(c: string) => c.substr(0, 5) !== "team",
+			);
+			if (nonTeamClasses.length === 1) {
+				key = nonTeamClasses[0];
+			}
+		}
+
+		let foundTeamContext = teamContext;
+		if (foundTeamContext === null) {
+			const testForTeamInClassname = /team-([a-z]+)\b/i.exec(elem.className);
+			if (testForTeamInClassname && testForTeamInClassname[1]) {
+				foundTeamContext = testForTeamInClassname[1];
+			}
+		}
+
+		const teamPrefix = foundTeamContext === null ? "" : foundTeamContext + ":";
+		key = teamPrefix + key;
+
+		if (!this.elements[key]) {
+			this.elements[key] = [];
+		}
+		this.elements[key].push(elem);
+
+		if (elem.children) {
+			for (let i = 0; i < elem.children.length; ++i) {
+				this.populateElements(elem.children.item(i), foundTeamContext);
+			}
+		}
+	}
+}
+
+class SimpleTimerUI extends TimerUIBase<SimpleTimerState, SimpleTimerOptions> {
+	protected addMinuteButton: HTMLButtonElement;
+	protected addSecondButton: HTMLButtonElement;
+	protected debugElement: HTMLElement;
+	protected pacingElement: HTMLElement;
+	protected pauseButton: HTMLButtonElement;
+	protected remainingTime: HTMLElement;
+	protected startButton: HTMLButtonElement;
+
+	constructor(initParams: SimpleStateAndOptions, protected container: Element, protected application: TimeToCurl) {
+		super(initParams, container, application);
+	}
+
+	public initUI() {
+		const template = document.getElementById("simpleTimerTemplate")!.children!.item(0);
+		const newUI = template.cloneNode(true) as Element;
+		this.initElements(newUI);
+
+		this.forEachCommand((elem: HTMLButtonElement, command: string, team: string | null) => {
+			elem.addEventListener("click", () => {
+				const data = JSON.parse(elem.dataset["data"] || "{}");
+				this.sendCommand(command, data);
+			});
+		});
+
+		this.setNewState(this.state);
+		this.container.appendChild(newUI);
+	}
+
+	public setNewState(state: SimpleTimerState): void {
+		this.debugElement.textContent = JSON.stringify(state, null, 4);
+		this.state = state;
+		this.clearTimers();
+
+		const mainTimer = new TimeMinder(this.state.timeRemaining * this.lengthOfSecond);
+		mainTimer.every(
+			this.lengthOfSecond / 10,
+			() => {
+				const timeRemaining = mainTimer.getTimeRemaining() / this.lengthOfSecond;
+				setTimeToElem(this.remainingTime, mainTimer.getTimeRemaining() / this.lengthOfSecond);
+
+				this.timerContainerElement.classList.remove("warning");
+				this.timerContainerElement.classList.remove("no-more-ends");
+				if (timeRemaining <= this.options.noMoreEndsTime) {
+					this.timerContainerElement.classList.add("no-more-ends");
+				} else if (timeRemaining <= this.options.warningTime) {
+					this.timerContainerElement.classList.add("warning");
+				}
+			},
+			false,
+		);
+		this.runningTimers.push(mainTimer);
+		if (this.state.timerIsRunning) {
+			mainTimer.start();
+			this.pauseButton.classList.remove("irrelevant");
+			this.startButton.classList.add("irrelevant");
+		} else {
+			this.pauseButton.classList.add("irrelevant");
+			this.startButton.classList.remove("irrelevant");
+		}
+	}
+
+	protected initElements(template: Element): void {
+		this.populateElements(template);
+		if (this.elements["debug"] && this.elements["debug"][0]) {
+			this.debugElement = this.elements["debug"][0] as HTMLElement;
+		}
+		if (this.elements["timer"] && this.elements["timer"][0]) {
+			this.rootTimerElement = this.elements["timer"][0] as HTMLElement;
+		}
+		if (this.elements["timer-container"] && this.elements["timer-container"][0]) {
+			this.timerContainerElement = this.elements["timer-container"][0] as HTMLElement;
+		}
+		if (this.elements["start-timer"] && this.elements["start-timer"][0]) {
+			this.startButton = this.elements["start-timer"][0] as HTMLButtonElement;
+		}
+		if (this.elements["pause-timer"] && this.elements["pause-timer"][0]) {
+			this.pauseButton = this.elements["pause-timer"][0] as HTMLButtonElement;
+		}
+		if (this.elements["timer-title"] && this.elements["timer-title"][0]) {
+			this.titleElement = this.elements["timer-title"][0] as HTMLElement;
+		}
+		if (this.elements["remaining-time"] && this.elements["remaining-time"][0]) {
+			this.remainingTime = this.elements["remaining-time"][0] as HTMLElement;
+		}
+	}
+}
+
+class CurlingMachineUI extends TimerUIBase<CurlingMachineState, StandardTimerOptions> {
+	protected addTimeoutButtons: IMap<HTMLButtonElement>;
+	protected betweenEndTimeText: HTMLElement;
+	protected debugElement: HTMLElement;
+	protected designationToTeam: IMap<string>;
+	protected elapsedThinkingTime: IMap<HTMLElement>;
+	protected elapsedThinkingTimeContainer: HTMLElement;
+	protected spacer: HTMLElement;
+	protected spacerCenter: HTMLElement;
+	protected spacerLeft: HTMLElement;
+	protected spacerRight: HTMLElement;
+	protected subtractTimeoutButtons: IMap<HTMLButtonElement>;
+	protected teamsToDesignation: IMap<string>;
+	protected technicalInfo: HTMLElement;
+	protected technicalTimeoutTime: HTMLElement;
+	protected technicalTimeoutTitle: HTMLElement;
+	protected thinkingButtons: IMap<HTMLButtonElement>;
+	protected thinkingTimeText: IMap<HTMLElement>;
+	protected timeControls: IMap<HTMLElement[]>;
+	protected timeoutsRemainingContainerElement: HTMLElement;
+	protected timeoutsRemainingText: IMap<HTMLElement>;
+	protected timeoutTimeText: HTMLElement;
+	protected travelTimeCancelButton: HTMLButtonElement;
+	protected travelTimeContainer: HTMLElement;
+	protected travelTimeValue: HTMLElement;
+	protected warmupTimeText: HTMLElement;
+
+	constructor(initParams: StandardStateAndOptions, protected container: Element, protected application: TimeToCurl) {
+		super(initParams, container, application);
 		this.addTimeoutButtons = {};
 		this.designationToTeam = {};
-		this.elements = {};
 		this.elapsedThinkingTime = {};
-		this.runningTimers = [];
 		this.teamsToDesignation = {};
 		this.thinkingButtons = {};
 		this.thinkingTimeText = {};
 		this.timeControls = {};
 		this.timeoutsRemainingText = {};
-		this.state = initParams.state;
 		this.subtractTimeoutButtons = {};
-		this.options = initParams.options;
 		if (initParams.options.lengthOfSecond) {
 			this.lengthOfSecond = initParams.options.lengthOfSecond;
 		}
@@ -663,15 +914,6 @@ class CurlingMachineUI {
 			this.teamsToDesignation[team] = designation;
 			this.designationToTeam[designation] = team;
 		}
-
-		this.initUI();
-	}
-
-	public scrollIntoView() {
-		this.timerContainerElement.scrollIntoView({
-			behavior: "smooth",
-			block: "start",
-		});
 	}
 
 	public initUI() {
@@ -720,9 +962,8 @@ class CurlingMachineUI {
 		});
 
 		this.travelTimeCancelButton.addEventListener("click", () => {
-			const travelTime = (this.state.end || 0) % 2 === 0
-				? this.options.travelTime["away"]
-				: this.options.travelTime["home"];
+			const travelTime =
+				(this.state.end || 0) % 2 === 0 ? this.options.travelTime["away"] : this.options.travelTime["home"];
 			if (this.travelTimeCancelButton.textContent === "Undo") {
 				this.travelTimeCancelButton.textContent = "No coach";
 				this.travelTimeCancelButton.dataset["data"] = JSON.stringify({ value: -1 * travelTime });
@@ -902,9 +1143,8 @@ class CurlingMachineUI {
 
 		if (this.state.phase === "timeout") {
 			this.elements["timeout-time-container"][0].classList.remove("irrelevant");
-			const scheduledTravelTime = (this.state.end || 0) % 2 === 0
-				? this.options.travelTime["away"]
-				: this.options.travelTime["home"];
+			const scheduledTravelTime =
+				(this.state.end || 0) % 2 === 0 ? this.options.travelTime["away"] : this.options.travelTime["home"];
 
 			// timeoutTimeRemaining includes travel time
 			const travelTime = Math.max(0, this.state.timeoutTimeRemaining - this.options.timeoutTime);
@@ -1009,42 +1249,6 @@ class CurlingMachineUI {
 		this.rootTimerElement.classList.add(this.rootTimerElement.dataset["phase"]!);
 	}
 
-	private forEachAction(callback: (elem: HTMLButtonElement, action: string) => void) {
-		for (const action in this.elements) {
-			for (const elem of this.elements[action]) {
-				const actionAttr = (elem as HTMLElement).dataset["action"];
-				if (elem.tagName.toLowerCase() === "button" && actionAttr) {
-					callback.call(null, elem, actionAttr);
-				}
-			}
-		}
-	}
-
-	private forEachCommand(callback: (elem: HTMLButtonElement, command: string, team: string | null) => void) {
-		for (const commandKey in this.elements) {
-			const splitCommand = commandKey.split(":");
-			let command = commandKey;
-			let team: string | null = null;
-			if (splitCommand.length === 2) {
-				team = splitCommand[0];
-				command = splitCommand[1];
-			}
-			for (const elem of this.elements[commandKey]) {
-				const commandAttr = (elem as HTMLElement).dataset["command"];
-				if (elem.tagName.toLowerCase() === "button" && commandAttr) {
-					callback.call(null, elem, commandAttr, team);
-				}
-			}
-		}
-	}
-
-	private clearTimers() {
-		if (this.runningTimers) {
-			this.runningTimers.forEach(t => t.dispose());
-			this.runningTimers = [];
-		}
-	}
-
 	private async sendPhaseTransition(transition: string, data?: any) {
 		const result = await this.application.emitAction<{}, string>({
 			request: "QUERY_TIMER",
@@ -1060,18 +1264,6 @@ class CurlingMachineUI {
 		}
 	}
 
-	private async sendCommand(command: String, data?: any) {
-		const result = await this.application.emitAction<{}, string>({
-			request: "QUERY_TIMER",
-			clientId: clientId,
-			options: {
-				command: command,
-				data: JSON.stringify(data),
-				timerId: this.state.id,
-			},
-		});
-	}
-
 	private async sendNewState(state: Partial<CurlingMachineState>) {
 		const result = await this.application.emitAction<{}, string>({
 			request: "QUERY_TIMER",
@@ -1083,8 +1275,8 @@ class CurlingMachineUI {
 		});
 	}
 
-	private initElements(elem: Element) {
-		this.populateElements(elem);
+	protected initElements(template: Element) {
+		this.populateElements(template);
 
 		// UI that is one-per-team
 		for (const teamId of this.options.teams) {
@@ -1181,52 +1373,17 @@ class CurlingMachineUI {
 			this.travelTimeValue = this.elements["travel-time-value"][0] as HTMLElement;
 		}
 	}
-
-	private populateElements(elem: Element, teamContext: string | null = null) {
-		let key = "";
-		const elemData = (elem as HTMLElement).dataset["key"] || (elem as HTMLElement).dataset["action"];
-		if (elemData) {
-			key = elemData;
-		} else {
-			const nonTeamClasses = Array.prototype.filter.call(
-				elem.classList,
-				(c: string) => c.substr(0, 5) !== "team",
-			);
-			if (nonTeamClasses.length === 1) {
-				key = nonTeamClasses[0];
-			}
-		}
-
-		let foundTeamContext = teamContext;
-		if (foundTeamContext === null) {
-			const testForTeamInClassname = /team-([a-z]+)\b/i.exec(elem.className);
-			if (testForTeamInClassname && testForTeamInClassname[1]) {
-				foundTeamContext = testForTeamInClassname[1];
-			}
-		}
-
-		let teamPrefix = foundTeamContext === null ? "" : foundTeamContext + ":";
-		key = teamPrefix + key;
-
-		if (!this.elements[key]) {
-			this.elements[key] = [];
-		}
-		this.elements[key].push(elem);
-
-		if (elem.children) {
-			for (let i = 0; i < elem.children.length; ++i) {
-				this.populateElements(elem.children.item(i), foundTeamContext);
-			}
-		}
-	}
 }
 
 function secondsToStr(seconds: number) {
 	const clampedSeconds = Math.max(0, seconds);
-	const m = Math.floor(clampedSeconds / 60);
-	const s = roundPrecision(clampedSeconds, 0) % 60;
+	const h = Math.floor(clampedSeconds / 3600);
+	const m = Math.floor((clampedSeconds - 3600 * h) / 60);
+	const s = roundPrecision(clampedSeconds - h * 3600 - m * 60, 0);
 	const slz = s < 10 ? "0" + String(s) : String(s);
-	return `${m}:${slz}`;
+	const mlz = h > 0 && m < 10 ? "0" + String(m) : String(m);
+	const hwcolon = h > 0 ? String(h) + ":" : "";
+	return `${hwcolon}${mlz}:${slz}`;
 }
 
 function strToSeconds(str: string) {

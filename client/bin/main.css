@@ -17,7 +17,8 @@ body {
   body.scroll-disabled {
     overflow: hidden !important; }
 
-button, label {
+button,
+label {
   cursor: pointer; }
 
 button {
@@ -42,12 +43,12 @@ header {
       color: #333;
       text-decoration: none; }
   header .timer-name {
-    width: 180px;
+    width: 190px;
     margin-right: 6px;
     height: 28px;
     font-size: 22px; }
   header .timer-presets {
-    width: 180px;
+    width: 190px;
     margin-right: 6px;
     height: 28px;
     font-size: 18px; }
@@ -98,7 +99,7 @@ main {
 #timersContainer {
   height: 100%; }
 
-#timerTemplate {
+#templates {
   display: none; }
 
 body.classic .irrelevant:not(.placeholder):not(.travel-time-container) {
@@ -107,33 +108,99 @@ body.classic .irrelevant:not(.placeholder):not(.travel-time-container) {
 body.classic .irrelevant.placeholder {
   visibility: hidden !important; }
 
-body.classic .timer {
+body.classic .timer.simple-timer {
+  width: 100%;
+  height: 100vh; }
+  body.classic .timer.simple-timer .timer-container {
+    width: 100%;
+    height: 100%;
+    background-color: #61ff67;
+    color: #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; }
+    body.classic .timer.simple-timer .timer-container button {
+      font-size: 2vmin; }
+      body.classic .timer.simple-timer .timer-container button:hover, body.classic .timer.simple-timer .timer-container button:active {
+        background-color: rgba(0, 0, 0, 0.15); }
+    body.classic .timer.simple-timer .timer-container.warning {
+      background-color: #ffee58;
+      color: #000; }
+      body.classic .timer.simple-timer .timer-container.warning button:hover,
+      body.classic .timer.simple-timer .timer-container.warning button:active {
+        background-color: rgba(0, 0, 0, 0.15); }
+      body.classic .timer.simple-timer .timer-container.warning .controls button {
+        border: 1px solid #000; }
+    body.classic .timer.simple-timer .timer-container.no-more-ends {
+      background-color: #c62828;
+      color: #fff; }
+      body.classic .timer.simple-timer .timer-container.no-more-ends button:hover,
+      body.classic .timer.simple-timer .timer-container.no-more-ends button:active {
+        background-color: rgba(255, 255, 255, 0.15); }
+      body.classic .timer.simple-timer .timer-container.no-more-ends .controls button {
+        border: 1px solid #fff; }
+    body.classic .timer.simple-timer .timer-container .controls {
+      position: absolute;
+      top: 10vh;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center; }
+      body.classic .timer.simple-timer .timer-container .controls button {
+        border: 1px solid #000;
+        width: 10vw;
+        height: 4vh; }
+    body.classic .timer.simple-timer .timer-container .time-display {
+      display: flex;
+      font-size: 34vmin;
+      font-weight: bold;
+      justify-content: center;
+      align-items: center; }
+      body.classic .timer.simple-timer .timer-container .time-display .time-controls {
+        font-size: 6vmin;
+        display: flex;
+        flex-direction: column; }
+        body.classic .timer.simple-timer .timer-container .time-display .time-controls button {
+          width: 4vw;
+          height: 4vh; }
+  body.classic .timer.simple-timer .debug {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background-color: rgba(248, 248, 248, 0.7);
+    z-index: 5;
+    transition: all 0.4s; }
+    body.classic .timer.simple-timer .debug.hidden {
+      bottom: -25%;
+      opacity: 0; }
+
+body.classic .timer.standard-timer {
   position: relative;
   width: 100%;
   height: 100%; }
-  body.classic .timer.pregame .thinking-time-container {
+  body.classic .timer.standard-timer.pregame .thinking-time-container {
     display: none; }
-  body.classic .timer :disabled {
+  body.classic .timer.standard-timer :disabled {
     opacity: 0.4; }
-  body.classic .timer .timer-container {
+  body.classic .timer.standard-timer .timer-container {
     height: 100%;
     position: relative; }
-  body.classic .timer .time-value {
+  body.classic .timer.standard-timer .time-value {
     font-weight: bold; }
-    body.classic .timer .time-value .char {
+    body.classic .timer.standard-timer .time-value .char {
       width: 11vmin;
       text-align: center; }
-      body.classic .timer .time-value .char.digit {
+      body.classic .timer.standard-timer .time-value .char.digit {
         width: 18vmin; }
-    body.classic .timer .time-value.running {
+    body.classic .timer.standard-timer .time-value.running {
       text-decoration: underline; }
-  body.classic .timer .timer-title {
+  body.classic .timer.standard-timer .timer-title {
     margin-left: 10px;
     font-size: 22px; }
-    body.classic .timer .timer-title:hover {
+    body.classic .timer.standard-timer .timer-title:hover {
       color: #1565c0;
       cursor: pointer; }
-  body.classic .timer .overlay-time-container {
+  body.classic .timer.standard-timer .overlay-time-container {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -141,7 +208,7 @@ body.classic .timer {
     top: 0;
     background-color: #c0c0c0;
     z-index: 2; }
-    body.classic .timer .overlay-time-container > .time-value {
+    body.classic .timer.standard-timer .overlay-time-container > .time-value {
       position: absolute;
       width: 75%;
       height: 40%;
@@ -153,7 +220,7 @@ body.classic .timer {
       display: flex;
       align-items: center;
       justify-content: center; }
-    body.classic .timer .overlay-time-container .cancel-timer-button {
+    body.classic .timer.standard-timer .overlay-time-container .cancel-timer-button {
       position: absolute;
       width: 120px;
       height: 40px;
@@ -162,13 +229,13 @@ body.classic .timer {
       background: linear-gradient(to bottom, #e0e0e0 0%, #b0afc2 100%);
       border-radius: 2px;
       top: 92%; }
-      body.classic .timer .overlay-time-container .cancel-timer-button:hover {
+      body.classic .timer.standard-timer .overlay-time-container .cancel-timer-button:hover {
         background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%); }
-    body.classic .timer .overlay-time-container h2 {
+    body.classic .timer.standard-timer .overlay-time-container h2 {
       text-align: center;
       margin-top: 6%;
       font-size: 32px; }
-    body.classic .timer .overlay-time-container .travel-time-container {
+    body.classic .timer.standard-timer .overlay-time-container .travel-time-container {
       position: absolute;
       width: 25vw;
       height: 6vh;
@@ -183,9 +250,9 @@ body.classic .timer {
       padding-top: 0.5vh;
       padding-bottom: 0.5vh;
       flex-wrap: wrap; }
-      body.classic .timer .overlay-time-container .travel-time-container .travel-time-label {
+      body.classic .timer.standard-timer .overlay-time-container .travel-time-container .travel-time-label {
         margin-right: 1.5vw; }
-      body.classic .timer .overlay-time-container .travel-time-container button.travel-time-cancel {
+      body.classic .timer.standard-timer .overlay-time-container .travel-time-container button.travel-time-cancel {
         flex-basis: 100%;
         border: 2px solid #1b4f7f;
         background: linear-gradient(to bottom, #e0e0e0 0%, #b0afc2 100%);
@@ -193,44 +260,44 @@ body.classic .timer {
         max-width: 10vw;
         height: 2vh;
         font-size: 1.6vmin; }
-        body.classic .timer .overlay-time-container .travel-time-container button.travel-time-cancel:hover:not(:disabled) {
+        body.classic .timer.standard-timer .overlay-time-container .travel-time-container button.travel-time-cancel:hover:not(:disabled) {
           background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%); }
-      body.classic .timer .overlay-time-container .travel-time-container.irrelevant {
+      body.classic .timer.standard-timer .overlay-time-container .travel-time-container.irrelevant {
         transition: opacity 3s ease-in 0.5s;
         display: flex !important;
         opacity: 0;
         pointer-events: all; }
-  body.classic .timer .timer-container {
+  body.classic .timer.standard-timer .timer-container {
     display: flex; }
-  body.classic .timer .elapsed-thinking-time-container {
+  body.classic .timer.standard-timer .elapsed-thinking-time-container {
     position: absolute;
     width: 100%;
     height: 100%;
     pointer-events: none; }
-    body.classic .timer .elapsed-thinking-time-container h2 {
+    body.classic .timer.standard-timer .elapsed-thinking-time-container h2 {
       display: none; }
-    body.classic .timer .elapsed-thinking-time-container .elapsed-thinking-time {
+    body.classic .timer.standard-timer .elapsed-thinking-time-container .elapsed-thinking-time {
       position: absolute;
       right: 2vw;
       opacity: 0.5;
       font-size: 1.5vmin; }
-      body.classic .timer .elapsed-thinking-time-container .elapsed-thinking-time.running {
+      body.classic .timer.standard-timer .elapsed-thinking-time-container .elapsed-thinking-time.running {
         opacity: 1;
         font-size: 2.4vmin;
         text-decoration: none; }
-      body.classic .timer .elapsed-thinking-time-container .elapsed-thinking-time.team-A {
+      body.classic .timer.standard-timer .elapsed-thinking-time-container .elapsed-thinking-time.team-A {
         top: 44vh;
         color: #fff; }
-      body.classic .timer .elapsed-thinking-time-container .elapsed-thinking-time.team-B {
+      body.classic .timer.standard-timer .elapsed-thinking-time-container .elapsed-thinking-time.team-B {
         top: 96vh; }
-  body.classic .timer .timeouts-remaining-container {
+  body.classic .timer.standard-timer .timeouts-remaining-container {
     position: absolute;
     width: 100%;
     height: 100%;
     pointer-events: none; }
-    body.classic .timer .timeouts-remaining-container h2 {
+    body.classic .timer.standard-timer .timeouts-remaining-container h2 {
       display: none; }
-    body.classic .timer .timeouts-remaining-container .timeouts-remaining {
+    body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining {
       position: absolute;
       width: 15vmin;
       height: 7vmin;
@@ -240,47 +307,52 @@ body.classic .timer {
       font-size: 2.5vmin;
       font-weight: bold;
       pointer-events: all; }
-      body.classic .timer .timeouts-remaining-container .timeouts-remaining.team-A {
+      body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-A {
         border: 2px solid #fff;
         color: #fff;
         top: 4%; }
-        body.classic .timer .timeouts-remaining-container .timeouts-remaining.team-A .add-timeout, body.classic .timer .timeouts-remaining-container .timeouts-remaining.team-A .subtract-timeout {
+        body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-A .add-timeout,
+        body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-A .subtract-timeout {
           color: #fff; }
-          body.classic .timer .timeouts-remaining-container .timeouts-remaining.team-A .add-timeout:hover, body.classic .timer .timeouts-remaining-container .timeouts-remaining.team-A .subtract-timeout:hover {
+          body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-A .add-timeout:hover,
+          body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-A .subtract-timeout:hover {
             background-color: rgba(255, 255, 255, 0.3); }
-      body.classic .timer .timeouts-remaining-container .timeouts-remaining.team-B {
+      body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-B {
         border: 2px solid #000;
         color: #000;
         top: 56%; }
-        body.classic .timer .timeouts-remaining-container .timeouts-remaining.team-B .add-timeout, body.classic .timer .timeouts-remaining-container .timeouts-remaining.team-B .subtract-timeout {
+        body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-B .add-timeout,
+        body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-B .subtract-timeout {
           color: #000; }
-          body.classic .timer .timeouts-remaining-container .timeouts-remaining.team-B .add-timeout:hover, body.classic .timer .timeouts-remaining-container .timeouts-remaining.team-B .subtract-timeout:hover {
+          body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-B .add-timeout:hover,
+          body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-B .subtract-timeout:hover {
             background-color: rgba(0, 0, 0, 0.1); }
-      body.classic .timer .timeouts-remaining-container .timeouts-remaining::before {
+      body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining::before {
         content: "Timeouts";
         display: block; }
-      body.classic .timer .timeouts-remaining-container .timeouts-remaining .add-timeout, body.classic .timer .timeouts-remaining-container .timeouts-remaining .subtract-timeout {
+      body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining .add-timeout,
+      body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining .subtract-timeout {
         cursor: pointer;
         width: 1.5vmin;
         height: 1.5vmin;
         font-size: 1.4vmin;
         position: absolute;
         right: 0; }
-      body.classic .timer .timeouts-remaining-container .timeouts-remaining .add-timeout {
+      body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining .add-timeout {
         bottom: 1.2vh; }
-      body.classic .timer .timeouts-remaining-container .timeouts-remaining .subtract-timeout {
+      body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining .subtract-timeout {
         bottom: 0; }
-  body.classic .timer .thinking-time-container {
+  body.classic .timer.standard-timer .thinking-time-container {
     order: 5;
     width: 100%; }
-    body.classic .timer .thinking-time-container h2 {
+    body.classic .timer.standard-timer .thinking-time-container h2 {
       display: none; }
-    body.classic .timer .thinking-time-container .thinking-times {
+    body.classic .timer.standard-timer .thinking-time-container .thinking-times {
       height: 100%;
       display: flex;
       align-items: center;
       flex-direction: column; }
-      body.classic .timer .thinking-time-container .thinking-times .spacer {
+      body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer {
         height: 4vh;
         width: 100%;
         font-size: 2.5vmin;
@@ -288,65 +360,65 @@ body.classic .timer {
         display: flex;
         flex-direction: row;
         justify-content: space-between; }
-        body.classic .timer .thinking-time-container .thinking-times .spacer .left {
+        body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .left {
           text-align: left; }
-        body.classic .timer .thinking-time-container .thinking-times .spacer .center {
+        body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .center {
           flex-grow: 1;
           text-align: center; }
-          body.classic .timer .thinking-time-container .thinking-times .spacer .center .technical-info {
+          body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .center .technical-info {
             display: flex;
             flex-direction: column; }
-            body.classic .timer .thinking-time-container .thinking-times .spacer .center .technical-info.irrelevant {
+            body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .center .technical-info.irrelevant {
               transition: opacity 3s ease-in 0.5s;
               display: flex !important;
               opacity: 0;
               pointer-events: none; }
-            body.classic .timer .thinking-time-container .thinking-times .spacer .center .technical-info .technical-timeout-title {
+            body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .center .technical-info .technical-timeout-title {
               font-size: 2vmin;
               font-style: italic; }
-              body.classic .timer .thinking-time-container .thinking-times .spacer .center .technical-info .technical-timeout-title::before {
+              body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .center .technical-info .technical-timeout-title::before {
                 content: "Technical Timeout"; }
-            body.classic .timer .thinking-time-container .thinking-times .spacer .center .technical-info .technical-timeout-time {
+            body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .center .technical-info .technical-timeout-time {
               font-size: 3vmin;
               margin-top: -0.6vh; }
-        body.classic .timer .thinking-time-container .thinking-times .spacer .right {
+        body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .right {
           text-align: right; }
-      body.classic .timer .thinking-time-container .thinking-times .time-with-controls {
+      body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls {
         height: 48vh;
         width: 100%;
         display: flex;
         align-items: center;
         justify-content: center; }
-        body.classic .timer .thinking-time-container .thinking-times .time-with-controls.team-A {
+        body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls.team-A {
           color: #fff;
           background-color: #c00000; }
-          body.classic .timer .thinking-time-container .thinking-times .time-with-controls.team-A button.time-control-button:hover {
+          body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls.team-A button.time-control-button:hover {
             background-color: rgba(255, 255, 255, 0.3); }
-        body.classic .timer .thinking-time-container .thinking-times .time-with-controls.team-B {
+        body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls.team-B {
           background-color: #ffff00; }
-          body.classic .timer .thinking-time-container .thinking-times .time-with-controls.team-B button.time-control-button:hover {
+          body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls.team-B button.time-control-button:hover {
             background-color: rgba(0, 0, 0, 0.1); }
-        body.classic .timer .thinking-time-container .thinking-times .time-with-controls .thinking-time {
+        body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls .thinking-time {
           height: 100%;
           font-size: 34vmin;
           display: flex;
           align-items: center;
           justify-content: center;
           font-weight: bold; }
-        body.classic .timer .thinking-time-container .thinking-times .time-with-controls .time-controls {
+        body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls .time-controls {
           display: flex;
           flex-direction: column;
           justify-content: space-between;
           align-items: center;
           font-size: 3vmin;
           height: 8vmin; }
-          body.classic .timer .thinking-time-container .thinking-times .time-with-controls .time-controls .time-control-button {
+          body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls .time-controls .time-control-button {
             width: 2vw; }
-        body.classic .timer .thinking-time-container .thinking-times .time-with-controls .minute-controls {
+        body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls .minute-controls {
           margin-right: 1vw; }
-        body.classic .timer .thinking-time-container .thinking-times .time-with-controls .second-controls {
+        body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls .second-controls {
           margin-left: 1vw; }
-  body.classic .timer.between-ends .thinking-time-container, body.classic .timer.warm-up .thinking-time-container, body.classic .timer.timeout .thinking-time-container {
+  body.classic .timer.standard-timer.between-ends .thinking-time-container, body.classic .timer.standard-timer.warm-up .thinking-time-container, body.classic .timer.standard-timer.timeout .thinking-time-container {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -354,32 +426,32 @@ body.classic .timer {
     top: 0;
     z-index: 3;
     pointer-events: none; }
-    body.classic .timer.between-ends .thinking-time-container .spacer, body.classic .timer.warm-up .thinking-time-container .spacer, body.classic .timer.timeout .thinking-time-container .spacer {
+    body.classic .timer.standard-timer.between-ends .thinking-time-container .spacer, body.classic .timer.standard-timer.warm-up .thinking-time-container .spacer, body.classic .timer.standard-timer.timeout .thinking-time-container .spacer {
       display: none; }
-    body.classic .timer.between-ends .thinking-time-container .time-with-controls, body.classic .timer.warm-up .thinking-time-container .time-with-controls, body.classic .timer.timeout .thinking-time-container .time-with-controls {
+    body.classic .timer.standard-timer.between-ends .thinking-time-container .time-with-controls, body.classic .timer.standard-timer.warm-up .thinking-time-container .time-with-controls, body.classic .timer.standard-timer.timeout .thinking-time-container .time-with-controls {
       height: 20vh;
       pointer-events: all;
       position: absolute;
       width: 50%;
       left: 25%; }
-      body.classic .timer.between-ends .thinking-time-container .time-with-controls.team-A, body.classic .timer.warm-up .thinking-time-container .time-with-controls.team-A, body.classic .timer.timeout .thinking-time-container .time-with-controls.team-A {
+      body.classic .timer.standard-timer.between-ends .thinking-time-container .time-with-controls.team-A, body.classic .timer.standard-timer.warm-up .thinking-time-container .time-with-controls.team-A, body.classic .timer.standard-timer.timeout .thinking-time-container .time-with-controls.team-A {
         top: 9%; }
-      body.classic .timer.between-ends .thinking-time-container .time-with-controls.team-B, body.classic .timer.warm-up .thinking-time-container .time-with-controls.team-B, body.classic .timer.timeout .thinking-time-container .time-with-controls.team-B {
+      body.classic .timer.standard-timer.between-ends .thinking-time-container .time-with-controls.team-B, body.classic .timer.standard-timer.warm-up .thinking-time-container .time-with-controls.team-B, body.classic .timer.standard-timer.timeout .thinking-time-container .time-with-controls.team-B {
         top: 71%; }
-      body.classic .timer.between-ends .thinking-time-container .time-with-controls .thinking-time, body.classic .timer.warm-up .thinking-time-container .time-with-controls .thinking-time, body.classic .timer.timeout .thinking-time-container .time-with-controls .thinking-time {
+      body.classic .timer.standard-timer.between-ends .thinking-time-container .time-with-controls .thinking-time, body.classic .timer.standard-timer.warm-up .thinking-time-container .time-with-controls .thinking-time, body.classic .timer.standard-timer.timeout .thinking-time-container .time-with-controls .thinking-time {
         font-size: 18vmin;
         width: 87%; }
-  body.classic .timer .debug {
+  body.classic .timer.standard-timer .debug {
     position: fixed;
     bottom: 10px;
     right: 10px;
     background-color: rgba(248, 248, 248, 0.7);
     z-index: 5;
     transition: all 0.4s; }
-    body.classic .timer .debug.hidden {
+    body.classic .timer.standard-timer .debug.hidden {
       bottom: -25%;
       opacity: 0; }
-  body.classic .timer .controls {
+  body.classic .timer.standard-timer .controls {
     text-transform: capitalize;
     width: 100px;
     min-width: 100px;
@@ -388,95 +460,95 @@ body.classic .timer {
     display: flex;
     flex-direction: column;
     order: -1; }
-    body.classic .timer .controls button {
+    body.classic .timer.standard-timer .controls button {
       font-size: 16px;
       height: 10vh;
       border: 1px solid #666; }
-      body.classic .timer .controls button:hover {
+      body.classic .timer.standard-timer .controls button:hover {
         border-color: #f8b330; }
-        body.classic .timer .controls button:hover:disabled {
+        body.classic .timer.standard-timer .controls button:hover:disabled {
           border-color: #666;
           cursor: not-allowed; }
-    body.classic .timer .controls #game-start-warmup {
+    body.classic .timer.standard-timer .controls #game-start-warmup {
       position: absolute;
       top: 25%;
       left: calc(50% - 150px);
       height: 100px;
       width: 300px; }
-      body.classic .timer .controls #game-start-warmup:disabled {
+      body.classic .timer.standard-timer .controls #game-start-warmup:disabled {
         display: none; }
-    body.classic .timer .controls #game-start-no-warmup {
+    body.classic .timer.standard-timer .controls #game-start-no-warmup {
       position: absolute;
       height: 100px;
       width: 300px;
       top: calc(25% + 110px);
       left: calc(50% - 150px); }
-      body.classic .timer .controls #game-start-no-warmup:disabled {
+      body.classic .timer.standard-timer .controls #game-start-no-warmup:disabled {
         display: none; }
-    body.classic .timer .controls #yellow-begin-thinking {
+    body.classic .timer.standard-timer .controls #yellow-begin-thinking {
       order: 50;
       background: linear-gradient(to bottom, #fefebf 0%, #f0f0ab 100%); }
-      body.classic .timer .controls #yellow-begin-thinking:hover:not(:disabled) {
+      body.classic .timer.standard-timer .controls #yellow-begin-thinking:hover:not(:disabled) {
         background: linear-gradient(to bottom, #fefe00 0%, #f0f000 100%); }
-    body.classic .timer .controls #red-begin-thinking {
+    body.classic .timer.standard-timer .controls #red-begin-thinking {
       order: 20;
       background: linear-gradient(to bottom, #febfbf 0%, #f0b1ab 100%); }
-      body.classic .timer .controls #red-begin-thinking:hover:not(:disabled) {
+      body.classic .timer.standard-timer .controls #red-begin-thinking:hover:not(:disabled) {
         background: linear-gradient(to bottom, #fe7f7f 0%, #f0716b 100%); }
-    body.classic .timer .controls #end-red-thinking {
+    body.classic .timer.standard-timer .controls #end-red-thinking {
       order: 21;
       background: linear-gradient(to bottom, #febfbf 0%, #f0b1ab 100%); }
-      body.classic .timer .controls #end-red-thinking:hover:not(:disabled) {
+      body.classic .timer.standard-timer .controls #end-red-thinking:hover:not(:disabled) {
         background: linear-gradient(to bottom, #fe7f7f 0%, #f0716b 100%); }
-    body.classic .timer .controls #end-yellow-thinking {
+    body.classic .timer.standard-timer .controls #end-yellow-thinking {
       order: 51;
       background: linear-gradient(to bottom, #fefebf 0%, #f0f0ab 100%); }
-      body.classic .timer .controls #end-yellow-thinking:hover:not(:disabled) {
+      body.classic .timer.standard-timer .controls #end-yellow-thinking:hover:not(:disabled) {
         background: linear-gradient(to bottom, #fefe00 0%, #f0f000 100%); }
-    body.classic .timer .controls #end-end {
+    body.classic .timer.standard-timer .controls #end-end {
       order: 22;
       background: linear-gradient(to bottom, #bffebf 0%, #b2f0ab 100%); }
-      body.classic .timer .controls #end-end:hover:not(:disabled) {
+      body.classic .timer.standard-timer .controls #end-end:hover:not(:disabled) {
         background: linear-gradient(to bottom, #7ffe7f 0%, #71f06b 100%); }
-    body.classic .timer .controls #begin-timeout {
+    body.classic .timer.standard-timer .controls #begin-timeout {
       order: 23;
       background: linear-gradient(to bottom, #bfbffe 0%, #b2b2ea 100%);
       height: 5vh; }
-      body.classic .timer .controls #begin-timeout:hover:not(:disabled) {
+      body.classic .timer.standard-timer .controls #begin-timeout:hover:not(:disabled) {
         background: linear-gradient(to bottom, #7f7ffe 0%, #7171ea 100%); }
-    body.classic .timer .controls #technical {
+    body.classic .timer.standard-timer .controls #technical {
       order: 24;
       background: linear-gradient(to bottom, #bfbffe 0%, #b2b2ea 100%);
       height: 5vh; }
-      body.classic .timer .controls #technical:hover:not(:disabled) {
+      body.classic .timer.standard-timer .controls #technical:hover:not(:disabled) {
         background: linear-gradient(to bottom, #7f7ffe 0%, #7171ea 100%); }
-    body.classic .timer .controls #end-technical {
+    body.classic .timer.standard-timer .controls #end-technical {
       order: 24;
       background: linear-gradient(to bottom, #bfbffe 0%, #b2b2ea 100%);
       height: 5vh; }
-      body.classic .timer .controls #end-technical:hover:not(:disabled) {
+      body.classic .timer.standard-timer .controls #end-technical:hover:not(:disabled) {
         background: linear-gradient(to bottom, #7f7ffe 0%, #7171ea 100%); }
-      body.classic .timer .controls #end-technical:disabled {
+      body.classic .timer.standard-timer .controls #end-technical:disabled {
         display: none; }
-    body.classic .timer .controls #adjust-time {
+    body.classic .timer.standard-timer .controls #adjust-time {
       order: 70;
       background: linear-gradient(to bottom, #fefefe 0%, #efefe9 100%); }
-      body.classic .timer .controls #adjust-time:hover:not(:disabled) {
+      body.classic .timer.standard-timer .controls #adjust-time:hover:not(:disabled) {
         background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%); }
-    body.classic .timer .controls #begin-extra-end {
+    body.classic .timer.standard-timer .controls #begin-extra-end {
       order: 1;
       background: linear-gradient(to bottom, #fefefe 0%, #efefe9 100%); }
-      body.classic .timer .controls #begin-extra-end:hover:not(:disabled) {
+      body.classic .timer.standard-timer .controls #begin-extra-end:hover:not(:disabled) {
         background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%); }
-    body.classic .timer .controls #begin-midgame-break {
+    body.classic .timer.standard-timer .controls #begin-midgame-break {
       order: 25;
       background: linear-gradient(to bottom, #bffebf 0%, #b2f0ab 100%); }
-      body.classic .timer .controls #begin-midgame-break:hover:not(:disabled) {
+      body.classic .timer.standard-timer .controls #begin-midgame-break:hover:not(:disabled) {
         background: linear-gradient(to bottom, #7ffe7f 0%, #71f06b 100%); }
-    body.classic .timer .controls #reset {
+    body.classic .timer.standard-timer .controls #reset {
       order: 75;
       background: linear-gradient(to bottom, #fefefe 0%, #efefe9 100%); }
-      body.classic .timer .controls #reset:hover:not(:disabled) {
+      body.classic .timer.standard-timer .controls #reset:hover:not(:disabled) {
         background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%); }
 
 body.classic .confirm-dialog {

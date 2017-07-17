@@ -17,7 +17,71 @@ var defaultOptions = {
     travelTime: { home: 20, away: 40 },
     warmupTime: 9 * 60,
 };
+var defaultSimpleTimerOptions = {
+    lengthOfSecond: 1000,
+    numEnds: 8,
+    timerName: "",
+    allowableAdditionalEnds: 0,
+    noMoreEndsTime: 10 * 60,
+    showPacing: true,
+    totaltime: 120 * 60,
+    warningTime: 15 * 60,
+};
 var MACHINE_ID_SEED = Math.floor(Math.random() * 10000 + 10001);
+var SimpleTimerMachine = (function () {
+    function SimpleTimerMachine(options, onStateChange) {
+        this.options = Object.assign({}, defaultSimpleTimerOptions, options);
+        this.lengthOfSecond = this.options.lengthOfSecond;
+        this.id = String(CurlingMachine.nextMachineId++);
+        this.timer = new TimeMinder(this.options.totalTime * this.lengthOfSecond);
+        if (!this.options.timerName) {
+            this.options.timerName = "Simple Timer " + String(this.id);
+        }
+        this.onStateChange = onStateChange;
+        this.sockets = {};
+    }
+    SimpleTimerMachine.prototype.dispose = function () {
+        this.timer.dispose();
+    };
+    SimpleTimerMachine.prototype.registerSocket = function (clientId, socket) {
+        this.sockets[clientId] = socket;
+    };
+    SimpleTimerMachine.prototype.handleAction = function (action) {
+        var _this = this;
+        action.data = action.data || {};
+        if (action.command) {
+            var stateChanged = true;
+            switch (action.command) {
+                case "ADD_TIME":
+                    this.timer.setTimeRemaining(this.timer.getTimeRemaining() + parseInt(action.data.value, 10) * this.lengthOfSecond);
+                    break;
+                case "START_TIMER":
+                    this.timer.unpause();
+                    break;
+                case "PAUSE_TIMER":
+                    this.timer.pause();
+                    break;
+                default:
+                    stateChanged = false;
+            }
+            if (stateChanged) {
+                this.onStateChange(Object.keys(this.sockets).map(function (s) { return _this.sockets[s]; }));
+            }
+        }
+    };
+    SimpleTimerMachine.prototype.getSerializableState = function () {
+        return {
+            state: {
+                timeRemaining: this.timer.getTimeRemaining() / this.lengthOfSecond,
+                timerIsRunning: this.timer.isRunning(),
+                id: this.id,
+            },
+            options: this.options,
+            type: "simple",
+        };
+    };
+    return SimpleTimerMachine;
+}());
 /**
  * This class implements a state machine to keep track of a single curling game. The word 'state'
  * is used to refer to an object that represents every piece of information needed to explain to
@@ -42,7 +106,7 @@ var CurlingMachine = (function () {
     }
     CurlingMachine.prototype.initialize = function () {
         if (!this.options.timerName) {
-            this.options.timerName = "Timer " + String(this.id);
+            this.options.timerName = "Standard Timer " + String(this.id);
         }
         this.state = this.getInitialState();
         this.history = [this.state];
@@ -102,7 +166,7 @@ var CurlingMachine = (function () {
         // const state = { ...this.state };
         var state = this.getCurrentState();
         delete state.timer;
-        return { state: state, options: this.options };
+        return { state: state, options: this.options, type: "standard" };
     };
     CurlingMachine.prototype.getFullState = function (newState) {
         var _this = this;
@@ -271,9 +335,7 @@ var CurlingMachine = (function () {
                 }
                 else {
                     // Odd ends = home travel time
-                    var extraTravelTime = this.state.end % 2 === 1
-                        ? this.options.travelTime["home"]
-                        : this.options.travelTime["away"];
+                    var extraTravelTime = this.state.end % 2 === 1 ? this.options.travelTime["home"] : this.options.travelTime["away"];
                     nextState.timer = this.createTimer(this.options.timeoutTime + extraTravelTime, function () {
                         // Only deduct a timeout when it has been used completey.
                         // It may have been canceled.
@@ -312,16 +374,10 @@ var CurlingMachine = (function () {
     CurlingMachine.prototype.getCurrentState = function () {
         var _this = this;
         var state = Object.assign({}, this.state);
-        var betweenEndTimeRemaining = this.state.phase === "between-ends"
-            ? this.state.timer.getTimeRemaining() / this.lengthOfSecond
-            : null;
+        var betweenEndTimeRemaining = this.state.phase === "between-ends" ? this.state.timer.getTimeRemaining() / this.lengthOfSecond : null;
         var timeoutsRemaining = Object.assign({}, this.timeoutsRemaining);
-        var timeoutTimeRemaining = this.state.phase === "timeout"
-            ? this.state.timer.getTimeRemaining() / this.lengthOfSecond
-            : null;
-        var warmupTimeRemaining = this.state.phase === "warm-up"
-            ? this.state.timer.getTimeRemaining() / this.lengthOfSecond
-            : null;
+        var timeoutTimeRemaining = this.state.phase === "timeout" ? this.state.timer.getTimeRemaining() / this.lengthOfSecond : null;
+        var warmupTimeRemaining = this.state.phase === "warm-up" ? this.state.timer.getTimeRemaining() / this.lengthOfSecond : null;
         var timeRemaining = Object.assign({}, this.thinkingTimers);
         Object.keys(timeRemaining).forEach(function (team) { return (timeRemaining[team] = timeRemaining[team].getTimeRemaining() / _this.lengthOfSecond); });
         var currentTimerRunningTime = null;
@@ -411,7 +467,7 @@ var CurlingMachine = (function () {
     return CurlingMachine;
 }());
 CurlingMachine.nextMachineId = MACHINE_ID_SEED;
-module.exports = CurlingMachine;
+module.exports = { CurlingMachine: CurlingMachine, SimpleTimerMachine: SimpleTimerMachine };
 /* State machine chart:
 Given an initial state ("phase") (left column) and a transition (top row), one may locate the resulting state ("phase")
 

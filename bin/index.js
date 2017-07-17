@@ -40,7 +40,7 @@ var app = express();
 var http = require("http").Server(app);
 var io = require("socket.io")(http);
 var join = require("path").join;
-var CurlingMachine = require("./curl-timer");
+var _a = require("./curl-timer"), CurlingMachine = _a.CurlingMachine, SimpleTimerMachine = _a.SimpleTimerMachine;
 var fs = require("fs");
 function setupRoutes(app) {
     var _this = this;
@@ -87,17 +87,30 @@ function dispatchStateChange(sockets, machineId) {
 function handleAction(action, socket) {
     //console.log("Action: " + action.request);
     if (action.request === "CREATE_TIMER") {
-        var curlingMachine_1 = new CurlingMachine(action.options, function (sockets) {
-            dispatchStateChange(sockets, curlingMachine_1.id);
-        });
-        curlingMachine_1.registerSocket(action.clientId, socket);
-        games[curlingMachine_1.id] = curlingMachine_1;
-        var response = {
-            response: "CREATE_TIMER",
-            token: action.token,
-            data: curlingMachine_1.getSerializableState(),
-        };
-        socket.emit("response", JSON.stringify(response));
+        var curlingMachine_1;
+        if (action.options.type === "simple") {
+            curlingMachine_1 = new SimpleTimerMachine(action.options, function (sockets) {
+                dispatchStateChange(sockets, curlingMachine_1.id);
+            });
+        }
+        else if (action.options.type === "standard") {
+            curlingMachine_1 = new CurlingMachine(action.options, function (sockets) {
+                dispatchStateChange(sockets, curlingMachine_1.id);
+            });
+        }
+        if (curlingMachine_1) {
+            curlingMachine_1.registerSocket(action.clientId, socket);
+            games[curlingMachine_1.id] = curlingMachine_1;
+            var response = {
+                response: "CREATE_TIMER",
+                token: action.token,
+                data: curlingMachine_1.getSerializableState(),
+            };
+            socket.emit("response", JSON.stringify(response));
+        }
+        else {
+            socket.emit("response", JSON.stringify({ error: true, message: "Unknown timer type." }));
+        }
     }
     if (action.request === "GET_TIMER") {
         var game = games[action.options.timerId];

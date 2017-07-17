@@ -18,7 +18,77 @@ const defaultOptions = {
 	warmupTime: 9 * 60,
 };
 
+const defaultSimpleTimerOptions = {
+	lengthOfSecond: 1000,
+	numEnds: 8,
+	timerName: "",
+	allowableAdditionalEnds: 0,
+	noMoreEndsTime: 10 * 60,
+	showPacing: true,
+	totaltime: 120 * 60,
+	warningTime: 15 * 60,
+};
+
 const MACHINE_ID_SEED = Math.floor(Math.random() * 10000 + 10001);
+
+class SimpleTimerMachine {
+	constructor(options, onStateChange) {
+		this.options = Object.assign({}, defaultSimpleTimerOptions, options);
+		this.lengthOfSecond = this.options.lengthOfSecond;
+		this.id = String(CurlingMachine.nextMachineId++);
+		this.timer = new TimeMinder(this.options.totalTime * this.lengthOfSecond);
+		if (!this.options.timerName) {
+			this.options.timerName = `Simple Timer ${String(this.id)}`;
+		}
+		this.onStateChange = onStateChange;
+		this.sockets = {};
+	}
+
+	dispose() {
+		this.timer.dispose();
+	}
+
+	registerSocket(clientId, socket) {
+		this.sockets[clientId] = socket;
+	}
+
+	handleAction(action) {
+		action.data = action.data || {};
+		if (action.command) {
+			let stateChanged = true;
+			switch (action.command) {
+				case "ADD_TIME":
+					this.timer.setTimeRemaining(
+						this.timer.getTimeRemaining() + parseInt(action.data.value, 10) * this.lengthOfSecond,
+					);
+					break;
+				case "START_TIMER":
+					this.timer.unpause();
+					break;
+				case "PAUSE_TIMER":
+					this.timer.pause();
+					break;
+				default:
+					stateChanged = false;
+			}
+			if (stateChanged) {
+				this.onStateChange(Object.keys(this.sockets).map(s => this.sockets[s]));
+			}
+		}
+	}
+
+	getSerializableState() {
+		return {
+			state: {
+				timeRemaining: this.timer.getTimeRemaining() / this.lengthOfSecond,
+				timerIsRunning: this.timer.isRunning(),
+				id: this.id,
+			},
+			options: this.options,
+			type: "simple",
+		};
+	}
+}
 
 /**
  * This class implements a state machine to keep track of a single curling game. The word 'state'
@@ -45,7 +115,7 @@ class CurlingMachine {
 
 	initialize() {
 		if (!this.options.timerName) {
-			this.options.timerName = `Timer ${String(this.id)}`;
+			this.options.timerName = `Standard Timer ${String(this.id)}`;
 		}
 		this.state = this.getInitialState();
 		this.history = [this.state];
@@ -115,7 +185,7 @@ class CurlingMachine {
 
 		const state = this.getCurrentState();
 		delete state.timer;
-		return { state, options: this.options };
+		return { state, options: this.options, type: "standard" };
 	}
 
 	getFullState(newState) {
@@ -300,9 +370,8 @@ class CurlingMachine {
 					nextState.timer.unpause();
 				} else {
 					// Odd ends = home travel time
-					const extraTravelTime = this.state.end % 2 === 1
-						? this.options.travelTime["home"]
-						: this.options.travelTime["away"];
+					const extraTravelTime =
+						this.state.end % 2 === 1 ? this.options.travelTime["home"] : this.options.travelTime["away"];
 					nextState.timer = this.createTimer(this.options.timeoutTime + extraTravelTime, () => {
 						// Only deduct a timeout when it has been used completey.
 						// It may have been canceled.
@@ -345,16 +414,13 @@ class CurlingMachine {
 	getCurrentState() {
 		const state = Object.assign({}, this.state);
 
-		const betweenEndTimeRemaining = this.state.phase === "between-ends"
-			? this.state.timer.getTimeRemaining() / this.lengthOfSecond
-			: null;
+		const betweenEndTimeRemaining =
+			this.state.phase === "between-ends" ? this.state.timer.getTimeRemaining() / this.lengthOfSecond : null;
 		const timeoutsRemaining = Object.assign({}, this.timeoutsRemaining);
-		const timeoutTimeRemaining = this.state.phase === "timeout"
-			? this.state.timer.getTimeRemaining() / this.lengthOfSecond
-			: null;
-		const warmupTimeRemaining = this.state.phase === "warm-up"
-			? this.state.timer.getTimeRemaining() / this.lengthOfSecond
-			: null;
+		const timeoutTimeRemaining =
+			this.state.phase === "timeout" ? this.state.timer.getTimeRemaining() / this.lengthOfSecond : null;
+		const warmupTimeRemaining =
+			this.state.phase === "warm-up" ? this.state.timer.getTimeRemaining() / this.lengthOfSecond : null;
 		const timeRemaining = Object.assign({}, this.thinkingTimers);
 		Object.keys(timeRemaining).forEach(
 			team => (timeRemaining[team] = timeRemaining[team].getTimeRemaining() / this.lengthOfSecond),
@@ -457,7 +523,7 @@ class CurlingMachine {
 
 CurlingMachine.nextMachineId = MACHINE_ID_SEED;
 
-module.exports = CurlingMachine;
+module.exports = { CurlingMachine, SimpleTimerMachine };
 
 /* State machine chart: 
 Given an initial state ("phase") (left column) and a transition (top row), one may locate the resulting state ("phase")

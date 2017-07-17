@@ -17269,40 +17269,47 @@ exports.SimpleBaseOptions = {
     lengthOfSecond: 1000,
     noMoreEndsTime: 10 * 60,
     numEnds: 8,
-    warningTime: 15 * 60,
+    showPacing: true,
     timerName: "",
     totalTime: 120 * 60,
+    warningTime: 15 * 60,
 };
 exports.TimerPresets = [
     {
         id: "10-end",
         name: "10 Ends",
         options: Object.assign({}, exports.StandardBaseOptions),
-        type: 1 /* Standard */,
+        type: "standard" /* Standard */,
     },
     {
         id: "8-end",
         name: "8 Ends",
         options: Object.assign({}, exports.StandardBaseOptions, { thinkingTime: 30 * 60, numEnds: 8 }),
-        type: 1 /* Standard */,
+        type: "standard" /* Standard */,
     },
     {
         id: "mixed-doubles",
         name: "Mixed Doubles",
         options: Object.assign({}, exports.StandardBaseOptions, { thinkingTime: 22 * 60, numEnds: 8 }),
-        type: 1 /* Standard */,
+        type: "standard" /* Standard */,
+    },
+    {
+        id: "1.5-hour",
+        name: "1½ Hours (6 Ends)",
+        options: Object.assign({}, exports.SimpleBaseOptions, { numEnds: 6, totalTime: 90 * 60 }),
+        type: "simple" /* Simple */,
     },
     {
         id: "2-hour",
         name: "2 Hours (8 Ends)",
         options: Object.assign({}, exports.SimpleBaseOptions),
-        type: 0 /* Simple */,
+        type: "simple" /* Simple */,
     },
     {
-        id: "3-hour",
-        name: "3 Hours (10 Ends)",
-        options: Object.assign({}, exports.SimpleBaseOptions, { numEnds: 10, totalTime: 180 * 60 }),
-        type: 0 /* Simple */,
+        id: "2.5-hour",
+        name: "2½ Hours (10 Ends)",
+        options: Object.assign({}, exports.SimpleBaseOptions, { numEnds: 10, totalTime: 150 * 60 }),
+        type: "simple" /* Simple */,
     },
 ];
 
@@ -17333,6 +17340,12 @@ function uuid() {
         const r = (Math.random() * 16) | 0, v = c === "x" ? r : (r & 0x3) | 0x8;
         return v.toString(16);
     });
+}
+function isSimpleTimer(machine) {
+    return machine.type === "simple";
+}
+function isStandardTimer(machine) {
+    return machine.type === "standard";
 }
 const clientId = uuid();
 function roundPrecision(num, decimalPlaces) {
@@ -17372,7 +17385,7 @@ class TimeToCurl {
         this.machineOrder = {};
         this.nextSimpleTimerOptions = lodash_1.cloneDeep(presets_1.SimpleBaseOptions);
         this.nextStandardTimerOptions = lodash_1.cloneDeep(presets_1.StandardBaseOptions);
-        this.nextTimerType = 1 /* Standard */;
+        this.nextTimerType = "standard" /* Standard */;
         this.socket.on("response", (result) => {
             let response;
             try {
@@ -17425,7 +17438,7 @@ class TimeToCurl {
             const option = document.createElement("option");
             option.value = preset.id;
             option.textContent = preset.name;
-            if (preset.type === 0 /* Simple */) {
+            if (preset.type === "simple" /* Simple */) {
                 simpleGroup.appendChild(option);
             }
             else {
@@ -17462,7 +17475,7 @@ class TimeToCurl {
             this.nextSimpleTimerOptions = JSON.parse(simpleTimerOptions);
         }
         if (timerType) {
-            this.nextTimerType = Number(timerType);
+            this.nextTimerType = timerType;
         }
         if (theme) {
             themeSelect.value = theme;
@@ -17493,11 +17506,11 @@ class TimeToCurl {
     }
     evaluatePresetDropdown() {
         for (const preset of presets_1.TimerPresets) {
-            if (this.nextTimerType === 1 /* Standard */ && lodash_1.isEqual(preset.options, this.nextStandardTimerOptions)) {
+            if (this.nextTimerType === "standard" /* Standard */ && lodash_1.isEqual(preset.options, this.nextStandardTimerOptions)) {
                 this.timerPresetsDropdown.value = preset.id;
                 return;
             }
-            if (this.nextTimerType === 0 /* Simple */ && lodash_1.isEqual(preset.options, this.nextSimpleTimerOptions)) {
+            if (this.nextTimerType === "simple" /* Simple */ && lodash_1.isEqual(preset.options, this.nextSimpleTimerOptions)) {
                 this.timerPresetsDropdown.value = preset.id;
                 return;
             }
@@ -17525,7 +17538,7 @@ class TimeToCurl {
         simpleRadioInput.setAttribute("id", "simpleRadioButton");
         simpleRadioInput.setAttribute("name", "simple-or-standard-radio");
         simpleRadioInput.value = "simple";
-        if (this.nextTimerType === 0 /* Simple */) {
+        if (this.nextTimerType === "simple" /* Simple */) {
             simpleRadioInput.checked = true;
         }
         const simpleRadioLabel = document.createElement("label");
@@ -17541,7 +17554,7 @@ class TimeToCurl {
         standardRadioInput.setAttribute("id", "standardRadioButton");
         standardRadioInput.setAttribute("name", "simple-or-standard-radio");
         standardRadioInput.value = "standard";
-        if (this.nextTimerType === 1 /* Standard */) {
+        if (this.nextTimerType === "standard" /* Standard */) {
             standardRadioInput.checked = true;
         }
         const standardRadioLabel = document.createElement("label");
@@ -17582,6 +17595,23 @@ class TimeToCurl {
         const warningTime = this.simpleInput("Turn yellow at", "warningTime", secondsToStr(simpleOptions.warningTime));
         const additionalEnds = this.simpleInput("Ends allowed after timer turns red", "allowableAdditionalEnds", simpleOptions.allowableAdditionalEnds);
         const numEndsSimple = this.simpleInput("Number of ends", "numEnds", simpleOptions.numEnds);
+        const showPacing = document.createElement("div");
+        showPacing.classList.add("simple-input");
+        const showPacingLabel = document.createElement("label");
+        showPacingLabel.textContent = "Display recommended pacing";
+        showPacingLabel.classList.add("simple-input-label");
+        showPacingLabel.setAttribute("for", "showPacingCheckbox");
+        const showPacingCheckbox = document.createElement("input");
+        showPacingCheckbox.setAttribute("id", "showPacingCheckbox");
+        showPacingCheckbox.setAttribute("type", "checkbox");
+        showPacingCheckbox.setAttribute("value", "true");
+        showPacingCheckbox.checked = simpleOptions.showPacing;
+        showPacingCheckbox.classList.add("simple-input-field");
+        const previewDummy = document.createElement("div");
+        previewDummy.classList.add("input-value-preview");
+        showPacing.appendChild(showPacingLabel);
+        showPacing.appendChild(showPacingCheckbox);
+        showPacing.appendChild(previewDummy);
         const simpleContainer = document.createElement("div");
         simpleContainer.classList.add("custom-settings-fields-container", "simple-settings", "irrelevant");
         simpleContainer.appendChild(totalTime);
@@ -17589,15 +17619,16 @@ class TimeToCurl {
         simpleContainer.appendChild(endTime);
         simpleContainer.appendChild(additionalEnds);
         simpleContainer.appendChild(numEndsSimple);
+        simpleContainer.appendChild(showPacing);
         const onTimerTypeChanged = () => {
             const result = this.getRadioValue(simpleRadioInput, standardRadioInput);
             if (result === "standard") {
-                this.nextTimerType = 1 /* Standard */;
+                this.nextTimerType = "standard" /* Standard */;
                 simpleContainer.classList.add("irrelevant");
                 standardContainer.classList.remove("irrelevant");
             }
             else if (result === "simple") {
-                this.nextTimerType = 0 /* Simple */;
+                this.nextTimerType = "simple" /* Simple */;
                 standardContainer.classList.add("irrelevant");
                 simpleContainer.classList.remove("irrelevant");
             }
@@ -17617,6 +17648,11 @@ class TimeToCurl {
         const prevStandardSettings = lodash_1.cloneDeep(standardOptions);
         const prevSimpleSettings = lodash_1.cloneDeep(simpleOptions);
         const prevTimerType = this.nextTimerType;
+        showPacingCheckbox.addEventListener("change", () => {
+            simpleOptions.showPacing = showPacingCheckbox.checked;
+            this.evaluatePresetDropdown();
+            this.saveTimerOptions();
+        });
         allOptionsContainer.addEventListener("input", () => {
             const valThinkingTime = strToSeconds(thinkingTime.children[1].value);
             const valNumEndsStandard = Number(numEndsStandard.children[1].value);
@@ -17679,13 +17715,13 @@ class TimeToCurl {
         const dropdownValue = this.timerPresetsDropdown.value;
         const matchedPreset = presets_1.TimerPresets.filter(p => p.id === dropdownValue)[0];
         if (matchedPreset) {
-            if (matchedPreset.type === 0 /* Simple */) {
+            if (matchedPreset.type === "simple" /* Simple */) {
                 this.nextSimpleTimerOptions = lodash_1.cloneDeep(matchedPreset).options;
-                this.nextTimerType = 0 /* Simple */;
+                this.nextTimerType = "simple" /* Simple */;
             }
             else {
                 this.nextStandardTimerOptions = lodash_1.cloneDeep(matchedPreset).options;
-                this.nextTimerType = 1 /* Standard */;
+                this.nextTimerType = "standard" /* Standard */;
             }
             this.saveTimerOptions();
         }
@@ -17704,7 +17740,9 @@ class TimeToCurl {
                 const response = await this.emitAction({
                     request: "CREATE_TIMER",
                     clientId: clientId,
-                    options: Object.assign({}, this.nextStandardTimerOptions, { lengthOfSecond: this.speedyClocks ? 100 : 1000 }),
+                    options: Object.assign({}, this.nextTimerType === "simple" /* Simple */
+                        ? this.nextSimpleTimerOptions
+                        : this.nextStandardTimerOptions, { lengthOfSecond: this.speedyClocks ? 100 : 1000, type: this.nextTimerType }),
                 });
                 this.addCurlingMachine(response.data).scrollIntoView();
             });
@@ -17770,7 +17808,13 @@ class TimeToCurl {
         });
     }
     addCurlingMachine(cm) {
-        this.machines[cm.state.id] = new CurlingMachineUI(cm, document.getElementById("timersContainer"), this);
+        if (isSimpleTimer(cm)) {
+            this.machines[cm.state.id] = new SimpleTimerUI(cm, document.getElementById("timersContainer"), this);
+        }
+        else if (isStandardTimer(cm)) {
+            this.machines[cm.state.id] = new CurlingMachineUI(cm, document.getElementById("timersContainer"), this);
+        }
+        this.machines[cm.state.id].initUI();
         const displayedTimers = getDisplayedTimers();
         if (displayedTimers.indexOf(cm.state.id) === -1) {
             displayedTimers.push(cm.state.id);
@@ -17779,24 +17823,186 @@ class TimeToCurl {
         return this.machines[cm.state.id];
     }
 }
-class CurlingMachineUI {
+class TimerUIBase {
     constructor(initParams, container, application) {
         this.container = container;
         this.application = application;
-        this.lengthOfSecond = 1000;
+        this.elements = {};
+        this.state = initParams.state;
+        this.options = initParams.options;
+        this.runningTimers = [];
+        if (initParams.options.lengthOfSecond) {
+            this.lengthOfSecond = initParams.options.lengthOfSecond;
+        }
+    }
+    scrollIntoView() {
+        this.timerContainerElement.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+        });
+    }
+    clearTimers() {
+        if (this.runningTimers) {
+            this.runningTimers.forEach(t => t.dispose());
+            this.runningTimers = [];
+        }
+    }
+    async sendCommand(command, data) {
+        const result = await this.application.emitAction({
+            request: "QUERY_TIMER",
+            clientId: clientId,
+            options: {
+                command: command,
+                data: JSON.stringify(data),
+                timerId: this.state.id,
+            },
+        });
+    }
+    forEachAction(callback) {
+        for (const action in this.elements) {
+            for (const elem of this.elements[action]) {
+                const actionAttr = elem.dataset["action"];
+                if (elem.tagName.toLowerCase() === "button" && actionAttr) {
+                    callback.call(null, elem, actionAttr);
+                }
+            }
+        }
+    }
+    forEachCommand(callback) {
+        for (const commandKey in this.elements) {
+            const splitCommand = commandKey.split(":");
+            let command = commandKey;
+            let team = null;
+            if (splitCommand.length === 2) {
+                team = splitCommand[0];
+                command = splitCommand[1];
+            }
+            for (const elem of this.elements[commandKey]) {
+                const commandAttr = elem.dataset["command"];
+                if (elem.tagName.toLowerCase() === "button" && commandAttr) {
+                    callback.call(null, elem, commandAttr, team);
+                }
+            }
+        }
+    }
+    populateElements(elem, teamContext = null) {
+        let key = "";
+        const elemData = elem.dataset["key"] || elem.dataset["action"];
+        if (elemData) {
+            key = elemData;
+        }
+        else {
+            const nonTeamClasses = Array.prototype.filter.call(elem.classList, (c) => c.substr(0, 5) !== "team");
+            if (nonTeamClasses.length === 1) {
+                key = nonTeamClasses[0];
+            }
+        }
+        let foundTeamContext = teamContext;
+        if (foundTeamContext === null) {
+            const testForTeamInClassname = /team-([a-z]+)\b/i.exec(elem.className);
+            if (testForTeamInClassname && testForTeamInClassname[1]) {
+                foundTeamContext = testForTeamInClassname[1];
+            }
+        }
+        const teamPrefix = foundTeamContext === null ? "" : foundTeamContext + ":";
+        key = teamPrefix + key;
+        if (!this.elements[key]) {
+            this.elements[key] = [];
+        }
+        this.elements[key].push(elem);
+        if (elem.children) {
+            for (let i = 0; i < elem.children.length; ++i) {
+                this.populateElements(elem.children.item(i), foundTeamContext);
+            }
+        }
+    }
+}
+class SimpleTimerUI extends TimerUIBase {
+    constructor(initParams, container, application) {
+        super(initParams, container, application);
+        this.container = container;
+        this.application = application;
+    }
+    initUI() {
+        const template = document.getElementById("simpleTimerTemplate").children.item(0);
+        const newUI = template.cloneNode(true);
+        this.initElements(newUI);
+        this.forEachCommand((elem, command, team) => {
+            elem.addEventListener("click", () => {
+                const data = JSON.parse(elem.dataset["data"] || "{}");
+                this.sendCommand(command, data);
+            });
+        });
+        this.setNewState(this.state);
+        this.container.appendChild(newUI);
+    }
+    setNewState(state) {
+        this.debugElement.textContent = JSON.stringify(state, null, 4);
+        this.state = state;
+        this.clearTimers();
+        const mainTimer = new TimeMinder(this.state.timeRemaining * this.lengthOfSecond);
+        mainTimer.every(this.lengthOfSecond / 10, () => {
+            const timeRemaining = mainTimer.getTimeRemaining() / this.lengthOfSecond;
+            setTimeToElem(this.remainingTime, mainTimer.getTimeRemaining() / this.lengthOfSecond);
+            this.timerContainerElement.classList.remove("warning");
+            this.timerContainerElement.classList.remove("no-more-ends");
+            if (timeRemaining <= this.options.noMoreEndsTime) {
+                this.timerContainerElement.classList.add("no-more-ends");
+            }
+            else if (timeRemaining <= this.options.warningTime) {
+                this.timerContainerElement.classList.add("warning");
+            }
+        }, false);
+        this.runningTimers.push(mainTimer);
+        if (this.state.timerIsRunning) {
+            mainTimer.start();
+            this.pauseButton.classList.remove("irrelevant");
+            this.startButton.classList.add("irrelevant");
+        }
+        else {
+            this.pauseButton.classList.add("irrelevant");
+            this.startButton.classList.remove("irrelevant");
+        }
+    }
+    initElements(template) {
+        this.populateElements(template);
+        if (this.elements["debug"] && this.elements["debug"][0]) {
+            this.debugElement = this.elements["debug"][0];
+        }
+        if (this.elements["timer"] && this.elements["timer"][0]) {
+            this.rootTimerElement = this.elements["timer"][0];
+        }
+        if (this.elements["timer-container"] && this.elements["timer-container"][0]) {
+            this.timerContainerElement = this.elements["timer-container"][0];
+        }
+        if (this.elements["start-timer"] && this.elements["start-timer"][0]) {
+            this.startButton = this.elements["start-timer"][0];
+        }
+        if (this.elements["pause-timer"] && this.elements["pause-timer"][0]) {
+            this.pauseButton = this.elements["pause-timer"][0];
+        }
+        if (this.elements["timer-title"] && this.elements["timer-title"][0]) {
+            this.titleElement = this.elements["timer-title"][0];
+        }
+        if (this.elements["remaining-time"] && this.elements["remaining-time"][0]) {
+            this.remainingTime = this.elements["remaining-time"][0];
+        }
+    }
+}
+class CurlingMachineUI extends TimerUIBase {
+    constructor(initParams, container, application) {
+        super(initParams, container, application);
+        this.container = container;
+        this.application = application;
         this.addTimeoutButtons = {};
         this.designationToTeam = {};
-        this.elements = {};
         this.elapsedThinkingTime = {};
-        this.runningTimers = [];
         this.teamsToDesignation = {};
         this.thinkingButtons = {};
         this.thinkingTimeText = {};
         this.timeControls = {};
         this.timeoutsRemainingText = {};
-        this.state = initParams.state;
         this.subtractTimeoutButtons = {};
-        this.options = initParams.options;
         if (initParams.options.lengthOfSecond) {
             this.lengthOfSecond = initParams.options.lengthOfSecond;
         }
@@ -17806,13 +18012,6 @@ class CurlingMachineUI {
             this.teamsToDesignation[team] = designation;
             this.designationToTeam[designation] = team;
         }
-        this.initUI();
-    }
-    scrollIntoView() {
-        this.timerContainerElement.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-        });
     }
     initUI() {
         const template = document.getElementById("timerTemplate").children.item(0);
@@ -17851,9 +18050,7 @@ class CurlingMachineUI {
             });
         });
         this.travelTimeCancelButton.addEventListener("click", () => {
-            const travelTime = (this.state.end || 0) % 2 === 0
-                ? this.options.travelTime["away"]
-                : this.options.travelTime["home"];
+            const travelTime = (this.state.end || 0) % 2 === 0 ? this.options.travelTime["away"] : this.options.travelTime["home"];
             if (this.travelTimeCancelButton.textContent === "Undo") {
                 this.travelTimeCancelButton.textContent = "No coach";
                 this.travelTimeCancelButton.dataset["data"] = JSON.stringify({ value: -1 * travelTime });
@@ -18000,9 +18197,7 @@ class CurlingMachineUI {
         }
         if (this.state.phase === "timeout") {
             this.elements["timeout-time-container"][0].classList.remove("irrelevant");
-            const scheduledTravelTime = (this.state.end || 0) % 2 === 0
-                ? this.options.travelTime["away"]
-                : this.options.travelTime["home"];
+            const scheduledTravelTime = (this.state.end || 0) % 2 === 0 ? this.options.travelTime["away"] : this.options.travelTime["home"];
             // timeoutTimeRemaining includes travel time
             const travelTime = Math.max(0, this.state.timeoutTimeRemaining - this.options.timeoutTime);
             const timeoutTimer = new TimeMinder((this.state.timeoutTimeRemaining - travelTime) * this.lengthOfSecond, undefined, () => {
@@ -18085,39 +18280,6 @@ class CurlingMachineUI {
         this.rootTimerElement.dataset["phase"] = this.state.phase;
         this.rootTimerElement.classList.add(this.rootTimerElement.dataset["phase"]);
     }
-    forEachAction(callback) {
-        for (const action in this.elements) {
-            for (const elem of this.elements[action]) {
-                const actionAttr = elem.dataset["action"];
-                if (elem.tagName.toLowerCase() === "button" && actionAttr) {
-                    callback.call(null, elem, actionAttr);
-                }
-            }
-        }
-    }
-    forEachCommand(callback) {
-        for (const commandKey in this.elements) {
-            const splitCommand = commandKey.split(":");
-            let command = commandKey;
-            let team = null;
-            if (splitCommand.length === 2) {
-                team = splitCommand[0];
-                command = splitCommand[1];
-            }
-            for (const elem of this.elements[commandKey]) {
-                const commandAttr = elem.dataset["command"];
-                if (elem.tagName.toLowerCase() === "button" && commandAttr) {
-                    callback.call(null, elem, commandAttr, team);
-                }
-            }
-        }
-    }
-    clearTimers() {
-        if (this.runningTimers) {
-            this.runningTimers.forEach(t => t.dispose());
-            this.runningTimers = [];
-        }
-    }
     async sendPhaseTransition(transition, data) {
         const result = await this.application.emitAction({
             request: "QUERY_TIMER",
@@ -18132,17 +18294,6 @@ class CurlingMachineUI {
             throw new Error("Error querying timer w/ phase transition " + transition + ".");
         }
     }
-    async sendCommand(command, data) {
-        const result = await this.application.emitAction({
-            request: "QUERY_TIMER",
-            clientId: clientId,
-            options: {
-                command: command,
-                data: JSON.stringify(data),
-                timerId: this.state.id,
-            },
-        });
-    }
     async sendNewState(state) {
         const result = await this.application.emitAction({
             request: "QUERY_TIMER",
@@ -18153,8 +18304,8 @@ class CurlingMachineUI {
             },
         });
     }
-    initElements(elem) {
-        this.populateElements(elem);
+    initElements(template) {
+        this.populateElements(template);
         // UI that is one-per-team
         for (const teamId of this.options.teams) {
             const key = this.teamsToDesignation[teamId] + ":";
@@ -18248,44 +18399,16 @@ class CurlingMachineUI {
             this.travelTimeValue = this.elements["travel-time-value"][0];
         }
     }
-    populateElements(elem, teamContext = null) {
-        let key = "";
-        const elemData = elem.dataset["key"] || elem.dataset["action"];
-        if (elemData) {
-            key = elemData;
-        }
-        else {
-            const nonTeamClasses = Array.prototype.filter.call(elem.classList, (c) => c.substr(0, 5) !== "team");
-            if (nonTeamClasses.length === 1) {
-                key = nonTeamClasses[0];
-            }
-        }
-        let foundTeamContext = teamContext;
-        if (foundTeamContext === null) {
-            const testForTeamInClassname = /team-([a-z]+)\b/i.exec(elem.className);
-            if (testForTeamInClassname && testForTeamInClassname[1]) {
-                foundTeamContext = testForTeamInClassname[1];
-            }
-        }
-        let teamPrefix = foundTeamContext === null ? "" : foundTeamContext + ":";
-        key = teamPrefix + key;
-        if (!this.elements[key]) {
-            this.elements[key] = [];
-        }
-        this.elements[key].push(elem);
-        if (elem.children) {
-            for (let i = 0; i < elem.children.length; ++i) {
-                this.populateElements(elem.children.item(i), foundTeamContext);
-            }
-        }
-    }
 }
 function secondsToStr(seconds) {
     const clampedSeconds = Math.max(0, seconds);
-    const m = Math.floor(clampedSeconds / 60);
-    const s = roundPrecision(clampedSeconds, 0) % 60;
+    const h = Math.floor(clampedSeconds / 3600);
+    const m = Math.floor((clampedSeconds - 3600 * h) / 60);
+    const s = roundPrecision(clampedSeconds - h * 3600 - m * 60, 0);
     const slz = s < 10 ? "0" + String(s) : String(s);
-    return `${m}:${slz}`;
+    const mlz = h > 0 && m < 10 ? "0" + String(m) : String(m);
+    const hwcolon = h > 0 ? String(h) + ":" : "";
+    return `${hwcolon}${mlz}:${slz}`;
 }
 function strToSeconds(str) {
     const sanitized = str.trim();

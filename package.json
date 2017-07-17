@@ -47,9 +47,8 @@
     "sass-loader": "^6.0.5",
     "socket.io": "^1.7.2",
     "style-loader": "^0.18.2",
-    "ts-loader": "^2.1.0",
+    "ts-loader": "^2.2.2",
     "tslib": "^1.7.1",
-    "typescript": "^2.3.4",
     "uuid": "^3.0.1",
     "webpack": "^2.6.1"
   },
@@ -59,6 +58,7 @@
     "@types/webpack-env": "^1.13.0",
     "expect": "^1.20.2",
     "nodemon": "^1.11.0",
+    "typescript": "^2.4.1",
     "uglify-js": "^3.0.19",
     "uglifyjs-webpack-plugin": "^0.4.6"
   }

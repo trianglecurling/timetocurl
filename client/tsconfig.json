@@ -2,18 +2,12 @@
 	"compilerOptions": {
 		"module": "commonjs",
 		"target": "es2017",
-		"lib": [
-			"dom",
-			"es5",
-			"es2015.promise",
-			"es2017"
-		],
+		"lib": ["dom", "es5", "es2015.promise", "es2017"],
 		"strict": true,
 		"importHelpers": true,
+		"typeRoots": ["../types", "../node_modules/@types"],
 		"sourceMap": false,
 		"outDir": "bin"
 	},
-	"include": [
-		"app.ts"
-	]
+	"include": ["app.ts"]
 }

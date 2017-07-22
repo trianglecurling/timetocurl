@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 4);
+/******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -17162,7 +17162,7 @@
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(6)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6), __webpack_require__(7)(module)))
 
 /***/ }),
 /* 2 */
@@ -17321,8 +17321,51 @@ exports.TimerPresets = [
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+let canvas;
+function getTextWidth(text, font) {
+    canvas = canvas || document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    context.font = font;
+    return context.measureText(text).width;
+}
+function scaleText(el) {
+    let min = 1;
+    let max = 1000;
+    const width = el.clientWidth - 0.5;
+    const height = el.clientHeight - 0.5;
+    // 11 is slightly smaller with our font. Hack!
+    const text = el.textContent.replace(/11/g, "12");
+    let current = (min + max) / 2;
+    el.style.fontSize = current + "pt";
+    for (var i = 0; i < 10; i++) {
+        const style = window.getComputedStyle(el);
+        const font = style.getPropertyValue("font");
+        const theight = parseInt(style.getPropertyValue("font-size"));
+        const twidth = getTextWidth(text, font);
+        if (twidth < width && theight < height) {
+            min = current;
+        }
+        else {
+            max = current;
+        }
+        current = (min + max) / 2;
+        el.style.fontSize = current + "pt";
+    }
+}
+exports.default = scaleText;
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
 const confirm_1 = __webpack_require__(2);
 const presets_1 = __webpack_require__(3);
+const fscreen_1 = __webpack_require__(12);
+const scaletext_1 = __webpack_require__(4);
 const lodash_1 = __webpack_require__(1);
 __webpack_require__(0);
 function getDisplayedTimers() {
@@ -17346,6 +17389,27 @@ function isSimpleTimer(machine) {
 }
 function isStandardTimer(machine) {
     return machine.type === "standard";
+}
+function calculateScrollbarWidth() {
+    const c1 = document.createElement("div");
+    const c2 = document.createElement("div");
+    c1.style.width = "500px";
+    c1.style.height = "500px";
+    c1.style.position = "absolute";
+    c1.style.top = "-1000px";
+    c1.style.left = "-1000px";
+    c1.style.overflow = "hidden";
+    c2.style.position = "absolute";
+    c2.style.top = "0";
+    c2.style.left = "0";
+    c2.style.right = "0";
+    c2.style.bottom = "0";
+    c2.style.overflow = "scroll";
+    c1.appendChild(c2);
+    document.body.appendChild(c1);
+    const scrollbarWidth = c2.clientWidth - c2.offsetWidth;
+    c1.remove();
+    return scrollbarWidth;
 }
 const clientId = uuid();
 function roundPrecision(num, decimalPlaces) {
@@ -17835,6 +17899,41 @@ class TimerUIBase {
             this.lengthOfSecond = initParams.options.lengthOfSecond;
         }
     }
+    handleFullscreeToggled() {
+        if (fscreen_1.default.fullscreenElement) {
+            fscreen_1.default.exitFullscreen();
+        }
+        else {
+            fscreen_1.default.requestFullscreen(this.timerContainerElement);
+        }
+    }
+    initUI() {
+        // set up click-to-scroll
+        if (this.titleElement) {
+            this.titleElement.addEventListener("click", () => {
+                this.scrollIntoView();
+            });
+        }
+        // full screen mode
+        if (this.fullScreenButton) {
+            this.fullScreenButton.addEventListener("click", this.handleFullscreeToggled);
+        }
+        document.addEventListener("keydown", event => {
+            if (!event.defaultPrevented && event.key === " " && !(event.target instanceof HTMLInputElement)) {
+                this.handleFullscreeToggled();
+            }
+        });
+        fscreen_1.default.addEventListener("fullscreenchange", () => {
+            if (fscreen_1.default.fullscreenElement) {
+                this.fullScreenButton.classList.add("exit");
+                this.fullScreenButton.classList.remove("enter");
+            }
+            else {
+                this.fullScreenButton.classList.add("enter");
+                this.fullScreenButton.classList.remove("exit");
+            }
+        });
+    }
     scrollIntoView() {
         this.timerContainerElement.scrollIntoView({
             behavior: "smooth",
@@ -17933,8 +18032,8 @@ class SimpleTimerUI extends TimerUIBase {
                 this.sendCommand(command, data);
             });
         });
-        this.setNewState(this.state);
         this.container.appendChild(newUI);
+        this.setNewState(this.state);
     }
     setNewState(state) {
         this.debugElement.textContent = JSON.stringify(state, null, 4);
@@ -17987,6 +18086,9 @@ class SimpleTimerUI extends TimerUIBase {
         if (this.elements["remaining-time"] && this.elements["remaining-time"][0]) {
             this.remainingTime = this.elements["remaining-time"][0];
         }
+        if (this.elements["fullscreen-button"] && this.elements["fullscreen-button"][0]) {
+            this.fullScreenButton = this.elements["fullscreen-button"][0];
+        }
     }
 }
 class CurlingMachineUI extends TimerUIBase {
@@ -18014,13 +18116,10 @@ class CurlingMachineUI extends TimerUIBase {
         }
     }
     initUI() {
+        super.initUI();
         const template = document.getElementById("timerTemplate").children.item(0);
         const newUI = template.cloneNode(true);
         this.initElements(newUI);
-        // set up click-to-scroll
-        this.titleElement.addEventListener("click", () => {
-            this.scrollIntoView();
-        });
         for (const teamId of Object.keys(this.thinkingButtons)) {
             this.thinkingButtons[teamId].addEventListener("click", () => {
                 this.sendPhaseTransition("begin-thinking", { team: teamId });
@@ -18109,8 +18208,8 @@ class CurlingMachineUI extends TimerUIBase {
                 this.sendNewState(newState);
             }
         });
-        this.setNewState(this.state);
         this.container.appendChild(newUI);
+        this.setNewState(this.state);
     }
     getState() {
         return Object.assign({}, this.state);
@@ -18128,6 +18227,11 @@ class CurlingMachineUI extends TimerUIBase {
                 elem.disabled = true;
             }
         });
+        // Title, root class changes
+        this.titleElement.textContent = this.state.timerName;
+        this.rootTimerElement.classList.remove(this.rootTimerElement.dataset["phase"]);
+        this.rootTimerElement.dataset["phase"] = this.state.phase;
+        this.rootTimerElement.classList.add(this.rootTimerElement.dataset["phase"]);
         this.clearTimers();
         for (const teamId of this.options.teams) {
             setTimeToElem(this.thinkingTimeText[teamId], this.state.timeRemaining[teamId]);
@@ -18274,11 +18378,6 @@ class CurlingMachineUI extends TimerUIBase {
                 }
             });
         }
-        // Title
-        this.titleElement.textContent = this.state.timerName;
-        this.rootTimerElement.classList.remove(this.rootTimerElement.dataset["phase"]);
-        this.rootTimerElement.dataset["phase"] = this.state.phase;
-        this.rootTimerElement.classList.add(this.rootTimerElement.dataset["phase"]);
     }
     async sendPhaseTransition(transition, data) {
         const result = await this.application.emitAction({
@@ -18359,6 +18458,9 @@ class CurlingMachineUI extends TimerUIBase {
         if (this.elements["timer-title"] && this.elements["timer-title"][0]) {
             this.titleElement = this.elements["timer-title"][0];
         }
+        if (this.elements["fullscreen-button"] && this.elements["fullscreen-button"][0]) {
+            this.fullScreenButton = this.elements["fullscreen-button"][0];
+        }
         if (this.elements["timeouts-remaining-container"] && this.elements["timeouts-remaining-container"][0]) {
             this.timeoutsRemainingContainerElement = this.elements["timeouts-remaining-container"][0];
         }
@@ -18404,7 +18506,7 @@ function secondsToStr(seconds) {
     const clampedSeconds = Math.max(0, seconds);
     const h = Math.floor(clampedSeconds / 3600);
     const m = Math.floor((clampedSeconds - 3600 * h) / 60);
-    const s = roundPrecision(clampedSeconds - h * 3600 - m * 60, 0);
+    const s = Math.floor(clampedSeconds - h * 3600 - m * 60);
     const slz = s < 10 ? "0" + String(s) : String(s);
     const mlz = h > 0 && m < 10 ? "0" + String(m) : String(m);
     const hwcolon = h > 0 ? String(h) + ":" : "";
@@ -18417,10 +18519,10 @@ function strToSeconds(str) {
         // Just one number - assume seconds
         return Number(justSeconds[1]);
     }
-    const colonTime = sanitized.match(/^(\d*):(\d*)$/);
+    const colonTime = sanitized.match(/^(?:(\d*):)?(\d*):(\d*)$/);
     if (colonTime && colonTime.length >= 3) {
-        // In the format of mm:ss, e.g. 8:22, :56, or 20:
-        return 60 * Number(colonTime[1]) + Number(colonTime[2]);
+        // In the format of [hh:]mm:ss, e.g. 8:22, 1:02:53, :56, or 20:
+        return 3600 * Number(colonTime[1] || 0) + 60 * Number(colonTime[2]) + Number(colonTime[3]);
     }
     const verbose = sanitized
         .replace(",", "")
@@ -18438,6 +18540,7 @@ function setTimeToElem(elem, seconds) {
 function setMonospaceText(elem, text) {
     elem.innerHTML = "";
     elem.textContent = text;
+    scaletext_1.default(elem);
     forceMonospace(elem);
 }
 // 1 => 1st, 10 => 10th, 13 => 13th, 101 => 101st, etc.
@@ -18476,7 +18579,7 @@ console.log('Those looking a bit more closely may notice that the layout of this
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports) {
 
 var g;
@@ -18503,7 +18606,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -18529,6 +18632,78 @@ module.exports = function(module) {
 	return module;
 };
 
+
+/***/ }),
+/* 8 */,
+/* 9 */,
+/* 10 */,
+/* 11 */,
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var key = {
+  fullscreenEnabled: 0,
+  fullscreenElement: 1,
+  requestFullscreen: 2,
+  exitFullscreen: 3,
+  fullscreenchange: 4,
+  fullscreenerror: 5
+};
+
+var webkit = ['webkitFullscreenEnabled', 'webkitFullscreenElement', 'webkitRequestFullscreen', 'webkitExitFullscreen', 'webkitfullscreenchange', 'webkitfullscreenerror'];
+
+var moz = ['mozFullScreenEnabled', 'mozFullScreenElement', 'mozRequestFullScreen', 'mozCancelFullScreen', 'mozfullscreenchange', 'mozfullscreenerror'];
+
+var ms = ['msFullscreenEnabled', 'msFullscreenElement', 'msRequestFullscreen', 'msExitFullscreen', 'MSFullscreenChange', 'MSFullscreenError'];
+
+// so it doesn't throw if no window or document
+var document = typeof window !== 'undefined' && typeof window.document !== 'undefined' ? window.document : {};
+
+var vendor = 'fullscreenEnabled' in document && Object.keys(key) || webkit[0] in document && webkit || moz[0] in document && moz || ms[0] in document && ms || [];
+
+exports.default = {
+  requestFullscreen: function requestFullscreen(element) {
+    return element[vendor[key.requestFullscreen]]();
+  },
+  requestFullscreenFunction: function requestFullscreenFunction(element) {
+    return element[vendor[key.requestFullscreen]];
+  },
+  get exitFullscreen() {
+    return document[vendor[key.exitFullscreen]].bind(document);
+  },
+  addEventListener: function addEventListener(type, handler, options) {
+    return document.addEventListener(vendor[key[type]], handler, options);
+  },
+  removeEventListener: function removeEventListener(type, handler) {
+    return document.removeEventListener(vendor[key[type]], handler);
+  },
+  get fullscreenEnabled() {
+    return Boolean(document[vendor[key.fullscreenEnabled]]);
+  },
+  set fullscreenEnabled(val) {},
+  get fullscreenElement() {
+    return document[vendor[key.fullscreenElement]];
+  },
+  set fullscreenElement(val) {},
+  get onfullscreenchange() {
+    return document[('on' + vendor[key.fullscreenchange]).toLowerCase()];
+  },
+  set onfullscreenchange(handler) {
+    return document[('on' + vendor[key.fullscreenchange]).toLowerCase()] = handler;
+  },
+  get onfullscreenerror() {
+    return document[('on' + vendor[key.fullscreenerror]).toLowerCase()];
+  },
+  set onfullscreenerror(handler) {
+    return document[('on' + vendor[key.fullscreenerror]).toLowerCase()] = handler;
+  }
+};
 
 /***/ })
 /******/ ]);

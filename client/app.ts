@@ -16,6 +16,8 @@ import {
 	StateAndOptions,
 } from "./interfaces";
 import { StandardBaseOptions, TimerPresets, SimpleBaseOptions } from "./presets";
+import fscreen from "fscreen";
+import scaleText from "./scaletext";
 import { cloneDeep, isEqual } from "lodash";
 
 require("./style.scss");
@@ -70,6 +72,33 @@ function isSimpleTimer(machine: StateAndOptions): machine is SimpleStateAndOptio
 
 function isStandardTimer(machine: StateAndOptions): machine is StandardStateAndOptions {
 	return machine.type === "standard";
+}
+
+function calculateScrollbarWidth() {
+	const c1 = document.createElement("div");
+	const c2 = document.createElement("div");
+
+	c1.style.width = "500px";
+	c1.style.height = "500px";
+	c1.style.position = "absolute";
+	c1.style.top = "-1000px";
+	c1.style.left = "-1000px";
+	c1.style.overflow = "hidden";
+
+	c2.style.position = "absolute";
+	c2.style.top = "0";
+	c2.style.left = "0";
+	c2.style.right = "0";
+	c2.style.bottom = "0";
+	c2.style.overflow = "scroll";
+
+	c1.appendChild(c2);
+	document.body.appendChild(c1);
+
+	const scrollbarWidth = c2.clientWidth - c2.offsetWidth;
+	c1.remove();
+
+	return scrollbarWidth;
 }
 
 const clientId = uuid();
@@ -655,6 +684,7 @@ abstract class TimerUIBase<
 	TOptions extends TimerOptions = TimerOptions
 > {
 	protected elements: IMap<Element[]>;
+	protected fullScreenButton: HTMLButtonElement;
 	protected lengthOfSecond: number;
 	protected options: TOptions;
 	protected rootTimerElement: HTMLElement;
@@ -677,7 +707,43 @@ abstract class TimerUIBase<
 		}
 	}
 
-	public abstract initUI(): void;
+	private handleFullscreeToggled() {
+		if (fscreen.fullscreenElement) {
+			fscreen.exitFullscreen();
+		} else {
+			fscreen.requestFullscreen(this.timerContainerElement);
+		}
+	}
+
+	public initUI() {
+		// set up click-to-scroll
+		if (this.titleElement) {
+			this.titleElement.addEventListener("click", () => {
+				this.scrollIntoView();
+			});
+		}
+
+		// full screen mode
+		if (this.fullScreenButton) {
+			this.fullScreenButton.addEventListener("click", this.handleFullscreeToggled);
+		}
+
+		document.addEventListener("keydown", event => {
+			if (!event.defaultPrevented && event.key === " " && !(event.target instanceof HTMLInputElement)) {
+				this.handleFullscreeToggled();
+			}
+		});
+
+		fscreen.addEventListener("fullscreenchange", () => {
+			if (fscreen.fullscreenElement) {
+				this.fullScreenButton.classList.add("exit");
+				this.fullScreenButton.classList.remove("enter");
+			} else {
+				this.fullScreenButton.classList.add("enter");
+				this.fullScreenButton.classList.remove("exit");
+			}
+		});
+	}
 
 	public abstract setNewState(state: TState): void;
 
@@ -802,8 +868,8 @@ class SimpleTimerUI extends TimerUIBase<SimpleTimerState, SimpleTimerOptions> {
 			});
 		});
 
-		this.setNewState(this.state);
 		this.container.appendChild(newUI);
+		this.setNewState(this.state);
 	}
 
 	public setNewState(state: SimpleTimerState): void {
@@ -862,6 +928,9 @@ class SimpleTimerUI extends TimerUIBase<SimpleTimerState, SimpleTimerOptions> {
 		if (this.elements["remaining-time"] && this.elements["remaining-time"][0]) {
 			this.remainingTime = this.elements["remaining-time"][0] as HTMLElement;
 		}
+		if (this.elements["fullscreen-button"] && this.elements["fullscreen-button"][0]) {
+			this.fullScreenButton = this.elements["fullscreen-button"][0] as HTMLButtonElement;
+		}
 	}
 }
 
@@ -917,14 +986,10 @@ class CurlingMachineUI extends TimerUIBase<CurlingMachineState, StandardTimerOpt
 	}
 
 	public initUI() {
+		super.initUI();
 		const template = document.getElementById("timerTemplate")!.children!.item(0);
 		const newUI = template.cloneNode(true) as Element;
 		this.initElements(newUI);
-
-		// set up click-to-scroll
-		this.titleElement.addEventListener("click", () => {
-			this.scrollIntoView();
-		});
 
 		for (const teamId of Object.keys(this.thinkingButtons)) {
 			this.thinkingButtons[teamId].addEventListener("click", () => {
@@ -1026,8 +1091,8 @@ class CurlingMachineUI extends TimerUIBase<CurlingMachineState, StandardTimerOpt
 			}
 		});
 
-		this.setNewState(this.state);
 		this.container.appendChild(newUI);
+		this.setNewState(this.state);
 	}
 
 	public getState() {
@@ -1048,6 +1113,12 @@ class CurlingMachineUI extends TimerUIBase<CurlingMachineState, StandardTimerOpt
 				elem.disabled = true;
 			}
 		});
+
+		// Title, root class changes
+		this.titleElement.textContent = this.state.timerName;
+		this.rootTimerElement.classList.remove(this.rootTimerElement.dataset["phase"]!);
+		this.rootTimerElement.dataset["phase"] = this.state.phase;
+		this.rootTimerElement.classList.add(this.rootTimerElement.dataset["phase"]!);
 
 		this.clearTimers();
 		for (const teamId of this.options.teams) {
@@ -1241,12 +1312,6 @@ class CurlingMachineUI extends TimerUIBase<CurlingMachineState, StandardTimerOpt
 				}
 			});
 		}
-
-		// Title
-		this.titleElement.textContent = this.state.timerName;
-		this.rootTimerElement.classList.remove(this.rootTimerElement.dataset["phase"]!);
-		this.rootTimerElement.dataset["phase"] = this.state.phase;
-		this.rootTimerElement.classList.add(this.rootTimerElement.dataset["phase"]!);
 	}
 
 	private async sendPhaseTransition(transition: string, data?: any) {
@@ -1333,6 +1398,9 @@ class CurlingMachineUI extends TimerUIBase<CurlingMachineState, StandardTimerOpt
 		if (this.elements["timer-title"] && this.elements["timer-title"][0]) {
 			this.titleElement = this.elements["timer-title"][0] as HTMLElement;
 		}
+		if (this.elements["fullscreen-button"] && this.elements["fullscreen-button"][0]) {
+			this.fullScreenButton = this.elements["fullscreen-button"][0] as HTMLButtonElement;
+		}
 		if (this.elements["timeouts-remaining-container"] && this.elements["timeouts-remaining-container"][0]) {
 			this.timeoutsRemainingContainerElement = this.elements["timeouts-remaining-container"][0] as HTMLElement;
 		}
@@ -1379,7 +1447,7 @@ function secondsToStr(seconds: number) {
 	const clampedSeconds = Math.max(0, seconds);
 	const h = Math.floor(clampedSeconds / 3600);
 	const m = Math.floor((clampedSeconds - 3600 * h) / 60);
-	const s = roundPrecision(clampedSeconds - h * 3600 - m * 60, 0);
+	const s = Math.floor(clampedSeconds - h * 3600 - m * 60);
 	const slz = s < 10 ? "0" + String(s) : String(s);
 	const mlz = h > 0 && m < 10 ? "0" + String(m) : String(m);
 	const hwcolon = h > 0 ? String(h) + ":" : "";
@@ -1394,10 +1462,10 @@ function strToSeconds(str: string) {
 		return Number(justSeconds[1]);
 	}
 
-	const colonTime = sanitized.match(/^(\d*):(\d*)$/);
+	const colonTime = sanitized.match(/^(?:(\d*):)?(\d*):(\d*)$/);
 	if (colonTime && colonTime.length >= 3) {
-		// In the format of mm:ss, e.g. 8:22, :56, or 20:
-		return 60 * Number(colonTime[1]) + Number(colonTime[2]);
+		// In the format of [hh:]mm:ss, e.g. 8:22, 1:02:53, :56, or 20:
+		return 3600 * Number(colonTime[1] || 0) + 60 * Number(colonTime[2]) + Number(colonTime[3]);
 	}
 
 	const verbose = sanitized
@@ -1421,6 +1489,7 @@ function setTimeToElem(elem: HTMLElement, seconds: number) {
 function setMonospaceText(elem: HTMLElement, text: string) {
 	elem.innerHTML = "";
 	elem.textContent = text;
+	scaleText(elem);
 	forceMonospace(elem);
 }
 

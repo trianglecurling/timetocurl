@@ -24,6 +24,7 @@
 	<meta name="theme-color" content="#ffffff">
 
 	<link rel="stylesheet" href="/style.css">
+	<script src="https://ft-polyfill-service.herokuapp.com/v2/polyfill.min.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="/time-minder.js"></script>
 	<script src="/app.js"></script>
@@ -81,7 +82,15 @@
 		</div>
 		<div id="timerTemplate">
 			<div class="timer standard-timer" data-key="timer">
-				<div id="timerName" class="timer-title" data-key="timer-title"></div>
+				<div class="timer-title-bar" data-key="timer-title-bar">
+					<div class="timer-title" data-key="timer-title"></div>
+					<button data-key="fullscreen-button" class="fullscreen-button enter" title="Enter/exit full screen">
+						<span class="a"></span>
+						<span class="b"></span>
+						<span class="c"></span>
+						<span class="d"></span>
+					</button>
+				</div>
 				<div class="timer-container" data-key="timer-container">
 					<div class="overlay-time-container warmup-time-container" data-key="warmup-time-container">
 						<h2>Warmup time remaining</h2>

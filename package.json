@@ -38,28 +38,29 @@
   "dependencies": {
     "css-loader": "^0.28.4",
     "express": "^4.14.0",
-    "extract-text-webpack-plugin": "^2.1.0",
+    "extract-text-webpack-plugin": "^2.1.2",
+    "fscreen": "^1.0.1",
     "lodash": "^4.17.4",
     "lodash.clonedeep": "^4.5.0",
     "lodash.isequal": "^4.5.0",
     "lodash.merge": "^4.6.0",
     "node-sass": "^4.5.3",
-    "sass-loader": "^6.0.5",
+    "sass-loader": "^6.0.6",
     "socket.io": "^1.7.2",
     "style-loader": "^0.18.2",
-    "ts-loader": "^2.2.2",
+    "ts-loader": "^2.3.0",
     "tslib": "^1.7.1",
     "uuid": "^3.0.1",
     "webpack": "^2.6.1"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.66",
+    "@types/lodash": "^4.14.69",
     "@types/socket.io-client": "^1.4.29",
     "@types/webpack-env": "^1.13.0",
     "expect": "^1.20.2",
     "nodemon": "^1.11.0",
     "typescript": "^2.4.1",
-    "uglify-js": "^3.0.19",
+    "uglify-js": "^3.0.25",
     "uglifyjs-webpack-plugin": "^0.4.6"
   }
 }

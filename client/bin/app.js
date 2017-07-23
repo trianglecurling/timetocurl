@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 5);
+/******/ 	return __webpack_require__(__webpack_require__.s = 6);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -74,6 +74,74 @@
 
 /***/ }),
 /* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var key = {
+  fullscreenEnabled: 0,
+  fullscreenElement: 1,
+  requestFullscreen: 2,
+  exitFullscreen: 3,
+  fullscreenchange: 4,
+  fullscreenerror: 5
+};
+
+var webkit = ['webkitFullscreenEnabled', 'webkitFullscreenElement', 'webkitRequestFullscreen', 'webkitExitFullscreen', 'webkitfullscreenchange', 'webkitfullscreenerror'];
+
+var moz = ['mozFullScreenEnabled', 'mozFullScreenElement', 'mozRequestFullScreen', 'mozCancelFullScreen', 'mozfullscreenchange', 'mozfullscreenerror'];
+
+var ms = ['msFullscreenEnabled', 'msFullscreenElement', 'msRequestFullscreen', 'msExitFullscreen', 'MSFullscreenChange', 'MSFullscreenError'];
+
+// so it doesn't throw if no window or document
+var document = typeof window !== 'undefined' && typeof window.document !== 'undefined' ? window.document : {};
+
+var vendor = 'fullscreenEnabled' in document && Object.keys(key) || webkit[0] in document && webkit || moz[0] in document && moz || ms[0] in document && ms || [];
+
+exports.default = {
+  requestFullscreen: function requestFullscreen(element) {
+    return element[vendor[key.requestFullscreen]]();
+  },
+  requestFullscreenFunction: function requestFullscreenFunction(element) {
+    return element[vendor[key.requestFullscreen]];
+  },
+  get exitFullscreen() {
+    return document[vendor[key.exitFullscreen]].bind(document);
+  },
+  addEventListener: function addEventListener(type, handler, options) {
+    return document.addEventListener(vendor[key[type]], handler, options);
+  },
+  removeEventListener: function removeEventListener(type, handler) {
+    return document.removeEventListener(vendor[key[type]], handler);
+  },
+  get fullscreenEnabled() {
+    return Boolean(document[vendor[key.fullscreenEnabled]]);
+  },
+  set fullscreenEnabled(val) {},
+  get fullscreenElement() {
+    return document[vendor[key.fullscreenElement]];
+  },
+  set fullscreenElement(val) {},
+  get onfullscreenchange() {
+    return document[('on' + vendor[key.fullscreenchange]).toLowerCase()];
+  },
+  set onfullscreenchange(handler) {
+    return document[('on' + vendor[key.fullscreenchange]).toLowerCase()] = handler;
+  },
+  get onfullscreenerror() {
+    return document[('on' + vendor[key.fullscreenerror]).toLowerCase()];
+  },
+  set onfullscreenerror(handler) {
+    return document[('on' + vendor[key.fullscreenerror]).toLowerCase()] = handler;
+  }
+};
+
+/***/ }),
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, module) {var __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -17162,10 +17230,10 @@
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6), __webpack_require__(7)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7), __webpack_require__(8)(module)))
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17230,7 +17298,7 @@ async function confirm(message, title = null, okText = "OK", cancelText = "Cance
     currentDialog = dialog;
     return promise.then(onConfirmButtonClick.bind(null, true), onConfirmButtonClick.bind(null, false));
 }
-exports.confirm = confirm;
+exports.default = confirm;
 function onConfirmButtonClick(value) {
     document.body.classList.remove("scroll-disabled");
     if (currentOverlay) {
@@ -17244,7 +17312,7 @@ function onConfirmButtonClick(value) {
 
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17315,7 +17383,7 @@ exports.TimerPresets = [
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17356,86 +17424,238 @@ exports.default = scaleText;
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const confirm_1 = __webpack_require__(2);
-const presets_1 = __webpack_require__(3);
-const fscreen_1 = __webpack_require__(12);
-const scaletext_1 = __webpack_require__(4);
-const lodash_1 = __webpack_require__(1);
+const TimeToCurl_1 = __webpack_require__(14);
+// Force compilation and bundling
+__webpack_require__(17);
+__webpack_require__(16);
 __webpack_require__(0);
-function getDisplayedTimers() {
-    const hash = window.location.hash;
-    if (hash.length > 0) {
-        return hash.substr(1).split(";");
+new TimeToCurl_1.TimeToCurl().init();
+console.log("Hey developers! Thanks for checking out the source of Time to Curl. The JavaScript included on this page is compiled from TypeScript source. I don't do source maps because source maps are for wimps. To see the original source, head on over to our GitHub repo at https://github.com/trianglecurling/timetocurl. Please use the GitHub page to let us know if you find any issues with this application.");
+console.log('Those looking a bit more closely may notice that the layout of this page is fairly horrendous. Lots of overlayed DIVs with absolute positioning—yuck! Here\'s my reasoning. When I first created the app, I started with the most bare-bones HTML possible with almost no CSS. Once I got a good amount of the functionality done, I decided to go back and add CSS to skin the app. However, the plan was to make the first skin as similar as possible to "CurlTime" to make for an easy transition. However, I wanted to keep my options open for re-skinning in the future, so I wanted the HTML to be easily modified without affecting the "Classic" layout. We\'ll see in time if that was a good decision. I\'m starting to regret it!');
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports) {
+
+module.exports = function(module) {
+	if(!module.webpackPolyfill) {
+		module.deprecate = function() {};
+		module.paths = [];
+		// module.parent = undefined by default
+		if(!module.children) module.children = [];
+		Object.defineProperty(module, "loaded", {
+			enumerable: true,
+			get: function() {
+				return module.l;
+			}
+		});
+		Object.defineProperty(module, "id", {
+			enumerable: true,
+			get: function() {
+				return module.i;
+			}
+		});
+		module.webpackPolyfill = 1;
+	}
+	return module;
+};
+
+
+/***/ }),
+/* 9 */,
+/* 10 */,
+/* 11 */,
+/* 12 */,
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const fscreen_1 = __webpack_require__(1);
+const util_1 = __webpack_require__(15);
+const IGNORE_HOTKEY_TYPES = [HTMLInputElement, HTMLButtonElement, HTMLTextAreaElement, HTMLSelectElement];
+class TimerUIBase {
+    constructor(initParams, container, application) {
+        this.container = container;
+        this.application = application;
+        this.elements = {};
+        this.state = initParams.state;
+        this.options = initParams.options;
+        this.runningTimers = [];
+        if (initParams.options.lengthOfSecond) {
+            this.lengthOfSecond = initParams.options.lengthOfSecond;
+        }
     }
-    return [];
-}
-function setTimersInHash(ids) {
-    window.location.hash = `#${ids.join(";")}`;
-}
-function uuid() {
-    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
-        const r = (Math.random() * 16) | 0, v = c === "x" ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-    });
-}
-function isSimpleTimer(machine) {
-    return machine.type === "simple";
-}
-function isStandardTimer(machine) {
-    return machine.type === "standard";
-}
-function calculateScrollbarWidth() {
-    const c1 = document.createElement("div");
-    const c2 = document.createElement("div");
-    c1.style.width = "500px";
-    c1.style.height = "500px";
-    c1.style.position = "absolute";
-    c1.style.top = "-1000px";
-    c1.style.left = "-1000px";
-    c1.style.overflow = "hidden";
-    c2.style.position = "absolute";
-    c2.style.top = "0";
-    c2.style.left = "0";
-    c2.style.right = "0";
-    c2.style.bottom = "0";
-    c2.style.overflow = "scroll";
-    c1.appendChild(c2);
-    document.body.appendChild(c1);
-    const scrollbarWidth = c2.clientWidth - c2.offsetWidth;
-    c1.remove();
-    return scrollbarWidth;
-}
-const clientId = uuid();
-function roundPrecision(num, decimalPlaces) {
-    const power = Math.pow(10, decimalPlaces);
-    return Math.round(num * power) / power;
-}
-function forceMonospace(element) {
-    for (let i = 0; i < element.childNodes.length; i++) {
-        const child = element.childNodes[i];
-        if (child.nodeType === Node.TEXT_NODE) {
-            const $wrapper = document.createDocumentFragment();
-            for (i = 0; i < child.nodeValue.length; i++) {
-                const $char = document.createElement("span");
-                const val = child.nodeValue.charAt(i);
-                const charCode = val.charCodeAt(0);
-                $char.className = "char" + (charCode >= 48 && charCode < 58 ? " digit" : "");
-                $char.textContent = val;
-                $wrapper.appendChild($char);
+    handleFullscreenToggled() {
+        if (fscreen_1.default.fullscreenElement) {
+            fscreen_1.default.exitFullscreen();
+        }
+        else {
+            fscreen_1.default.requestFullscreen(this.timerContainerElement);
+        }
+    }
+    initUI() {
+        const template = document.getElementById(this.getTemplateId()).children.item(0);
+        const newUI = template.cloneNode(true);
+        this.initElements(newUI);
+        this.container.appendChild(newUI);
+        // set up click-to-scroll
+        if (this.titleElement) {
+            this.titleElement.addEventListener("click", () => {
+                this.scrollIntoView();
+            });
+        }
+        // full screen mode
+        if (this.fullScreenButton) {
+            this.fullScreenButton.addEventListener("click", this.handleFullscreenToggled.bind(this));
+        }
+        document.addEventListener("keydown", event => {
+            if (!event.defaultPrevented && event.key === " " && !util_1.instanceOfAny(event.target, IGNORE_HOTKEY_TYPES)) {
+                this.handleFullscreenToggled();
             }
-            element.replaceChild($wrapper, child);
+        });
+        fscreen_1.default.addEventListener("fullscreenchange", () => {
+            if (fscreen_1.default.fullscreenElement) {
+                this.fullScreenButton.classList.add("exit");
+                this.fullScreenButton.classList.remove("enter");
+            }
+            else {
+                this.fullScreenButton.classList.add("enter");
+                this.fullScreenButton.classList.remove("exit");
+            }
+        });
+    }
+    scrollIntoView() {
+        this.timerContainerElement.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+        });
+    }
+    clearTimers() {
+        if (this.runningTimers) {
+            this.runningTimers.forEach(t => t.dispose());
+            this.runningTimers = [];
         }
-        else if (child.nodeType === Node.ELEMENT_NODE) {
-            forceMonospace(child);
+    }
+    async sendCommand(command, data) {
+        const result = await this.application.emitAction({
+            request: "QUERY_TIMER",
+            clientId: util_1.clientId,
+            options: {
+                command: command,
+                data: JSON.stringify(data),
+                timerId: this.state.id,
+            },
+        });
+    }
+    forEachAction(callback) {
+        for (const action in this.elements) {
+            for (const elem of this.elements[action]) {
+                const actionAttr = elem.dataset["action"];
+                if (elem.tagName.toLowerCase() === "button" && actionAttr) {
+                    callback.call(null, elem, actionAttr);
+                }
+            }
+        }
+    }
+    forEachCommand(callback) {
+        for (const commandKey in this.elements) {
+            const splitCommand = commandKey.split(":");
+            let command = commandKey;
+            let team = null;
+            if (splitCommand.length === 2) {
+                team = splitCommand[0];
+                command = splitCommand[1];
+            }
+            for (const elem of this.elements[commandKey]) {
+                const commandAttr = elem.dataset["command"];
+                if (elem.tagName.toLowerCase() === "button" && commandAttr) {
+                    callback.call(null, elem, commandAttr, team);
+                }
+            }
+        }
+    }
+    populateElements(elem, teamContext = null) {
+        let key = "";
+        const elemData = elem.dataset["key"] || elem.dataset["action"];
+        if (elemData) {
+            key = elemData;
+        }
+        else {
+            const nonTeamClasses = Array.prototype.filter.call(elem.classList, (c) => c.substr(0, 5) !== "team");
+            if (nonTeamClasses.length === 1) {
+                key = nonTeamClasses[0];
+            }
+        }
+        let foundTeamContext = teamContext;
+        if (foundTeamContext === null) {
+            const testForTeamInClassname = /team-([a-z]+)\b/i.exec(elem.className);
+            if (testForTeamInClassname && testForTeamInClassname[1]) {
+                foundTeamContext = testForTeamInClassname[1];
+            }
+        }
+        const teamPrefix = foundTeamContext === null ? "" : foundTeamContext + ":";
+        key = teamPrefix + key;
+        if (!this.elements[key]) {
+            this.elements[key] = [];
+        }
+        this.elements[key].push(elem);
+        if (elem.children) {
+            for (let i = 0; i < elem.children.length; ++i) {
+                this.populateElements(elem.children.item(i), foundTeamContext);
+            }
         }
     }
 }
+exports.TimerUIBase = TimerUIBase;
+
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const confirm_1 = __webpack_require__(3);
+const lodash_1 = __webpack_require__(2);
+const presets_1 = __webpack_require__(4);
+const util_1 = __webpack_require__(15);
 class TimeToCurl {
     constructor() {
         this.speedyClocks = false;
@@ -17477,7 +17697,7 @@ class TimeToCurl {
                     throw new Error("Received an action that we didn't know how to handle... " + message);
             }
         });
-        this.loadTimers(getDisplayedTimers());
+        this.loadTimers(util_1.getDisplayedTimers());
     }
     async loadTimers(ids) {
         for (const timerId of ids) {
@@ -17631,16 +17851,16 @@ class TimeToCurl {
         simpleOrStandard.appendChild(simpleRadio);
         simpleOrStandard.appendChild(standardRadio);
         const standardOptions = this.nextStandardTimerOptions;
-        const thinkingTime = this.simpleInput("Thinking time", "thinkingTime", secondsToStr(standardOptions.thinkingTime));
+        const thinkingTime = this.simpleInput("Thinking time", "thinkingTime", util_1.secondsToStr(standardOptions.thinkingTime));
         const numEndsStandard = this.simpleInput("Number of ends", "numEnds", standardOptions.numEnds);
-        const extraEndThinkingTime = this.simpleInput("Thinking time added for an extra end", "extraEndThinkingTime", secondsToStr(standardOptions.extraEndThinkingTime));
+        const extraEndThinkingTime = this.simpleInput("Thinking time added for an extra end", "extraEndThinkingTime", util_1.secondsToStr(standardOptions.extraEndThinkingTime));
         const numTimeouts = this.simpleInput("Number of timeouts per team", "numTimeouts", standardOptions.numTimeouts);
-        const timeoutTime = this.simpleInput("Timeout time", "timeoutTime", secondsToStr(standardOptions.timeoutTime));
-        const homeTravelTime = this.simpleInput("Travel time (home end)", "homeTravelTime", secondsToStr(standardOptions.travelTime.home));
-        const awayTravelTime = this.simpleInput("Travel time (away end)", "awayTravelTime", secondsToStr(standardOptions.travelTime.away));
-        const warmupTime = this.simpleInput("Warmup time", "warmupTime", secondsToStr(standardOptions.warmupTime));
-        const betweenEndTime = this.simpleInput("Time between ends", "betweenEndTime", secondsToStr(standardOptions.betweenEndTime));
-        const midGameBreakTime = this.simpleInput("Mid game break time", "midGameBreakTime", secondsToStr(standardOptions.midGameBreakTime));
+        const timeoutTime = this.simpleInput("Timeout time", "timeoutTime", util_1.secondsToStr(standardOptions.timeoutTime));
+        const homeTravelTime = this.simpleInput("Travel time (home end)", "homeTravelTime", util_1.secondsToStr(standardOptions.travelTime.home));
+        const awayTravelTime = this.simpleInput("Travel time (away end)", "awayTravelTime", util_1.secondsToStr(standardOptions.travelTime.away));
+        const warmupTime = this.simpleInput("Warmup time", "warmupTime", util_1.secondsToStr(standardOptions.warmupTime));
+        const betweenEndTime = this.simpleInput("Time between ends", "betweenEndTime", util_1.secondsToStr(standardOptions.betweenEndTime));
+        const midGameBreakTime = this.simpleInput("Mid game break time", "midGameBreakTime", util_1.secondsToStr(standardOptions.midGameBreakTime));
         const standardContainer = document.createElement("div");
         standardContainer.classList.add("custom-settings-fields-container", "standard-settings", "irrelevant");
         standardContainer.appendChild(thinkingTime);
@@ -17654,9 +17874,9 @@ class TimeToCurl {
         standardContainer.appendChild(betweenEndTime);
         standardContainer.appendChild(midGameBreakTime);
         const simpleOptions = this.nextSimpleTimerOptions;
-        const totalTime = this.simpleInput("Total time", "totalTime", secondsToStr(simpleOptions.totalTime));
-        const endTime = this.simpleInput("Turn red at", "noMoreEndsTime", secondsToStr(simpleOptions.noMoreEndsTime));
-        const warningTime = this.simpleInput("Turn yellow at", "warningTime", secondsToStr(simpleOptions.warningTime));
+        const totalTime = this.simpleInput("Total time", "totalTime", util_1.secondsToStr(simpleOptions.totalTime));
+        const endTime = this.simpleInput("Turn red at", "noMoreEndsTime", util_1.secondsToStr(simpleOptions.noMoreEndsTime));
+        const warningTime = this.simpleInput("Turn yellow at", "warningTime", util_1.secondsToStr(simpleOptions.warningTime));
         const additionalEnds = this.simpleInput("Ends allowed after timer turns red", "allowableAdditionalEnds", simpleOptions.allowableAdditionalEnds);
         const numEndsSimple = this.simpleInput("Number of ends", "numEnds", simpleOptions.numEnds);
         const showPacing = document.createElement("div");
@@ -17718,19 +17938,19 @@ class TimeToCurl {
             this.saveTimerOptions();
         });
         allOptionsContainer.addEventListener("input", () => {
-            const valThinkingTime = strToSeconds(thinkingTime.children[1].value);
+            const valThinkingTime = util_1.strToSeconds(thinkingTime.children[1].value);
             const valNumEndsStandard = Number(numEndsStandard.children[1].value);
-            const valXEndThinkingTime = strToSeconds(extraEndThinkingTime.children[1].value);
+            const valXEndThinkingTime = util_1.strToSeconds(extraEndThinkingTime.children[1].value);
             const valNumTimeouts = Number(numTimeouts.children[1].value);
-            const valTimeoutTime = strToSeconds(timeoutTime.children[1].value);
-            const valHomeTravelTime = strToSeconds(homeTravelTime.children[1].value);
-            const valAwayTravelTime = strToSeconds(awayTravelTime.children[1].value);
-            const valWarmupTime = strToSeconds(warmupTime.children[1].value);
-            const valBetweenEndTime = strToSeconds(betweenEndTime.children[1].value);
-            const valMidGameBreakTime = strToSeconds(midGameBreakTime.children[1].value);
-            const valTotalTime = strToSeconds(totalTime.children[1].value);
-            const valEndTime = strToSeconds(endTime.children[1].value);
-            const valWarningTime = strToSeconds(warningTime.children[1].value);
+            const valTimeoutTime = util_1.strToSeconds(timeoutTime.children[1].value);
+            const valHomeTravelTime = util_1.strToSeconds(homeTravelTime.children[1].value);
+            const valAwayTravelTime = util_1.strToSeconds(awayTravelTime.children[1].value);
+            const valWarmupTime = util_1.strToSeconds(warmupTime.children[1].value);
+            const valBetweenEndTime = util_1.strToSeconds(betweenEndTime.children[1].value);
+            const valMidGameBreakTime = util_1.strToSeconds(midGameBreakTime.children[1].value);
+            const valTotalTime = util_1.strToSeconds(totalTime.children[1].value);
+            const valEndTime = util_1.strToSeconds(endTime.children[1].value);
+            const valWarningTime = util_1.strToSeconds(warningTime.children[1].value);
             const valAdditionalEnds = Number(additionalEnds.children[1].value);
             const valNumEndsSimple = Number(numEndsSimple.children[1].value);
             standardOptions.thinkingTime = valThinkingTime || prevStandardSettings.thinkingTime;
@@ -17750,25 +17970,25 @@ class TimeToCurl {
                 ? prevSimpleSettings.allowableAdditionalEnds
                 : valAdditionalEnds;
             simpleOptions.numEnds = valNumEndsSimple || prevSimpleSettings.numEnds;
-            thinkingTime.children[2].textContent = secondsToStr(standardOptions.thinkingTime);
+            thinkingTime.children[2].textContent = util_1.secondsToStr(standardOptions.thinkingTime);
             numEndsStandard.children[2].textContent = String(standardOptions.numEnds);
-            extraEndThinkingTime.children[2].textContent = secondsToStr(standardOptions.extraEndThinkingTime);
+            extraEndThinkingTime.children[2].textContent = util_1.secondsToStr(standardOptions.extraEndThinkingTime);
             numTimeouts.children[2].textContent = String(standardOptions.numTimeouts);
-            timeoutTime.children[2].textContent = secondsToStr(standardOptions.timeoutTime);
-            homeTravelTime.children[2].textContent = secondsToStr(standardOptions.travelTime.home);
-            awayTravelTime.children[2].textContent = secondsToStr(standardOptions.travelTime.away);
-            warmupTime.children[2].textContent = secondsToStr(standardOptions.warmupTime);
-            betweenEndTime.children[2].textContent = secondsToStr(standardOptions.betweenEndTime);
-            midGameBreakTime.children[2].textContent = secondsToStr(standardOptions.midGameBreakTime);
-            totalTime.children[2].textContent = secondsToStr(simpleOptions.totalTime);
-            endTime.children[2].textContent = secondsToStr(simpleOptions.noMoreEndsTime);
-            warningTime.children[2].textContent = secondsToStr(simpleOptions.warningTime);
+            timeoutTime.children[2].textContent = util_1.secondsToStr(standardOptions.timeoutTime);
+            homeTravelTime.children[2].textContent = util_1.secondsToStr(standardOptions.travelTime.home);
+            awayTravelTime.children[2].textContent = util_1.secondsToStr(standardOptions.travelTime.away);
+            warmupTime.children[2].textContent = util_1.secondsToStr(standardOptions.warmupTime);
+            betweenEndTime.children[2].textContent = util_1.secondsToStr(standardOptions.betweenEndTime);
+            midGameBreakTime.children[2].textContent = util_1.secondsToStr(standardOptions.midGameBreakTime);
+            totalTime.children[2].textContent = util_1.secondsToStr(simpleOptions.totalTime);
+            endTime.children[2].textContent = util_1.secondsToStr(simpleOptions.noMoreEndsTime);
+            warningTime.children[2].textContent = util_1.secondsToStr(simpleOptions.warningTime);
             additionalEnds.children[2].textContent = String(simpleOptions.allowableAdditionalEnds);
             numEndsSimple.children[2].textContent = String(simpleOptions.numEnds);
             this.evaluatePresetDropdown();
             this.saveTimerOptions();
         }, true);
-        if (!await confirm_1.confirm(optionsDialog, "Customize timer settings")) {
+        if (!await confirm_1.default(optionsDialog, "Customize timer settings")) {
             this.nextStandardTimerOptions = prevStandardSettings;
             this.nextSimpleTimerOptions = prevSimpleSettings;
             this.nextTimerType = prevTimerType;
@@ -17800,15 +18020,23 @@ class TimeToCurl {
             this.timerPresetsDropdown = document.getElementById("timerPresets");
             this.populateTimerOptions();
             this.restoreSettingsFromStorage();
-            document.getElementById("createTimer").addEventListener("click", async () => {
-                const response = await this.emitAction({
-                    request: "CREATE_TIMER",
-                    clientId: clientId,
-                    options: Object.assign({}, this.nextTimerType === "simple" /* Simple */
-                        ? this.nextSimpleTimerOptions
-                        : this.nextStandardTimerOptions, { lengthOfSecond: this.speedyClocks ? 100 : 1000, type: this.nextTimerType }),
-                });
-                this.addCurlingMachine(response.data).scrollIntoView();
+            document.getElementById("createTimer").addEventListener("click", async (event) => {
+                event.target.textContent = "Reset";
+                if (Object.keys(this.machines).length > 0) {
+                    if (await confirm_1.default("Reset timers. Are you sure?")) {
+                        window.location.href = "/";
+                    }
+                }
+                else {
+                    const response = await this.emitAction({
+                        request: "CREATE_TIMER",
+                        clientId: util_1.clientId,
+                        options: Object.assign({}, this.nextTimerType === "simple" /* Simple */
+                            ? this.nextSimpleTimerOptions
+                            : this.nextStandardTimerOptions, { lengthOfSecond: this.speedyClocks ? 100 : 1000, type: this.nextTimerType }),
+                    });
+                    this.addCurlingMachine(response.data).scrollIntoView();
+                }
             });
             const showDebug = document.getElementById("showDebug");
             showDebug.addEventListener("change", this.onDebugToggled);
@@ -17864,185 +18092,249 @@ class TimeToCurl {
     }
     emitAction(action) {
         return new Promise((resolve, reject) => {
-            const token = uuid();
+            const token = util_1.uuid();
             action.token = token;
-            action.clientId = clientId;
+            action.clientId = util_1.clientId;
             this.socket.emit("action", JSON.stringify(action));
             this.requestResolvers[token] = resolve;
         });
     }
     addCurlingMachine(cm) {
-        if (isSimpleTimer(cm)) {
-            this.machines[cm.state.id] = new SimpleTimerUI(cm, document.getElementById("timersContainer"), this);
-        }
-        else if (isStandardTimer(cm)) {
-            this.machines[cm.state.id] = new CurlingMachineUI(cm, document.getElementById("timersContainer"), this);
-        }
+        this.machines[cm.state.id] = new (this.getMatchingTimer(cm))(cm, document.getElementById("timersContainer"), this);
         this.machines[cm.state.id].initUI();
-        const displayedTimers = getDisplayedTimers();
+        const displayedTimers = util_1.getDisplayedTimers();
         if (displayedTimers.indexOf(cm.state.id) === -1) {
             displayedTimers.push(cm.state.id);
         }
-        setTimersInHash(displayedTimers);
+        util_1.setTimersInHash(displayedTimers);
         return this.machines[cm.state.id];
     }
+    getMatchingTimer(cm) {
+        for (const registeredTimer of timerTypes) {
+            if (registeredTimer.decider(cm)) {
+                return registeredTimer.timer;
+            }
+        }
+        throw new Error("Could not find a suitable UI for this timer.");
+    }
 }
-class TimerUIBase {
-    constructor(initParams, container, application) {
-        this.container = container;
-        this.application = application;
-        this.elements = {};
-        this.state = initParams.state;
-        this.options = initParams.options;
-        this.runningTimers = [];
-        if (initParams.options.lengthOfSecond) {
-            this.lengthOfSecond = initParams.options.lengthOfSecond;
+exports.TimeToCurl = TimeToCurl;
+const timerTypes = [];
+function registerTimerType(timer, decider) {
+    timerTypes.push({ timer, decider });
+}
+exports.registerTimerType = registerTimerType;
+
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const scaletext_1 = __webpack_require__(5);
+function instanceOfAny(obj, types) {
+    for (const type of types) {
+        if (obj instanceof type) {
+            return true;
         }
     }
-    handleFullscreeToggled() {
-        if (fscreen_1.default.fullscreenElement) {
-            fscreen_1.default.exitFullscreen();
-        }
-        else {
-            fscreen_1.default.requestFullscreen(this.timerContainerElement);
-        }
+    return false;
+}
+exports.instanceOfAny = instanceOfAny;
+function getDisplayedTimers() {
+    const hash = window.location.hash;
+    if (hash.length > 0) {
+        return hash.substr(1).split(";");
     }
-    initUI() {
-        // set up click-to-scroll
-        if (this.titleElement) {
-            this.titleElement.addEventListener("click", () => {
-                this.scrollIntoView();
-            });
-        }
-        // full screen mode
-        if (this.fullScreenButton) {
-            this.fullScreenButton.addEventListener("click", this.handleFullscreeToggled);
-        }
-        document.addEventListener("keydown", event => {
-            if (!event.defaultPrevented && event.key === " " && !(event.target instanceof HTMLInputElement)) {
-                this.handleFullscreeToggled();
+    return [];
+}
+exports.getDisplayedTimers = getDisplayedTimers;
+function setTimersInHash(ids) {
+    window.location.hash = `#${ids.join(";")}`;
+}
+exports.setTimersInHash = setTimersInHash;
+function uuid() {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+        const r = (Math.random() * 16) | 0, v = c === "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
+}
+exports.uuid = uuid;
+function isSimpleTimer(machine) {
+    return machine.type === "simple";
+}
+exports.isSimpleTimer = isSimpleTimer;
+function isStandardTimer(machine) {
+    return machine.type === "standard";
+}
+exports.isStandardTimer = isStandardTimer;
+function calculateScrollbarWidth() {
+    const c1 = document.createElement("div");
+    const c2 = document.createElement("div");
+    c1.style.width = "500px";
+    c1.style.height = "500px";
+    c1.style.position = "absolute";
+    c1.style.top = "-1000px";
+    c1.style.left = "-1000px";
+    c1.style.overflow = "hidden";
+    c2.style.position = "absolute";
+    c2.style.top = "0";
+    c2.style.left = "0";
+    c2.style.right = "0";
+    c2.style.bottom = "0";
+    c2.style.overflow = "scroll";
+    c1.appendChild(c2);
+    document.body.appendChild(c1);
+    const scrollbarWidth = c2.clientWidth - c2.offsetWidth;
+    c1.remove();
+    return scrollbarWidth;
+}
+exports.calculateScrollbarWidth = calculateScrollbarWidth;
+function roundPrecision(num, decimalPlaces) {
+    const power = Math.pow(10, decimalPlaces);
+    return Math.round(num * power) / power;
+}
+exports.roundPrecision = roundPrecision;
+function forceMonospace(element) {
+    for (let i = 0; i < element.childNodes.length; i++) {
+        const child = element.childNodes[i];
+        if (child.nodeType === Node.TEXT_NODE) {
+            const $wrapper = document.createDocumentFragment();
+            for (i = 0; i < child.nodeValue.length; i++) {
+                const $char = document.createElement("span");
+                const val = child.nodeValue.charAt(i);
+                const charCode = val.charCodeAt(0);
+                $char.className = "char" + (charCode >= 48 && charCode < 58 ? " digit" : "");
+                $char.textContent = val;
+                $wrapper.appendChild($char);
             }
-        });
-        fscreen_1.default.addEventListener("fullscreenchange", () => {
-            if (fscreen_1.default.fullscreenElement) {
-                this.fullScreenButton.classList.add("exit");
-                this.fullScreenButton.classList.remove("enter");
-            }
-            else {
-                this.fullScreenButton.classList.add("enter");
-                this.fullScreenButton.classList.remove("exit");
-            }
-        });
-    }
-    scrollIntoView() {
-        this.timerContainerElement.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-        });
-    }
-    clearTimers() {
-        if (this.runningTimers) {
-            this.runningTimers.forEach(t => t.dispose());
-            this.runningTimers = [];
+            element.replaceChild($wrapper, child);
         }
-    }
-    async sendCommand(command, data) {
-        const result = await this.application.emitAction({
-            request: "QUERY_TIMER",
-            clientId: clientId,
-            options: {
-                command: command,
-                data: JSON.stringify(data),
-                timerId: this.state.id,
-            },
-        });
-    }
-    forEachAction(callback) {
-        for (const action in this.elements) {
-            for (const elem of this.elements[action]) {
-                const actionAttr = elem.dataset["action"];
-                if (elem.tagName.toLowerCase() === "button" && actionAttr) {
-                    callback.call(null, elem, actionAttr);
-                }
-            }
-        }
-    }
-    forEachCommand(callback) {
-        for (const commandKey in this.elements) {
-            const splitCommand = commandKey.split(":");
-            let command = commandKey;
-            let team = null;
-            if (splitCommand.length === 2) {
-                team = splitCommand[0];
-                command = splitCommand[1];
-            }
-            for (const elem of this.elements[commandKey]) {
-                const commandAttr = elem.dataset["command"];
-                if (elem.tagName.toLowerCase() === "button" && commandAttr) {
-                    callback.call(null, elem, commandAttr, team);
-                }
-            }
-        }
-    }
-    populateElements(elem, teamContext = null) {
-        let key = "";
-        const elemData = elem.dataset["key"] || elem.dataset["action"];
-        if (elemData) {
-            key = elemData;
-        }
-        else {
-            const nonTeamClasses = Array.prototype.filter.call(elem.classList, (c) => c.substr(0, 5) !== "team");
-            if (nonTeamClasses.length === 1) {
-                key = nonTeamClasses[0];
-            }
-        }
-        let foundTeamContext = teamContext;
-        if (foundTeamContext === null) {
-            const testForTeamInClassname = /team-([a-z]+)\b/i.exec(elem.className);
-            if (testForTeamInClassname && testForTeamInClassname[1]) {
-                foundTeamContext = testForTeamInClassname[1];
-            }
-        }
-        const teamPrefix = foundTeamContext === null ? "" : foundTeamContext + ":";
-        key = teamPrefix + key;
-        if (!this.elements[key]) {
-            this.elements[key] = [];
-        }
-        this.elements[key].push(elem);
-        if (elem.children) {
-            for (let i = 0; i < elem.children.length; ++i) {
-                this.populateElements(elem.children.item(i), foundTeamContext);
-            }
+        else if (child.nodeType === Node.ELEMENT_NODE) {
+            forceMonospace(child);
         }
     }
 }
-class SimpleTimerUI extends TimerUIBase {
+exports.forceMonospace = forceMonospace;
+function secondsToStr(seconds) {
+    const clampedSeconds = Math.max(0, seconds);
+    const h = Math.floor(clampedSeconds / 3600);
+    const m = Math.floor((clampedSeconds - 3600 * h) / 60);
+    const s = Math.floor(clampedSeconds - h * 3600 - m * 60);
+    const slz = s < 10 ? "0" + String(s) : String(s);
+    const mlz = h > 0 && m < 10 ? "0" + String(m) : String(m);
+    const hwcolon = h > 0 ? String(h) + ":" : "";
+    return `${hwcolon}${mlz}:${slz}`;
+}
+exports.secondsToStr = secondsToStr;
+function strToSeconds(str) {
+    const sanitized = str.trim();
+    const justSeconds = sanitized.match(/^(\d+)\s*((s|sec|second|seconds)\.?)?$/);
+    if (justSeconds && justSeconds.length >= 2) {
+        // Just one number - assume seconds
+        return Number(justSeconds[1]);
+    }
+    const colonTime = sanitized.match(/^(?:(\d*):)?(\d*):(\d*)$/);
+    if (colonTime && colonTime.length >= 3) {
+        // In the format of [hh:]mm:ss, e.g. 8:22, 1:02:53, :56, or 20:
+        return 3600 * Number(colonTime[1] || 0) + 60 * Number(colonTime[2]) + Number(colonTime[3]);
+    }
+    const verbose = sanitized
+        .replace(",", "")
+        .match(/^(?:(\d+)\s*(?:(?:h|hr|hrs|hour|hours)\.?))?\s*(?:(\d+)\s*(?:(?:m|min|mins|minute|minutes)\.?))?\s*(?:(\d+)\s*(?:(?:s|sec|secs|second|seconds)\.?))?$/);
+    if (verbose && verbose.length >= 4) {
+        // In the format of hh hours mm minutes ss seconds, e.g.
+        // 2h3m1s, 3 hours, 1 hour, 2 minutes, 3 seconds, etc.
+        return 3600 * Number(verbose[1] || "0") + 60 * Number(verbose[2] || "0") + Number(verbose[3] || "0");
+    }
+    return null;
+}
+exports.strToSeconds = strToSeconds;
+function setTimeToElem(elem, seconds) {
+    setMonospaceText(elem, secondsToStr(seconds));
+}
+exports.setTimeToElem = setTimeToElem;
+function setMonospaceText(elem, text) {
+    elem.innerHTML = "";
+    elem.textContent = text;
+    scaletext_1.default(elem);
+    forceMonospace(elem);
+}
+exports.setMonospaceText = setMonospaceText;
+// 1 => 1st, 10 => 10th, 13 => 13th, 101 => 101st, etc.
+function getOrdinalAdjective(num) {
+    const elem = document.createElement("span");
+    elem.classList.add("ordinal-adjective");
+    const cardinalNumber = document.createElement("span");
+    cardinalNumber.classList.add("cardinal-number");
+    cardinalNumber.textContent = String(num);
+    const superScript = document.createElement("sup");
+    if (num % 100 > 10 && num % 100 < 14) {
+        superScript.textContent = "th";
+    }
+    else {
+        switch (num % 10) {
+            case 1:
+                superScript.textContent = "st";
+                break;
+            case 2:
+                superScript.textContent = "nd";
+                break;
+            case 3:
+                superScript.textContent = "rd";
+                break;
+            default:
+                superScript.textContent = "th";
+        }
+    }
+    elem.appendChild(cardinalNumber);
+    elem.appendChild(superScript);
+    return elem;
+}
+exports.getOrdinalAdjective = getOrdinalAdjective;
+exports.clientId = uuid();
+
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const TimerUIBase_1 = __webpack_require__(13);
+const TimeToCurl_1 = __webpack_require__(14);
+const util_1 = __webpack_require__(15);
+class SimpleTimerUI extends TimerUIBase_1.TimerUIBase {
     constructor(initParams, container, application) {
         super(initParams, container, application);
         this.container = container;
         this.application = application;
     }
     initUI() {
-        const template = document.getElementById("simpleTimerTemplate").children.item(0);
-        const newUI = template.cloneNode(true);
-        this.initElements(newUI);
+        super.initUI();
         this.forEachCommand((elem, command, team) => {
             elem.addEventListener("click", () => {
                 const data = JSON.parse(elem.dataset["data"] || "{}");
                 this.sendCommand(command, data);
             });
         });
-        this.container.appendChild(newUI);
         this.setNewState(this.state);
+    }
+    getTemplateId() {
+        return "simpleTimerTemplate";
     }
     setNewState(state) {
         this.debugElement.textContent = JSON.stringify(state, null, 4);
         this.state = state;
         this.clearTimers();
+        this.titleElement.textContent = this.state.timerName;
         const mainTimer = new TimeMinder(this.state.timeRemaining * this.lengthOfSecond);
         mainTimer.every(this.lengthOfSecond / 10, () => {
             const timeRemaining = mainTimer.getTimeRemaining() / this.lengthOfSecond;
-            setTimeToElem(this.remainingTime, mainTimer.getTimeRemaining() / this.lengthOfSecond);
+            util_1.setTimeToElem(this.remainingTime, mainTimer.getTimeRemaining() / this.lengthOfSecond);
             this.timerContainerElement.classList.remove("warning");
             this.timerContainerElement.classList.remove("no-more-ends");
             if (timeRemaining <= this.options.noMoreEndsTime) {
@@ -18091,7 +18383,22 @@ class SimpleTimerUI extends TimerUIBase {
         }
     }
 }
-class CurlingMachineUI extends TimerUIBase {
+exports.SimpleTimerUI = SimpleTimerUI;
+TimeToCurl_1.registerTimerType(SimpleTimerUI, cm => cm.type === "standard");
+
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const TimerUIBase_1 = __webpack_require__(13);
+const TimeToCurl_1 = __webpack_require__(14);
+const util_1 = __webpack_require__(15);
+const confirm_1 = __webpack_require__(3);
+class StandardTimerUI extends TimerUIBase_1.TimerUIBase {
     constructor(initParams, container, application) {
         super(initParams, container, application);
         this.container = container;
@@ -18115,11 +18422,11 @@ class CurlingMachineUI extends TimerUIBase {
             this.designationToTeam[designation] = team;
         }
     }
+    getTemplateId() {
+        return "timerTemplate";
+    }
     initUI() {
         super.initUI();
-        const template = document.getElementById("timerTemplate").children.item(0);
-        const newUI = template.cloneNode(true);
-        this.initElements(newUI);
         for (const teamId of Object.keys(this.thinkingButtons)) {
             this.thinkingButtons[teamId].addEventListener("click", () => {
                 this.sendPhaseTransition("begin-thinking", { team: teamId });
@@ -18132,7 +18439,7 @@ class CurlingMachineUI extends TimerUIBase {
             elem.addEventListener("click", async () => {
                 let proceed = true;
                 if (action === "begin-extra-end") {
-                    proceed = await confirm_1.confirm(`Are you sure you want to start an extra end? Both clocks will be reset to ${secondsToStr(this.options.extraEndThinkingTime)}.`);
+                    proceed = await confirm_1.default(`Are you sure you want to start an extra end? Both clocks will be reset to ${util_1.secondsToStr(this.options.extraEndThinkingTime)}.`);
                 }
                 if (proceed) {
                     this.sendPhaseTransition(action);
@@ -18176,9 +18483,9 @@ class CurlingMachineUI extends TimerUIBase {
                 const input = document.createElement("input");
                 input.setAttribute("id", inputId);
                 input.setAttribute("type", "text");
-                input.setAttribute("value", secondsToStr(this.state.timeRemaining[teamId]));
+                input.setAttribute("value", util_1.secondsToStr(this.state.timeRemaining[teamId]));
                 input.addEventListener("input", () => {
-                    const seconds = strToSeconds(input.value);
+                    const seconds = util_1.strToSeconds(input.value);
                     if (seconds !== null) {
                         // send state
                         const newState = {};
@@ -18198,7 +18505,7 @@ class CurlingMachineUI extends TimerUIBase {
                 teamTime.appendChild(input);
                 form.appendChild(teamTime);
             }
-            if (!await confirm_1.confirm(form, "Set time")) {
+            if (!await confirm_1.default(form, "Set time")) {
                 // reset initial values
                 const newState = {};
                 newState.timeRemaining = {};
@@ -18208,7 +18515,6 @@ class CurlingMachineUI extends TimerUIBase {
                 this.sendNewState(newState);
             }
         });
-        this.container.appendChild(newUI);
         this.setNewState(this.state);
     }
     getState() {
@@ -18234,7 +18540,7 @@ class CurlingMachineUI extends TimerUIBase {
         this.rootTimerElement.classList.add(this.rootTimerElement.dataset["phase"]);
         this.clearTimers();
         for (const teamId of this.options.teams) {
-            setTimeToElem(this.thinkingTimeText[teamId], this.state.timeRemaining[teamId]);
+            util_1.setTimeToElem(this.thinkingTimeText[teamId], this.state.timeRemaining[teamId]);
             if (this.state.phase !== "technical") {
                 this.elapsedThinkingTime[teamId].classList.remove("running");
                 this.thinkingTimeText[teamId].classList.remove("running");
@@ -18246,7 +18552,7 @@ class CurlingMachineUI extends TimerUIBase {
                     // Main countdown timer
                     const mainTimer = new TimeMinder(this.state.timeRemaining[thinkingTeam] * this.lengthOfSecond);
                     mainTimer.every(this.lengthOfSecond / 10, () => {
-                        setTimeToElem(this.thinkingTimeText[teamId], mainTimer.getTimeRemaining() / this.lengthOfSecond);
+                        util_1.setTimeToElem(this.thinkingTimeText[teamId], mainTimer.getTimeRemaining() / this.lengthOfSecond);
                     }, false);
                     mainTimer.start();
                     this.runningTimers.push(mainTimer);
@@ -18254,7 +18560,7 @@ class CurlingMachineUI extends TimerUIBase {
                     const stoneTimer = new Stopwatch();
                     this.elapsedThinkingTime[teamId].classList.add("running");
                     stoneTimer.every(this.lengthOfSecond / 10, () => {
-                        setTimeToElem(this.elapsedThinkingTime[teamId], (stoneTimer.elapsedTime() + (this.state.currentTimerRunningTime || 0)) /
+                        util_1.setTimeToElem(this.elapsedThinkingTime[teamId], (stoneTimer.elapsedTime() + (this.state.currentTimerRunningTime || 0)) /
                             this.lengthOfSecond);
                     }, false);
                     stoneTimer.start();
@@ -18279,7 +18585,7 @@ class CurlingMachineUI extends TimerUIBase {
             this.elements["warmup-time-container"][0].classList.remove("irrelevant");
             const timer = new TimeMinder(this.state.warmupTimeRemaining * this.lengthOfSecond);
             timer.every(this.lengthOfSecond / 10, () => {
-                setTimeToElem(this.warmupTimeText, timer.getTimeRemaining() / this.lengthOfSecond);
+                util_1.setTimeToElem(this.warmupTimeText, timer.getTimeRemaining() / this.lengthOfSecond);
             }, false);
             timer.start();
             this.runningTimers.push(timer);
@@ -18291,7 +18597,7 @@ class CurlingMachineUI extends TimerUIBase {
             this.elements["between-end-time-container"][0].classList.remove("irrelevant");
             const timer = new TimeMinder(this.state.betweenEndTimeRemaining * this.lengthOfSecond);
             timer.every(this.lengthOfSecond / 10, () => {
-                setTimeToElem(this.betweenEndTimeText, timer.getTimeRemaining() / this.lengthOfSecond);
+                util_1.setTimeToElem(this.betweenEndTimeText, timer.getTimeRemaining() / this.lengthOfSecond);
             }, false);
             timer.start();
             this.runningTimers.push(timer);
@@ -18317,7 +18623,7 @@ class CurlingMachineUI extends TimerUIBase {
                 else {
                     this.travelTimeCancelButton.disabled = false;
                 }
-                setTimeToElem(this.timeoutTimeText, timeoutTimer.getTimeRemaining() / this.lengthOfSecond);
+                util_1.setTimeToElem(this.timeoutTimeText, timeoutTimer.getTimeRemaining() / this.lengthOfSecond);
             }, false, true);
             const travelTimer = new TimeMinder(travelTime * this.lengthOfSecond, () => {
                 timeoutTimer.start();
@@ -18325,7 +18631,7 @@ class CurlingMachineUI extends TimerUIBase {
                 this.travelTimeContainer.classList.add("irrelevant");
             });
             travelTimer.every(this.lengthOfSecond / 10, () => {
-                setTimeToElem(this.travelTimeValue, travelTimer.getTimeRemaining() / this.lengthOfSecond);
+                util_1.setTimeToElem(this.travelTimeValue, travelTimer.getTimeRemaining() / this.lengthOfSecond);
             }, false, true);
             if (travelTime > 0) {
                 this.travelTimeCancelButton.dataset["data"] = JSON.stringify({ value: scheduledTravelTime * -1 });
@@ -18342,12 +18648,15 @@ class CurlingMachineUI extends TimerUIBase {
         else if (this.state.phase !== "technical") {
             this.elements["timeout-time-container"][0].classList.add("irrelevant");
         }
+        if (this.state.phase === "idle") {
+            this.elements["game-start-warmup"][0].classList.add("irrelevant");
+        }
         if (this.state.phase === "technical") {
             this.elements["technical"][0].classList.add("irrelevant");
             this.technicalInfo.classList.remove("irrelevant");
             const techTime = new Stopwatch();
             techTime.every(this.lengthOfSecond / 10, () => {
-                setTimeToElem(this.technicalTimeoutTime, techTime.elapsedTime() / this.lengthOfSecond);
+                util_1.setTimeToElem(this.technicalTimeoutTime, techTime.elapsedTime() / this.lengthOfSecond);
             }, true);
             techTime.start();
             this.runningTimers.push(techTime);
@@ -18382,7 +18691,7 @@ class CurlingMachineUI extends TimerUIBase {
     async sendPhaseTransition(transition, data) {
         const result = await this.application.emitAction({
             request: "QUERY_TIMER",
-            clientId: clientId,
+            clientId: util_1.clientId,
             options: {
                 transition: transition,
                 data: data,
@@ -18396,7 +18705,7 @@ class CurlingMachineUI extends TimerUIBase {
     async sendNewState(state) {
         const result = await this.application.emitAction({
             request: "QUERY_TIMER",
-            clientId: clientId,
+            clientId: util_1.clientId,
             options: {
                 state: state,
                 timerId: this.state.id,
@@ -18502,208 +18811,9 @@ class CurlingMachineUI extends TimerUIBase {
         }
     }
 }
-function secondsToStr(seconds) {
-    const clampedSeconds = Math.max(0, seconds);
-    const h = Math.floor(clampedSeconds / 3600);
-    const m = Math.floor((clampedSeconds - 3600 * h) / 60);
-    const s = Math.floor(clampedSeconds - h * 3600 - m * 60);
-    const slz = s < 10 ? "0" + String(s) : String(s);
-    const mlz = h > 0 && m < 10 ? "0" + String(m) : String(m);
-    const hwcolon = h > 0 ? String(h) + ":" : "";
-    return `${hwcolon}${mlz}:${slz}`;
-}
-function strToSeconds(str) {
-    const sanitized = str.trim();
-    const justSeconds = sanitized.match(/^(\d+)\s*((s|sec|second|seconds)\.?)?$/);
-    if (justSeconds && justSeconds.length >= 2) {
-        // Just one number - assume seconds
-        return Number(justSeconds[1]);
-    }
-    const colonTime = sanitized.match(/^(?:(\d*):)?(\d*):(\d*)$/);
-    if (colonTime && colonTime.length >= 3) {
-        // In the format of [hh:]mm:ss, e.g. 8:22, 1:02:53, :56, or 20:
-        return 3600 * Number(colonTime[1] || 0) + 60 * Number(colonTime[2]) + Number(colonTime[3]);
-    }
-    const verbose = sanitized
-        .replace(",", "")
-        .match(/^(?:(\d+)\s*(?:(?:h|hr|hrs|hour|hours)\.?))?\s*(?:(\d+)\s*(?:(?:m|min|mins|minute|minutes)\.?))?\s*(?:(\d+)\s*(?:(?:s|sec|secs|second|seconds)\.?))?$/);
-    if (verbose && verbose.length >= 4) {
-        // In the format of hh hours mm minutes ss seconds, e.g.
-        // 2h3m1s, 3 hours, 1 hour, 2 minutes, 3 seconds, etc.
-        return 3600 * Number(verbose[1] || "0") + 60 * Number(verbose[2] || "0") + Number(verbose[3] || "0");
-    }
-    return null;
-}
-function setTimeToElem(elem, seconds) {
-    setMonospaceText(elem, secondsToStr(seconds));
-}
-function setMonospaceText(elem, text) {
-    elem.innerHTML = "";
-    elem.textContent = text;
-    scaletext_1.default(elem);
-    forceMonospace(elem);
-}
-// 1 => 1st, 10 => 10th, 13 => 13th, 101 => 101st, etc.
-function getOrdinalAdjective(num) {
-    const elem = document.createElement("span");
-    elem.classList.add("ordinal-adjective");
-    const cardinalNumber = document.createElement("span");
-    cardinalNumber.classList.add("cardinal-number");
-    cardinalNumber.textContent = String(num);
-    const superScript = document.createElement("sup");
-    if (num % 100 > 10 && num % 100 < 14) {
-        superScript.textContent = "th";
-    }
-    else {
-        switch (num % 10) {
-            case 1:
-                superScript.textContent = "st";
-                break;
-            case 2:
-                superScript.textContent = "nd";
-                break;
-            case 3:
-                superScript.textContent = "rd";
-                break;
-            default:
-                superScript.textContent = "th";
-        }
-    }
-    elem.appendChild(cardinalNumber);
-    elem.appendChild(superScript);
-    return elem;
-}
-new TimeToCurl().init();
-console.log("Hey developers! Thanks for checking out the source of Time to Curl. The JavaScript included on this page is compiled from TypeScript source. I don't do source maps because source maps are for wimps. To see the original source, head on over to our GitHub repo at https://github.com/trianglecurling/timetocurl. Please use the GitHub page to let us know if you find any issues with this application.");
-console.log('Those looking a bit more closely may notice that the layout of this page is fairly horrendous. Lots of overlayed DIVs with absolute positioning—yuck! Here\'s my reasoning. When I first created the app, I started with the most bare-bones HTML possible with almost no CSS. Once I got a good amount of the functionality done, I decided to go back and add CSS to skin the app. However, the plan was to make the first skin as similar as possible to "CurlTime" to make for an easy transition. However, I wanted to keep my options open for re-skinning in the future, so I wanted the HTML to be easily modified without affecting the "Classic" layout. We\'ll see in time if that was a good decision. I\'m starting to regret it!');
+exports.StandardTimerUI = StandardTimerUI;
+TimeToCurl_1.registerTimerType(StandardTimerUI, cm => cm.type === "standard");
 
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports) {
-
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports) {
-
-module.exports = function(module) {
-	if(!module.webpackPolyfill) {
-		module.deprecate = function() {};
-		module.paths = [];
-		// module.parent = undefined by default
-		if(!module.children) module.children = [];
-		Object.defineProperty(module, "loaded", {
-			enumerable: true,
-			get: function() {
-				return module.l;
-			}
-		});
-		Object.defineProperty(module, "id", {
-			enumerable: true,
-			get: function() {
-				return module.i;
-			}
-		});
-		module.webpackPolyfill = 1;
-	}
-	return module;
-};
-
-
-/***/ }),
-/* 8 */,
-/* 9 */,
-/* 10 */,
-/* 11 */,
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var key = {
-  fullscreenEnabled: 0,
-  fullscreenElement: 1,
-  requestFullscreen: 2,
-  exitFullscreen: 3,
-  fullscreenchange: 4,
-  fullscreenerror: 5
-};
-
-var webkit = ['webkitFullscreenEnabled', 'webkitFullscreenElement', 'webkitRequestFullscreen', 'webkitExitFullscreen', 'webkitfullscreenchange', 'webkitfullscreenerror'];
-
-var moz = ['mozFullScreenEnabled', 'mozFullScreenElement', 'mozRequestFullScreen', 'mozCancelFullScreen', 'mozfullscreenchange', 'mozfullscreenerror'];
-
-var ms = ['msFullscreenEnabled', 'msFullscreenElement', 'msRequestFullscreen', 'msExitFullscreen', 'MSFullscreenChange', 'MSFullscreenError'];
-
-// so it doesn't throw if no window or document
-var document = typeof window !== 'undefined' && typeof window.document !== 'undefined' ? window.document : {};
-
-var vendor = 'fullscreenEnabled' in document && Object.keys(key) || webkit[0] in document && webkit || moz[0] in document && moz || ms[0] in document && ms || [];
-
-exports.default = {
-  requestFullscreen: function requestFullscreen(element) {
-    return element[vendor[key.requestFullscreen]]();
-  },
-  requestFullscreenFunction: function requestFullscreenFunction(element) {
-    return element[vendor[key.requestFullscreen]];
-  },
-  get exitFullscreen() {
-    return document[vendor[key.exitFullscreen]].bind(document);
-  },
-  addEventListener: function addEventListener(type, handler, options) {
-    return document.addEventListener(vendor[key[type]], handler, options);
-  },
-  removeEventListener: function removeEventListener(type, handler) {
-    return document.removeEventListener(vendor[key[type]], handler);
-  },
-  get fullscreenEnabled() {
-    return Boolean(document[vendor[key.fullscreenEnabled]]);
-  },
-  set fullscreenEnabled(val) {},
-  get fullscreenElement() {
-    return document[vendor[key.fullscreenElement]];
-  },
-  set fullscreenElement(val) {},
-  get onfullscreenchange() {
-    return document[('on' + vendor[key.fullscreenchange]).toLowerCase()];
-  },
-  set onfullscreenchange(handler) {
-    return document[('on' + vendor[key.fullscreenchange]).toLowerCase()] = handler;
-  },
-  get onfullscreenerror() {
-    return document[('on' + vendor[key.fullscreenerror]).toLowerCase()];
-  },
-  set onfullscreenerror(handler) {
-    return document[('on' + vendor[key.fullscreenerror]).toLowerCase()] = handler;
-  }
-};
 
 /***/ })
 /******/ ]);

@@ -60,7 +60,7 @@ module.exports = {
 		"begin-extra-end": null,
 		"end-timeout": null,
 		"cancel-timer": null,
-		technical: "technical",
+		technical: null,
 		"end-technical": null,
 	},
 	"stone-moving": {

@@ -42,6 +42,9 @@ class SimpleTimerMachine {
 		}
 		this.onStateChange = onStateChange;
 		this.sockets = {};
+		if (!this.options.timerName) {
+			this.options.timerName = `Standard Timer ${String(this.id)}`;
+		}
 	}
 
 	dispose() {
@@ -83,6 +86,7 @@ class SimpleTimerMachine {
 				timeRemaining: this.timer.getTimeRemaining() / this.lengthOfSecond,
 				timerIsRunning: this.timer.isRunning(),
 				id: this.id,
+				timerName: this.options.timerName,
 			},
 			options: this.options,
 			type: "simple",

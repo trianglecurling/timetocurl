@@ -178,3 +178,17 @@ export interface TimerPreset {
 	options: TimerOptions;
 	type: TimerType;
 }
+
+export interface TimerUI {
+	initUI: () => void;
+	setNewState: (state: any) => void;
+	scrollIntoView: () => void;
+}
+
+export interface TimerUIConstructor {
+	new (cm: StateAndOptions, elem: HTMLElement, app: any): TimerUI;
+}
+
+export interface TimerDecider {
+	(cm: StateAndOptions): boolean;
+}

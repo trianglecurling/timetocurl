@@ -2,7 +2,7 @@ let currentOverlay: HTMLElement | null = null;
 let currentDialog: HTMLElement | null = null;
 let resolver: ((value?: boolean | PromiseLike<boolean>) => void) | undefined = undefined;
 
-export async function confirm(
+export default async function confirm(
 	message: string | HTMLElement,
 	title: string | null = null,
 	okText: string = "OK",

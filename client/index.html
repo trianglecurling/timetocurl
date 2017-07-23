@@ -58,7 +58,15 @@
 	<div id="templates">
 		<div id="simpleTimerTemplate">
 			<div class="timer simple-timer" data-key="timer">
-				<div id="timerName" class="timer-title" data-key="timer-title"></div>
+				<div class="timer-title-bar" data-key="timer-title-bar">
+					<div class="timer-title" data-key="timer-title"></div>
+					<button data-key="fullscreen-button" class="fullscreen-button enter" title="Enter/exit full screen">
+						<span class="a"></span>
+						<span class="b"></span>
+						<span class="c"></span>
+						<span class="d"></span>
+					</button>
+				</div>
 				<div class="timer-container" data-key="timer-container">
 					<div class="controls" data-key="controls">
 						<button data-key="start-timer" data-command="START_TIMER" class="btn btn-start">Start</button>
@@ -168,8 +176,8 @@
 						<button data-action="cancel-timer" class="cancel-timer-button cancel-timeout">Cancel</button>
 					</div>
 					<div class="controls" data-key="controls">
-						<button id="game-start-warmup" data-action="game-start-warmup" class="btn">Begin Warmup</button>
-						<button id="game-start-no-warmup" data-action="game-start-no-warmup" class="btn">Begin pre-game countdown</button>
+						<button id="game-start-warmup" data-action="game-start-warmup" class="btn start-game">Begin warmup</button>
+						<button id="game-start-no-warmup" data-action="game-start-no-warmup" class="btn start-game">Begin pre-game countdown</button>
 						<button id="red-begin-thinking" data-action="begin-thinking" class="team-A btn">Start red thinking</button>
 						<button id="yellow-begin-thinking" data-action="begin-thinking" class="team-B btn">Start yellow thinking</button>
 						<button id="end-yellow-thinking" data-action="end-thinking" class="btn">Stop thinking</button>

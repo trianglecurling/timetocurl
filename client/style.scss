@@ -198,6 +198,31 @@ body.classic {
 		visibility: hidden !important;
 	}
 
+	.timer-title-bar {
+		display: flex;
+		justify-content: space-between;
+
+		.timer-title {
+			margin-left: 10px;
+			font-size: 22px;
+
+			&:hover {
+				color: #1565c0;
+				cursor: pointer;
+			}
+		}
+		.fullscreen-button {
+			margin-right: 8px;
+
+			&:hover {
+				background-color: rgba(0, 0, 0, 0.1);
+			}
+			&:active {
+				background-color: rgba(0, 0, 0, 0.15);
+			}
+		}
+	}
+
 	.timer.simple-timer {
 		$normal-bg-color: #61ff67;
 		$normal-text-color: #000;
@@ -319,8 +344,11 @@ body.classic {
 		width: 100%;
 		height: 100%;
 
-		&.pregame .thinking-time-container {
-			display: none;
+		&.pregame,
+		&.idle {
+			.thinking-time-container {
+				display: none;
+			}
 		}
 
 		:disabled {
@@ -335,35 +363,8 @@ body.classic {
 
 		.time-value {
 			font-weight: bold;
-
-			&.running {
-				text-decoration: underline;
-			}
-		}
-
-		.timer-title-bar {
-			display: flex;
-			justify-content: space-between;
-
-			.timer-title {
-				margin-left: 10px;
-				font-size: 22px;
-
-				&:hover {
-					color: #1565c0;
-					cursor: pointer;
-				}
-			}
-			.fullscreen-button {
-				margin-right: 8px;
-
-				&:hover {
-					background-color: rgba(0, 0, 0, 0.1);
-				}
-				&:active {
-					background-color: rgba(0, 0, 0, 0.15);
-				}
-			}
+			user-select: none;
+			cursor: default;
 		}
 
 		.overlay-time-container {
@@ -705,7 +706,7 @@ body.classic {
 				font-size: 16px;
 				height: 10vh;
 				border: 1px solid #666;
-				&:hover {
+				&:hover:not(.start-game) {
 					border-color: $yel-border;
 					&:disabled {
 						border-color: #666;
@@ -714,24 +715,46 @@ body.classic {
 				}
 			}
 			#game-start-warmup {
+				$bgcolor: #43a047;
 				&:disabled {
 					display: none;
 				}
+				background-color: $bgcolor;
 				position: absolute;
 				top: 25%;
 				left: calc(50% - 150px);
 				height: 100px;
 				width: 300px;
+				&:hover {
+					background-color: lighten($bgcolor, 7%);
+				}
+				&:active {
+					background-color: lighten($bgcolor, 12%);
+				}
 			}
 			#game-start-no-warmup {
+				$bgcolor: #009688;
 				&:disabled {
 					display: none;
 				}
+				background-color: $bgcolor;
 				position: absolute;
 				height: 100px;
 				width: 300px;
 				top: calc(25% + 110px);
 				left: calc(50% - 150px);
+				&:hover {
+					background-color: lighten($bgcolor, 7%);
+				}
+				&:active {
+					background-color: lighten($bgcolor, 10%);
+				}
+			}
+			.start-game {
+				border-radius: 5px;
+				color: white;
+				font-weight: bold;
+				font-size: 18px;
 			}
 			#yellow-begin-thinking {
 				order: 50;

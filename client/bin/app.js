@@ -18256,10 +18256,37 @@ function setTimeToElem(elem, seconds) {
     setMonospaceText(elem, secondsToStr(seconds));
 }
 exports.setTimeToElem = setTimeToElem;
+const scaledElements = new Set();
+(function () {
+    window.addEventListener("resize", resizeThrottler);
+    let resizeTimeout = null;
+    function resizeThrottler() {
+        // ignore resize events as long as an actualResizeHandler execution is in the queue
+        if (!resizeTimeout) {
+            resizeTimeout = setTimeout(function () {
+                resizeTimeout = null;
+                actualResizeHandler();
+                // The actualResizeHandler will execute at a rate of 10fps
+            }, 100);
+        }
+    }
+    function actualResizeHandler() {
+        for (const elem of scaledElements) {
+            scaletext_1.default(elem);
+        }
+    }
+})();
+function invalidateScaledText() {
+    scaledElements.clear();
+}
+exports.invalidateScaledText = invalidateScaledText;
 function setMonospaceText(elem, text) {
     elem.innerHTML = "";
     elem.textContent = text;
-    scaletext_1.default(elem);
+    if (!scaledElements.has(elem)) {
+        scaledElements.add(elem);
+        scaletext_1.default(elem);
+    }
     forceMonospace(elem);
 }
 exports.setMonospaceText = setMonospaceText;
@@ -18522,6 +18549,7 @@ class StandardTimerUI extends TimerUIBase_1.TimerUIBase {
     }
     dispose() { }
     setNewState(state) {
+        util_1.invalidateScaledText();
         this.debugElement.textContent = JSON.stringify(state, null, 4);
         this.state = state;
         // Enable buttons for legal actions only

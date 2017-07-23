@@ -137,10 +137,41 @@ export function setTimeToElem(elem: HTMLElement, seconds: number) {
 	setMonospaceText(elem, secondsToStr(seconds));
 }
 
+const scaledElements = new Set();
+(function() {
+	window.addEventListener("resize", resizeThrottler);
+
+	let resizeTimeout: number | null = null;
+	function resizeThrottler() {
+		// ignore resize events as long as an actualResizeHandler execution is in the queue
+		if (!resizeTimeout) {
+			resizeTimeout = setTimeout(function() {
+				resizeTimeout = null;
+				actualResizeHandler();
+
+				// The actualResizeHandler will execute at a rate of 10fps
+			}, 100);
+		}
+	}
+
+	function actualResizeHandler() {
+		for (const elem of scaledElements) {
+			scaleText(elem);
+		}
+	}
+})();
+
+export function invalidateScaledText() {
+	scaledElements.clear();
+}
+
 export function setMonospaceText(elem: HTMLElement, text: string) {
 	elem.innerHTML = "";
 	elem.textContent = text;
-	scaleText(elem);
+	if (!scaledElements.has(elem)) {
+		scaledElements.add(elem);
+		scaleText(elem);
+	}
 	forceMonospace(elem);
 }
 

@@ -1,7 +1,7 @@
 import { TimerUIBase } from "./TimerUIBase";
 import { CurlingMachineState, StandardTimerOptions, IMap, StandardStateAndOptions } from "./interfaces";
 import { registerTimerType, TimeToCurl } from "./TimeToCurl";
-import { secondsToStr, strToSeconds, setTimeToElem, clientId } from "./util";
+import { secondsToStr, strToSeconds, setTimeToElem, clientId, invalidateScaledText } from "./util";
 import confirm from "./confirm";
 
 export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTimerOptions> {
@@ -176,6 +176,7 @@ export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTi
 	public dispose() {}
 
 	public setNewState(state: CurlingMachineState) {
+		invalidateScaledText();
 		this.debugElement.textContent = JSON.stringify(state, null, 4);
 		this.state = state;
 

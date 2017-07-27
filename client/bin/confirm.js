@@ -59,7 +59,7 @@ async function confirm(message, title = null, okText = "OK", cancelText = "Cance
     currentDialog = dialog;
     return promise.then(onConfirmButtonClick.bind(null, true), onConfirmButtonClick.bind(null, false));
 }
-exports.confirm = confirm;
+exports.default = confirm;
 function onConfirmButtonClick(value) {
     document.body.classList.remove("scroll-disabled");
     if (currentOverlay) {

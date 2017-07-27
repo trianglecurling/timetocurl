@@ -177,8 +177,7 @@ body.classic .timer.simple-timer {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 90vw;
-        height: 80vh; }
+        width: 90vw; }
       body.classic .timer.simple-timer .timer-container .time-display .time-controls {
         font-size: 6vmin;
         display: flex;
@@ -186,6 +185,36 @@ body.classic .timer.simple-timer {
         body.classic .timer.simple-timer .timer-container .time-display .time-controls button {
           width: 4vw;
           height: 4vh; }
+    body.classic .timer.simple-timer .timer-container .pacing {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center; }
+      body.classic .timer.simple-timer .timer-container .pacing .title {
+        font-size: 8vmin;
+        text-transform: uppercase;
+        font-weight: bold;
+        text-decoration: underline; }
+      body.classic .timer.simple-timer .timer-container .pacing .end-num {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%; }
+        body.classic .timer.simple-timer .timer-container .pacing .end-num .pacing-spacer {
+          flex-basis: 100%; }
+        body.classic .timer.simple-timer .timer-container .pacing .end-num .ordinal-adjective {
+          font-weight: bold;
+          font-size: 18vmin; }
+          body.classic .timer.simple-timer .timer-container .pacing .end-num .ordinal-adjective sup {
+            font-size: 12vmin; }
+        body.classic .timer.simple-timer .timer-container .pacing .end-num .end-label {
+          text-transform: uppercase;
+          font-size: 5vmin;
+          flex-basis: 100%;
+          transform: translateX(3vw); }
+      body.classic .timer.simple-timer .timer-container .pacing .progress {
+        width: 80vw;
+        height: 3vh; }
   body.classic .timer.simple-timer .debug {
     position: fixed;
     bottom: 10px;

@@ -309,7 +309,6 @@ body.classic {
 					align-items: center;
 					justify-content: center;
 					width: 90vw;
-					height: 80vh;
 				}
 
 				.time-controls {
@@ -321,6 +320,49 @@ body.classic {
 						width: 4vw;
 						height: 4vh;
 					}
+				}
+			}
+
+			.pacing {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+
+				.title {
+					font-size: 8vmin;
+					text-transform: uppercase;
+					font-weight: bold;
+					text-decoration: underline;
+				}
+				.end-num {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					width: 100%;
+
+					.pacing-spacer {
+						flex-basis: 100%;
+					}
+
+					.ordinal-adjective {
+						font-weight: bold;
+						font-size: 18vmin;
+
+						sup {
+							font-size: 12vmin;
+						}
+					}
+					.end-label {
+						text-transform: uppercase;
+						font-size: 5vmin;
+						flex-basis: 100%;
+						transform: translateX(3vw);
+					}
+				}
+				.progress {
+					width: 80vw;
+					height: 3vh;
 				}
 			}
 		}

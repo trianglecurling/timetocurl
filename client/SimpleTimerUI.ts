@@ -1,16 +1,21 @@
 import { TimerUIBase } from "./TimerUIBase";
 import { SimpleTimerState, SimpleTimerOptions, SimpleStateAndOptions } from "./interfaces";
 import { registerTimerType, TimeToCurl } from "./TimeToCurl";
-import { setTimeToElem } from "./util";
+import { setTimeToElem, roundPrecision, getOrdinalAdjective } from "./util";
 
 export class SimpleTimerUI extends TimerUIBase<SimpleTimerState, SimpleTimerOptions> {
 	protected addMinuteButton: HTMLButtonElement;
 	protected addSecondButton: HTMLButtonElement;
 	protected debugElement: HTMLElement;
 	protected pacingElement: HTMLElement;
+	protected pacingTitle: HTMLElement;
+	protected pacingOrdinal: HTMLElement;
+	protected pacingProgress: HTMLElement;
 	protected pauseButton: HTMLButtonElement;
 	protected remainingTime: HTMLElement;
 	protected startButton: HTMLButtonElement;
+
+	public static readonly timerType = "simple";
 
 	constructor(
 		initParams: SimpleStateAndOptions,
@@ -47,6 +52,7 @@ export class SimpleTimerUI extends TimerUIBase<SimpleTimerState, SimpleTimerOpti
 		mainTimer.every(
 			this.lengthOfSecond / 10,
 			() => {
+				let renderPacing = this.options.showPacing;
 				const timeRemaining = mainTimer.getTimeRemaining() / this.lengthOfSecond;
 				setTimeToElem(this.remainingTime, mainTimer.getTimeRemaining() / this.lengthOfSecond);
 
@@ -54,8 +60,15 @@ export class SimpleTimerUI extends TimerUIBase<SimpleTimerState, SimpleTimerOpti
 				this.timerContainerElement.classList.remove("no-more-ends");
 				if (timeRemaining <= this.options.noMoreEndsTime) {
 					this.timerContainerElement.classList.add("no-more-ends");
+					renderPacing = false;
 				} else if (timeRemaining <= this.options.warningTime) {
 					this.timerContainerElement.classList.add("warning");
+				}
+				if (renderPacing) {
+					this.pacingElement.classList.remove("irrelevant");
+					this.renderPacing(mainTimer);
+				} else {
+					this.pacingElement.classList.add("irrelevant");
 				}
 			},
 			false,
@@ -69,6 +82,26 @@ export class SimpleTimerUI extends TimerUIBase<SimpleTimerState, SimpleTimerOpti
 			this.pauseButton.classList.add("irrelevant");
 			this.startButton.classList.remove("irrelevant");
 		}
+	}
+
+	private renderPacing(timer: TimeMinder) {
+		const ends = this.options.numEnds;
+		const totalTimeUntilRed = this.options.totalTime - this.options.noMoreEndsTime;
+		const elapsedTime = this.options.totalTime - timer.getTimeRemaining() / this.options.lengthOfSecond;
+
+		// Subtract 1 because we assume teams will be allowed to finish their current end.
+		const endsToPlayBeforeRed = ends - this.options.allowableAdditionalEnds - 1;
+
+		const timePerEnd = totalTimeUntilRed / endsToPlayBeforeRed;
+		const parEnd = Math.floor(elapsedTime / timePerEnd) + 1;
+		const fractionThroughEnd = elapsedTime % timePerEnd / timePerEnd;
+
+		const ordinalElem = getOrdinalAdjective(parEnd);
+		this.pacingOrdinal.parentNode!.replaceChild(ordinalElem, this.pacingOrdinal);
+		this.pacingOrdinal = ordinalElem;
+		const pacingPercentage = roundPrecision(fractionThroughEnd * 100, 2);
+		this.pacingProgress.setAttribute("value", String(pacingPercentage));
+		this.pacingProgress.textContent = pacingPercentage + "%";
 	}
 
 	protected initElements(template: Element): void {
@@ -97,7 +130,19 @@ export class SimpleTimerUI extends TimerUIBase<SimpleTimerState, SimpleTimerOpti
 		if (this.elements["fullscreen-button"] && this.elements["fullscreen-button"][0]) {
 			this.fullScreenButton = this.elements["fullscreen-button"][0] as HTMLButtonElement;
 		}
+		if (this.elements["pacing"] && this.elements["pacing"][0]) {
+			this.pacingElement = this.elements["pacing"][0] as HTMLElement;
+		}
+		if (this.elements["pacing-title"] && this.elements["pacing-title"][0]) {
+			this.pacingTitle = this.elements["pacing-title"][0] as HTMLElement;
+		}
+		if (this.elements["pacing-ordinal"] && this.elements["pacing-ordinal"][0]) {
+			this.pacingOrdinal = this.elements["pacing-ordinal"][0] as HTMLElement;
+		}
+		if (this.elements["pacing-progress"] && this.elements["pacing-progress"][0]) {
+			this.pacingProgress = this.elements["pacing-progress"][0] as HTMLElement;
+		}
 	}
 }
 
-registerTimerType(SimpleTimerUI, cm => cm.type === "standard");
+registerTimerType(SimpleTimerUI, cm => cm.type === SimpleTimerUI.timerType);

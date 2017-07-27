@@ -83,7 +83,15 @@
 							<button data-command="ADD_TIME" data-data='{"value": -1}' class="subtract-second time-control-button">-</button>
 						</div>
 					</div>
-					<div class="pacing"></div>
+					<div class="pacing">
+						<div data-key="pacing-title" class="title">Pacing</div>
+						<div data-key="pacing-end" class="end-num">
+							<span class="pacing-spacer"></span>
+							<span data-key="pacing-ordinal" class="ordinal"></span>
+							<span class="end-label">end</span>
+						</div>
+						<progress data-key="pacing-progress" class="progress" max="100"></progress>
+					</div>
 					<div class="debug" data-key="debug"></div>
 				</div>
 			</div>

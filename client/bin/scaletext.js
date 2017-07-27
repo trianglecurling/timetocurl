@@ -9,7 +9,7 @@ function getTextWidth(text, font) {
 }
 function scaleText(el) {
     let min = 1;
-    let max = 300;
+    let max = 1000;
     const width = el.clientWidth - 0.5;
     const height = el.clientHeight - 0.5;
     // 11 is slightly smaller with our font. Hack!

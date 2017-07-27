@@ -31,6 +31,8 @@ export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTi
 	protected travelTimeValue: HTMLElement;
 	protected warmupTimeText: HTMLElement;
 
+	public static readonly timerType = "standard";
+
 	constructor(
 		initParams: StandardStateAndOptions,
 		protected container: HTMLElement,
@@ -522,4 +524,4 @@ export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTi
 	}
 }
 
-registerTimerType(StandardTimerUI, cm => cm.type === "standard");
+registerTimerType(StandardTimerUI, cm => cm.type === StandardTimerUI.timerType);

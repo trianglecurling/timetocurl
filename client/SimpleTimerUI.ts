@@ -6,6 +6,7 @@ import { setTimeToElem, roundPrecision, getOrdinalAdjective } from "./util";
 export class SimpleTimerUI extends TimerUIBase<SimpleTimerState, SimpleTimerOptions> {
 	protected addMinuteButton: HTMLButtonElement;
 	protected addSecondButton: HTMLButtonElement;
+	private currentMode: "normal" | "warning" | "noMoreEnds" = "normal";
 	protected debugElement: HTMLElement;
 	protected pacingElement: HTMLElement;
 	protected pacingTitle: HTMLElement;
@@ -48,7 +49,12 @@ export class SimpleTimerUI extends TimerUIBase<SimpleTimerState, SimpleTimerOpti
 		this.clearTimers();
 		this.titleElement.textContent = this.state.timerName;
 
-		const mainTimer = new TimeMinder(this.state.timeRemaining * this.lengthOfSecond);
+		const mainTimer = new TimeMinder(this.state.timeRemaining * this.lengthOfSecond, () => {
+			if (this.options.sounds.end) {
+				new Audio(this.options.sounds.end).play();
+			}
+		});
+
 		mainTimer.every(
 			this.lengthOfSecond / 10,
 			() => {
@@ -56,13 +62,29 @@ export class SimpleTimerUI extends TimerUIBase<SimpleTimerState, SimpleTimerOpti
 				const timeRemaining = mainTimer.getTimeRemaining() / this.lengthOfSecond;
 				setTimeToElem(this.remainingTime, mainTimer.getTimeRemaining() / this.lengthOfSecond);
 
-				this.timerContainerElement.classList.remove("warning");
-				this.timerContainerElement.classList.remove("no-more-ends");
 				if (timeRemaining <= this.options.noMoreEndsTime) {
-					this.timerContainerElement.classList.add("no-more-ends");
-					renderPacing = false;
+					if (this.currentMode !== "noMoreEnds") {
+						this.timerContainerElement.classList.remove("warning");
+						this.timerContainerElement.classList.add("no-more-ends");
+						if (this.options.sounds.noMoreEnds) {
+							new Audio(this.options.sounds.noMoreEnds).play();
+						}
+						renderPacing = false;
+						this.currentMode = "noMoreEnds";
+					}
 				} else if (timeRemaining <= this.options.warningTime) {
-					this.timerContainerElement.classList.add("warning");
+					if (this.currentMode !== "warning") {
+						this.timerContainerElement.classList.remove("no-more-ends");
+						this.timerContainerElement.classList.add("warning");
+						if (this.options.sounds.warning) {
+							new Audio(this.options.sounds.warning).play();
+						}
+						this.currentMode = "warning";
+					}
+				} else {
+					this.currentMode = "normal";
+					this.timerContainerElement.classList.remove("warning");
+					this.timerContainerElement.classList.remove("no-more-ends");
 				}
 				if (renderPacing) {
 					this.pacingElement.classList.remove("irrelevant");

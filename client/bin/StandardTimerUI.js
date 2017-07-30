@@ -418,5 +418,6 @@ class StandardTimerUI extends TimerUIBase_1.TimerUIBase {
         }
     }
 }
+StandardTimerUI.timerType = "standard";
 exports.StandardTimerUI = StandardTimerUI;
-TimeToCurl_1.registerTimerType(StandardTimerUI, cm => cm.type === "standard");
+TimeToCurl_1.registerTimerType(StandardTimerUI, cm => cm.type === StandardTimerUI.timerType);

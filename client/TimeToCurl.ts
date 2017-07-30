@@ -183,6 +183,34 @@ export class TimeToCurl {
 		return container;
 	}
 
+	private checkboxInput(label: string, checked: boolean = false, onChange?: (checked: boolean) => void) {
+		const showPacing = document.createElement("div");
+		showPacing.classList.add("simple-input");
+		const showPacingLabel = document.createElement("label");
+		showPacingLabel.textContent = label;
+		showPacingLabel.classList.add("simple-input-label");
+		showPacingLabel.setAttribute("for", "showPacingCheckbox");
+		const showPacingCheckbox = document.createElement("input");
+		showPacingCheckbox.setAttribute("id", "showPacingCheckbox");
+		showPacingCheckbox.setAttribute("type", "checkbox");
+		showPacingCheckbox.setAttribute("value", "true");
+		showPacingCheckbox.checked = checked;
+		showPacingCheckbox.classList.add("simple-input-field");
+		const previewDummy = document.createElement("div");
+		previewDummy.classList.add("input-value-preview");
+		showPacing.appendChild(showPacingLabel);
+		showPacing.appendChild(showPacingCheckbox);
+		showPacing.appendChild(previewDummy);
+
+		if (onChange) {
+			showPacingCheckbox.addEventListener("change", () => {
+				onChange(showPacingCheckbox.checked);
+			});
+		}
+
+		return showPacing;
+	}
+
 	private evaluatePresetDropdown() {
 		for (const preset of TimerPresets) {
 			if (this.nextTimerType === TimerType.Standard && isEqual(preset.options, this.nextStandardTimerOptions)) {
@@ -317,24 +345,25 @@ export class TimeToCurl {
 			simpleOptions.allowableAdditionalEnds,
 		);
 		const numEndsSimple = this.simpleInput("Number of ends", "numEnds", simpleOptions.numEnds);
+		// const startSound = this.simpleInput("Start sound", "startSound");
+		// const endSound = this.simpleInput("End sound", "endSound");
+		// const warningSound = this.simpleInput("Warning sound", "warningSound");
+		// const noMoreEndsSound = this.simpleInput("No more ends sound", "noMoreEndsSound");
 
-		const showPacing = document.createElement("div");
-		showPacing.classList.add("simple-input");
-		const showPacingLabel = document.createElement("label");
-		showPacingLabel.textContent = "Display recommended pacing";
-		showPacingLabel.classList.add("simple-input-label");
-		showPacingLabel.setAttribute("for", "showPacingCheckbox");
-		const showPacingCheckbox = document.createElement("input");
-		showPacingCheckbox.setAttribute("id", "showPacingCheckbox");
-		showPacingCheckbox.setAttribute("type", "checkbox");
-		showPacingCheckbox.setAttribute("value", "true");
-		showPacingCheckbox.checked = simpleOptions.showPacing;
-		showPacingCheckbox.classList.add("simple-input-field");
-		const previewDummy = document.createElement("div");
-		previewDummy.classList.add("input-value-preview");
-		showPacing.appendChild(showPacingLabel);
-		showPacing.appendChild(showPacingCheckbox);
-		showPacing.appendChild(previewDummy);
+		const showPacing = this.checkboxInput("Show recommended pacing", simpleOptions.showPacing, checked => {
+			simpleOptions.showPacing = checked;
+			this.evaluatePresetDropdown();
+			this.saveTimerOptions();
+		});
+		const playSoundCheckbox = this.checkboxInput(
+			"Play sound when timer turns red",
+			!!simpleOptions.sounds.noMoreEnds,
+			checked => {
+				simpleOptions.sounds.noMoreEnds = checked ? "cowbell.mp3" : "";
+				this.evaluatePresetDropdown();
+				this.saveTimerOptions();
+			},
+		);
 
 		const simpleContainer = document.createElement("div");
 		simpleContainer.classList.add("custom-settings-fields-container", "simple-settings", "irrelevant");
@@ -344,6 +373,7 @@ export class TimeToCurl {
 		simpleContainer.appendChild(additionalEnds);
 		simpleContainer.appendChild(numEndsSimple);
 		simpleContainer.appendChild(showPacing);
+		simpleContainer.appendChild(playSoundCheckbox);
 
 		const onTimerTypeChanged = () => {
 			const result = this.getRadioValue(simpleRadioInput, standardRadioInput);
@@ -374,11 +404,6 @@ export class TimeToCurl {
 		const prevStandardSettings = cloneDeep(standardOptions);
 		const prevSimpleSettings = cloneDeep(simpleOptions);
 		const prevTimerType = this.nextTimerType;
-		showPacingCheckbox.addEventListener("change", () => {
-			simpleOptions.showPacing = showPacingCheckbox.checked;
-			this.evaluatePresetDropdown();
-			this.saveTimerOptions();
-		});
 		allOptionsContainer.addEventListener(
 			"input",
 			() => {

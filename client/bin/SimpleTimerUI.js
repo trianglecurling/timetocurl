@@ -29,15 +29,24 @@ class SimpleTimerUI extends TimerUIBase_1.TimerUIBase {
         this.titleElement.textContent = this.state.timerName;
         const mainTimer = new TimeMinder(this.state.timeRemaining * this.lengthOfSecond);
         mainTimer.every(this.lengthOfSecond / 10, () => {
+            let renderPacing = this.options.showPacing;
             const timeRemaining = mainTimer.getTimeRemaining() / this.lengthOfSecond;
             util_1.setTimeToElem(this.remainingTime, mainTimer.getTimeRemaining() / this.lengthOfSecond);
             this.timerContainerElement.classList.remove("warning");
             this.timerContainerElement.classList.remove("no-more-ends");
             if (timeRemaining <= this.options.noMoreEndsTime) {
                 this.timerContainerElement.classList.add("no-more-ends");
+                renderPacing = false;
             }
             else if (timeRemaining <= this.options.warningTime) {
                 this.timerContainerElement.classList.add("warning");
+            }
+            if (renderPacing) {
+                this.pacingElement.classList.remove("irrelevant");
+                this.renderPacing(mainTimer);
+            }
+            else {
+                this.pacingElement.classList.add("irrelevant");
             }
         }, false);
         this.runningTimers.push(mainTimer);
@@ -50,6 +59,22 @@ class SimpleTimerUI extends TimerUIBase_1.TimerUIBase {
             this.pauseButton.classList.add("irrelevant");
             this.startButton.classList.remove("irrelevant");
         }
+    }
+    renderPacing(timer) {
+        const ends = this.options.numEnds;
+        const totalTimeUntilRed = this.options.totalTime - this.options.noMoreEndsTime;
+        const elapsedTime = this.options.totalTime - timer.getTimeRemaining() / this.options.lengthOfSecond;
+        // Subtract 1 because we assume teams will be allowed to finish their current end.
+        const endsToPlayBeforeRed = ends - this.options.allowableAdditionalEnds - 1;
+        const timePerEnd = totalTimeUntilRed / endsToPlayBeforeRed;
+        const parEnd = Math.floor(elapsedTime / timePerEnd) + 1;
+        const fractionThroughEnd = elapsedTime % timePerEnd / timePerEnd;
+        const ordinalElem = util_1.getOrdinalAdjective(parEnd);
+        this.pacingOrdinal.parentNode.replaceChild(ordinalElem, this.pacingOrdinal);
+        this.pacingOrdinal = ordinalElem;
+        const pacingPercentage = util_1.roundPrecision(fractionThroughEnd * 100, 2);
+        this.pacingProgress.setAttribute("value", String(pacingPercentage));
+        this.pacingProgress.textContent = pacingPercentage + "%";
     }
     initElements(template) {
         this.populateElements(template);
@@ -77,7 +102,20 @@ class SimpleTimerUI extends TimerUIBase_1.TimerUIBase {
         if (this.elements["fullscreen-button"] && this.elements["fullscreen-button"][0]) {
             this.fullScreenButton = this.elements["fullscreen-button"][0];
         }
+        if (this.elements["pacing"] && this.elements["pacing"][0]) {
+            this.pacingElement = this.elements["pacing"][0];
+        }
+        if (this.elements["pacing-title"] && this.elements["pacing-title"][0]) {
+            this.pacingTitle = this.elements["pacing-title"][0];
+        }
+        if (this.elements["pacing-ordinal"] && this.elements["pacing-ordinal"][0]) {
+            this.pacingOrdinal = this.elements["pacing-ordinal"][0];
+        }
+        if (this.elements["pacing-progress"] && this.elements["pacing-progress"][0]) {
+            this.pacingProgress = this.elements["pacing-progress"][0];
+        }
     }
 }
+SimpleTimerUI.timerType = "simple";
 exports.SimpleTimerUI = SimpleTimerUI;
-TimeToCurl_1.registerTimerType(SimpleTimerUI, cm => cm.type === "standard");
+TimeToCurl_1.registerTimerType(SimpleTimerUI, cm => cm.type === SimpleTimerUI.timerType);

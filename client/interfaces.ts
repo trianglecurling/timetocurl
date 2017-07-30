@@ -7,7 +7,31 @@ export const enum TimerType {
 	Standard = "standard",
 }
 
-export interface TimerOptions {
+export interface BaseSoundOptions {
+	/**
+	 * URL to a sound to play at the start of a game
+	 */
+	start: string;
+
+	/**
+	 * URL to a sound to play at the end of a game
+	 */
+	end: string;
+}
+
+export interface SimpleTimerSoundOptions extends BaseSoundOptions {
+	/**
+	 * URL to a sound to play when the clock turns red
+	 */
+	noMoreEnds: string;
+
+	/**
+	 * URL to a sound to play when the clock turns yellow.
+	 */
+	warning: string;
+}
+
+export interface TimerOptions<TSoundOptions extends BaseSoundOptions = BaseSoundOptions> {
 	/**
 	 * The length of a second in milliseconds; for
 	 * deubgging purposes.
@@ -18,6 +42,11 @@ export interface TimerOptions {
 	 * Number of ends to be played
 	 */
 	numEnds: number;
+
+	/**
+	 * URLs to sounds that will play during the gmae
+	 */
+	sounds: TSoundOptions;
 
 	/**
 	 * Name given to this timer, e.g. Sheet B
@@ -84,7 +113,7 @@ export interface StandardTimerOptions extends TimerOptions {
 /**
  * Options for a simple (un-manned) curling timer
  */
-export interface SimpleTimerOptions extends TimerOptions {
+export interface SimpleTimerOptions extends TimerOptions<SimpleTimerSoundOptions> {
 	/**
 	 * Number of full ends that may be played after the
 	 * clock reaches the "noMoreEndsTime" (e.g. Broomstones)

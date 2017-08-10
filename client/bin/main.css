@@ -196,9 +196,10 @@ body.classic .timer.simple-timer {
         font-weight: bold;
         text-decoration: underline; }
       body.classic .timer.simple-timer .timer-container .pacing .end-num {
-        display: flex;
+        display: grid;
         align-items: center;
-        justify-content: center;
+        justify-items: start;
+        grid-template-columns: 1fr auto 1fr;
         width: 100%; }
         body.classic .timer.simple-timer .timer-container .pacing .end-num .pacing-spacer {
           flex-basis: 100%; }

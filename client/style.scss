@@ -336,9 +336,10 @@ body.classic {
 					text-decoration: underline;
 				}
 				.end-num {
-					display: flex;
+					display: grid;
 					align-items: center;
-					justify-content: center;
+					justify-items: start;
+					grid-template-columns: 1fr auto 1fr;
 					width: 100%;
 
 					.pacing-spacer {

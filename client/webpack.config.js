@@ -39,9 +39,13 @@ module.exports = {
 					use: [
 						{
 							loader: "css-loader",
+							options: { importLoaders: 1 },
 						},
 						{
 							loader: "sass-loader",
+						},
+						{
+							loader: "postcss-loader",
 						},
 					],
 					fallback: "style-loader",

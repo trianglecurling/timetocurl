@@ -69,9 +69,9 @@ export class SimpleTimerUI extends TimerUIBase<SimpleTimerState, SimpleTimerOpti
 						if (this.options.sounds.noMoreEnds) {
 							new Audio(this.options.sounds.noMoreEnds).play();
 						}
-						renderPacing = false;
 						this.currentMode = "noMoreEnds";
 					}
+					renderPacing = false;
 				} else if (timeRemaining <= this.options.warningTime) {
 					if (this.currentMode !== "warning") {
 						this.timerContainerElement.classList.remove("no-more-ends");

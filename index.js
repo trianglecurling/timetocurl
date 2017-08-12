@@ -161,7 +161,7 @@ function handleAction(action, socket = null) {
 			} else if (action.options.command) {
 				machine.handleAction({
 					command: action.options.command,
-					data: JSON.parse(action.options.data),
+					data: JSON.parse(action.options.data || "{}"),
 				});
 			} else {
 				socket &&

@@ -658,7 +658,6 @@ class TimeToCurl {
             this.populateTimerOptions();
             this.restoreSettingsFromStorage();
             document.getElementById("createTimer").addEventListener("click", async (event) => {
-                event.target.textContent = "Reset";
                 if (Object.keys(this.machines).length > 0) {
                     if (await confirm_1.default("Reset timers. Are you sure?")) {
                         window.location.href = "/";
@@ -739,6 +738,7 @@ class TimeToCurl {
     addCurlingMachine(cm) {
         this.machines[cm.state.id] = new (this.getMatchingTimer(cm))(cm, document.getElementById("timersContainer"), this);
         this.machines[cm.state.id].initUI();
+        document.getElementById("createTimer").textContent = "Reset";
         const displayedTimers = util_1.getDisplayedTimers();
         if (displayedTimers.indexOf(cm.state.id) === -1) {
             displayedTimers.push(cm.state.id);
@@ -1045,9 +1045,9 @@ class SimpleTimerUI extends TimerUIBase_1.TimerUIBase {
                     if (this.options.sounds.noMoreEnds) {
                         new Audio(this.options.sounds.noMoreEnds).play();
                     }
-                    renderPacing = false;
                     this.currentMode = "noMoreEnds";
                 }
+                renderPacing = false;
             }
             else if (timeRemaining <= this.options.warningTime) {
                 if (this.currentMode !== "warning") {

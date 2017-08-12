@@ -2,9 +2,11 @@
 * {
   margin: 0;
   padding: 0;
+  -webkit-box-sizing: inherit;
   box-sizing: inherit; }
 
 html {
+  -webkit-box-sizing: border-box;
   box-sizing: border-box; }
 
 body {
@@ -32,7 +34,11 @@ button {
     cursor: not-allowed; }
 
 header {
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
   align-items: center;
   margin-bottom: 10px;
   border-bottom: 1px solid #ccc;
@@ -86,8 +92,14 @@ header {
       header .view-settings-container .theme-selector-container select {
         min-width: 150px; }
     header .view-settings-container .debug-toggle-container {
+      display: -webkit-box;
+      display: -ms-flexbox;
       display: flex;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
       align-items: center;
+      -webkit-box-pack: end;
+      -ms-flex-pack: end;
       justify-content: flex-end; }
       header .view-settings-container .debug-toggle-container label {
         margin-left: 16px; }
@@ -110,7 +122,11 @@ body.classic .irrelevant.placeholder {
   visibility: hidden !important; }
 
 body.classic .timer-title-bar {
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
   justify-content: space-between; }
   body.classic .timer-title-bar .timer-title {
     margin-left: 10px;
@@ -131,11 +147,16 @@ body.classic .timer.simple-timer {
   body.classic .timer.simple-timer .timer-container {
     width: 100%;
     height: 100%;
+    position: relative;
     background-color: #61ff67;
     color: #000;
-    display: flex;
-    flex-direction: column;
-    justify-content: center; }
+    display: -ms-grid;
+    display: grid;
+    -ms-grid-rows: auto 1fr auto;
+    grid-template-rows: auto 1fr auto;
+    -ms-grid-columns: 1fr;
+    grid-template-columns: 1fr;
+    grid-template-areas: "controls" "time" "pacing"; }
     body.classic .timer.simple-timer .timer-container button {
       font-size: 2vmin; }
       body.classic .timer.simple-timer .timer-container button:hover, body.classic .timer.simple-timer .timer-container button:active {
@@ -157,51 +178,89 @@ body.classic .timer.simple-timer {
       body.classic .timer.simple-timer .timer-container.no-more-ends .controls button {
         border: 1px solid #fff; }
     body.classic .timer.simple-timer .timer-container .controls {
-      position: absolute;
-      top: 10vh;
-      left: 0;
-      width: 100%;
+      grid-area: controls;
+      display: -webkit-box;
+      display: -ms-flexbox;
       display: flex;
-      justify-content: center; }
+      -webkit-box-pack: center;
+      -ms-flex-pack: center;
+      justify-content: center;
+      padding-top: 2vh; }
       body.classic .timer.simple-timer .timer-container .controls button {
         border: 1px solid #000;
         width: 10vw;
         height: 4vh; }
     body.classic .timer.simple-timer .timer-container .time-display {
+      grid-area: time;
+      display: -webkit-box;
+      display: -ms-flexbox;
       display: flex;
       font-size: 34vmin;
       font-weight: bold;
+      -webkit-box-pack: center;
+      -ms-flex-pack: center;
       justify-content: center;
-      align-items: center; }
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      align-items: center;
+      overflow: hidden; }
       body.classic .timer.simple-timer .timer-container .time-display .remaining-time {
+        display: -webkit-box;
+        display: -ms-flexbox;
         display: flex;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
         align-items: center;
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
         justify-content: center;
-        width: 90vw; }
+        width: 90vw;
+        height: 100%; }
       body.classic .timer.simple-timer .timer-container .time-display .time-controls {
         font-size: 6vmin;
+        display: -webkit-box;
+        display: -ms-flexbox;
         display: flex;
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+        -ms-flex-direction: column;
         flex-direction: column; }
         body.classic .timer.simple-timer .timer-container .time-display .time-controls button {
           width: 4vw;
           height: 4vh; }
     body.classic .timer.simple-timer .timer-container .pacing {
+      grid-area: pacing;
+      display: -webkit-box;
+      display: -ms-flexbox;
       display: flex;
+      -webkit-box-orient: vertical;
+      -webkit-box-direction: normal;
+      -ms-flex-direction: column;
       flex-direction: column;
+      -webkit-box-pack: center;
+      -ms-flex-pack: center;
       justify-content: center;
-      align-items: center; }
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      align-items: center;
+      padding-bottom: 2vh; }
       body.classic .timer.simple-timer .timer-container .pacing .title {
         font-size: 8vmin;
         text-transform: uppercase;
         font-weight: bold;
         text-decoration: underline; }
       body.classic .timer.simple-timer .timer-container .pacing .end-num {
+        display: -ms-grid;
         display: grid;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
         align-items: center;
         justify-items: start;
+        -ms-grid-columns: 1fr auto 1fr;
         grid-template-columns: 1fr auto 1fr;
         width: 100%; }
         body.classic .timer.simple-timer .timer-container .pacing .end-num .pacing-spacer {
+          -ms-flex-preferred-size: 100%;
           flex-basis: 100%; }
         body.classic .timer.simple-timer .timer-container .pacing .end-num .ordinal-adjective {
           font-weight: bold;
@@ -211,7 +270,9 @@ body.classic .timer.simple-timer {
         body.classic .timer.simple-timer .timer-container .pacing .end-num .end-label {
           text-transform: uppercase;
           font-size: 5vmin;
+          -ms-flex-preferred-size: 100%;
           flex-basis: 100%;
+          -webkit-transform: translateX(3vw);
           transform: translateX(3vw); }
       body.classic .timer.simple-timer .timer-container .pacing .progress {
         width: 80vw;
@@ -222,6 +283,7 @@ body.classic .timer.simple-timer {
     right: 10px;
     background-color: rgba(248, 248, 248, 0.7);
     z-index: 5;
+    -webkit-transition: all 0.4s;
     transition: all 0.4s; }
     body.classic .timer.simple-timer .debug.hidden {
       bottom: -25%;
@@ -241,6 +303,9 @@ body.classic .timer.standard-timer {
     position: relative; }
   body.classic .timer.standard-timer .time-value {
     font-weight: bold;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
     user-select: none;
     cursor: default; }
   body.classic .timer.standard-timer .overlay-time-container {
@@ -260,8 +325,14 @@ body.classic .timer.standard-timer {
       background-color: #80ff80;
       border: 2px solid #333;
       font-size: 32vmin;
+      display: -webkit-box;
+      display: -ms-flexbox;
       display: flex;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
       align-items: center;
+      -webkit-box-pack: center;
+      -ms-flex-pack: center;
       justify-content: center; }
     body.classic .timer.standard-timer .overlay-time-container .cancel-timer-button {
       position: absolute;
@@ -269,10 +340,12 @@ body.classic .timer.standard-timer {
       height: 40px;
       left: calc(50% - 60px);
       border: 2px solid #1b4f7f;
+      background: -webkit-gradient(linear, left top, left bottom, from(#e0e0e0), to(#b0afc2));
       background: linear-gradient(to bottom, #e0e0e0 0%, #b0afc2 100%);
       border-radius: 2px;
       top: 92%; }
       body.classic .timer.standard-timer .overlay-time-container .cancel-timer-button:hover {
+        background: -webkit-gradient(linear, left top, left bottom, from(#dfdfdf), to(#d1d1cb));
         background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%); }
     body.classic .timer.standard-timer .overlay-time-container h2 {
       text-align: center;
@@ -285,32 +358,47 @@ body.classic .timer.standard-timer {
       top: 32vh;
       left: calc(50% - 12.5vw);
       border: 1px solid #212121;
+      display: -webkit-box;
+      display: -ms-flexbox;
       display: flex;
+      -webkit-box-align: start;
+      -ms-flex-align: start;
       align-items: flex-start;
+      -webkit-box-pack: center;
+      -ms-flex-pack: center;
       justify-content: center;
       z-index: 15;
       font-size: 3vmin;
       padding-top: 0.5vh;
       padding-bottom: 0.5vh;
+      -ms-flex-wrap: wrap;
       flex-wrap: wrap; }
       body.classic .timer.standard-timer .overlay-time-container .travel-time-container .travel-time-label {
         margin-right: 1.5vw; }
       body.classic .timer.standard-timer .overlay-time-container .travel-time-container button.travel-time-cancel {
+        -ms-flex-preferred-size: 100%;
         flex-basis: 100%;
         border: 2px solid #1b4f7f;
+        background: -webkit-gradient(linear, left top, left bottom, from(#e0e0e0), to(#b0afc2));
         background: linear-gradient(to bottom, #e0e0e0 0%, #b0afc2 100%);
         border-radius: 2px;
         max-width: 10vw;
         height: 2vh;
         font-size: 1.6vmin; }
         body.classic .timer.standard-timer .overlay-time-container .travel-time-container button.travel-time-cancel:hover:not(:disabled) {
+          background: -webkit-gradient(linear, left top, left bottom, from(#dfdfdf), to(#d1d1cb));
           background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%); }
       body.classic .timer.standard-timer .overlay-time-container .travel-time-container.irrelevant {
+        -webkit-transition: opacity 3s ease-in 0.5s;
         transition: opacity 3s ease-in 0.5s;
+        display: -webkit-box !important;
+        display: -ms-flexbox !important;
         display: flex !important;
         opacity: 0;
         pointer-events: all; }
   body.classic .timer.standard-timer .timer-container {
+    display: -webkit-box;
+    display: -ms-flexbox;
     display: flex; }
   body.classic .timer.standard-timer .elapsed-thinking-time-container {
     position: absolute;
@@ -386,33 +474,59 @@ body.classic .timer.standard-timer {
       body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining .subtract-timeout {
         bottom: 0; }
   body.classic .timer.standard-timer .thinking-time-container {
+    -webkit-box-ordinal-group: 6;
+    -ms-flex-order: 5;
     order: 5;
     width: 100%; }
     body.classic .timer.standard-timer .thinking-time-container h2 {
       display: none; }
     body.classic .timer.standard-timer .thinking-time-container .thinking-times {
       height: 100%;
+      display: -webkit-box;
+      display: -ms-flexbox;
       display: flex;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
       align-items: center;
+      -webkit-box-orient: vertical;
+      -webkit-box-direction: normal;
+      -ms-flex-direction: column;
       flex-direction: column; }
       body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer {
         height: 4vh;
         width: 100%;
         font-size: 2.5vmin;
         border: 2px solid #c0c0c0;
+        display: -webkit-box;
+        display: -ms-flexbox;
         display: flex;
+        -webkit-box-orient: horizontal;
+        -webkit-box-direction: normal;
+        -ms-flex-direction: row;
         flex-direction: row;
+        -webkit-box-pack: justify;
+        -ms-flex-pack: justify;
         justify-content: space-between; }
         body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .left {
           text-align: left; }
         body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .center {
+          -webkit-box-flex: 1;
+          -ms-flex-positive: 1;
           flex-grow: 1;
           text-align: center; }
           body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .center .technical-info {
+            display: -webkit-box;
+            display: -ms-flexbox;
             display: flex;
+            -webkit-box-orient: vertical;
+            -webkit-box-direction: normal;
+            -ms-flex-direction: column;
             flex-direction: column; }
             body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .center .technical-info.irrelevant {
+              -webkit-transition: opacity 3s ease-in 0.5s;
               transition: opacity 3s ease-in 0.5s;
+              display: -webkit-box !important;
+              display: -ms-flexbox !important;
               display: flex !important;
               opacity: 0;
               pointer-events: none; }
@@ -429,8 +543,14 @@ body.classic .timer.standard-timer {
       body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls {
         height: 48vh;
         width: 100%;
+        display: -webkit-box;
+        display: -ms-flexbox;
         display: flex;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
         align-items: center;
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
         justify-content: center; }
         body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls.team-A {
           color: #fff;
@@ -445,15 +565,30 @@ body.classic .timer.standard-timer {
           width: 100%;
           height: 100%;
           font-size: 34vmin;
+          display: -webkit-box;
+          display: -ms-flexbox;
           display: flex;
+          -webkit-box-align: center;
+          -ms-flex-align: center;
           align-items: center;
+          -webkit-box-pack: center;
+          -ms-flex-pack: center;
           justify-content: center;
           font-weight: bold;
           overflow: hidden; }
         body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls .time-controls {
+          display: -webkit-box;
+          display: -ms-flexbox;
           display: flex;
+          -webkit-box-orient: vertical;
+          -webkit-box-direction: normal;
+          -ms-flex-direction: column;
           flex-direction: column;
+          -webkit-box-pack: justify;
+          -ms-flex-pack: justify;
           justify-content: space-between;
+          -webkit-box-align: center;
+          -ms-flex-align: center;
           align-items: center;
           font-size: 3vmin;
           height: 8vmin; }
@@ -488,6 +623,7 @@ body.classic .timer.standard-timer {
     right: 10px;
     background-color: rgba(248, 248, 248, 0.7);
     z-index: 5;
+    -webkit-transition: all 0.4s;
     transition: all 0.4s; }
     body.classic .timer.standard-timer .debug.hidden {
       bottom: -25%;
@@ -498,8 +634,15 @@ body.classic .timer.standard-timer {
     min-width: 100px;
     max-width: 100px;
     height: 100vh;
+    display: -webkit-box;
+    display: -ms-flexbox;
     display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
     flex-direction: column;
+    -webkit-box-ordinal-group: 0;
+    -ms-flex-order: -1;
     order: -1; }
     body.classic .timer.standard-timer .controls button {
       font-size: 16px;
@@ -542,96 +685,163 @@ body.classic .timer.standard-timer {
       font-weight: bold;
       font-size: 18px; }
     body.classic .timer.standard-timer .controls #yellow-begin-thinking {
+      -webkit-box-ordinal-group: 51;
+      -ms-flex-order: 50;
       order: 50;
+      background: -webkit-gradient(linear, left top, left bottom, from(#fefebf), to(#f0f0ab));
       background: linear-gradient(to bottom, #fefebf 0%, #f0f0ab 100%); }
       body.classic .timer.standard-timer .controls #yellow-begin-thinking:hover:not(:disabled) {
+        background: -webkit-gradient(linear, left top, left bottom, from(#fefe00), to(#f0f000));
         background: linear-gradient(to bottom, #fefe00 0%, #f0f000 100%); }
     body.classic .timer.standard-timer .controls #red-begin-thinking {
+      -webkit-box-ordinal-group: 21;
+      -ms-flex-order: 20;
       order: 20;
+      background: -webkit-gradient(linear, left top, left bottom, from(#febfbf), to(#f0b1ab));
       background: linear-gradient(to bottom, #febfbf 0%, #f0b1ab 100%); }
       body.classic .timer.standard-timer .controls #red-begin-thinking:hover:not(:disabled) {
+        background: -webkit-gradient(linear, left top, left bottom, from(#fe7f7f), to(#f0716b));
         background: linear-gradient(to bottom, #fe7f7f 0%, #f0716b 100%); }
     body.classic .timer.standard-timer .controls #end-red-thinking {
+      -webkit-box-ordinal-group: 22;
+      -ms-flex-order: 21;
       order: 21;
+      background: -webkit-gradient(linear, left top, left bottom, from(#febfbf), to(#f0b1ab));
       background: linear-gradient(to bottom, #febfbf 0%, #f0b1ab 100%); }
       body.classic .timer.standard-timer .controls #end-red-thinking:hover:not(:disabled) {
+        background: -webkit-gradient(linear, left top, left bottom, from(#fe7f7f), to(#f0716b));
         background: linear-gradient(to bottom, #fe7f7f 0%, #f0716b 100%); }
     body.classic .timer.standard-timer .controls #end-yellow-thinking {
+      -webkit-box-ordinal-group: 52;
+      -ms-flex-order: 51;
       order: 51;
+      background: -webkit-gradient(linear, left top, left bottom, from(#fefebf), to(#f0f0ab));
       background: linear-gradient(to bottom, #fefebf 0%, #f0f0ab 100%); }
       body.classic .timer.standard-timer .controls #end-yellow-thinking:hover:not(:disabled) {
+        background: -webkit-gradient(linear, left top, left bottom, from(#fefe00), to(#f0f000));
         background: linear-gradient(to bottom, #fefe00 0%, #f0f000 100%); }
     body.classic .timer.standard-timer .controls #end-end {
+      -webkit-box-ordinal-group: 23;
+      -ms-flex-order: 22;
       order: 22;
+      background: -webkit-gradient(linear, left top, left bottom, from(#bffebf), to(#b2f0ab));
       background: linear-gradient(to bottom, #bffebf 0%, #b2f0ab 100%); }
       body.classic .timer.standard-timer .controls #end-end:hover:not(:disabled) {
+        background: -webkit-gradient(linear, left top, left bottom, from(#7ffe7f), to(#71f06b));
         background: linear-gradient(to bottom, #7ffe7f 0%, #71f06b 100%); }
     body.classic .timer.standard-timer .controls #begin-timeout {
+      -webkit-box-ordinal-group: 24;
+      -ms-flex-order: 23;
       order: 23;
+      background: -webkit-gradient(linear, left top, left bottom, from(#bfbffe), to(#b2b2ea));
       background: linear-gradient(to bottom, #bfbffe 0%, #b2b2ea 100%);
       height: 5vh; }
       body.classic .timer.standard-timer .controls #begin-timeout:hover:not(:disabled) {
+        background: -webkit-gradient(linear, left top, left bottom, from(#7f7ffe), to(#7171ea));
         background: linear-gradient(to bottom, #7f7ffe 0%, #7171ea 100%); }
     body.classic .timer.standard-timer .controls #technical {
+      -webkit-box-ordinal-group: 25;
+      -ms-flex-order: 24;
       order: 24;
+      background: -webkit-gradient(linear, left top, left bottom, from(#bfbffe), to(#b2b2ea));
       background: linear-gradient(to bottom, #bfbffe 0%, #b2b2ea 100%);
       height: 5vh; }
       body.classic .timer.standard-timer .controls #technical:hover:not(:disabled) {
+        background: -webkit-gradient(linear, left top, left bottom, from(#7f7ffe), to(#7171ea));
         background: linear-gradient(to bottom, #7f7ffe 0%, #7171ea 100%); }
     body.classic .timer.standard-timer .controls #end-technical {
+      -webkit-box-ordinal-group: 25;
+      -ms-flex-order: 24;
       order: 24;
+      background: -webkit-gradient(linear, left top, left bottom, from(#bfbffe), to(#b2b2ea));
       background: linear-gradient(to bottom, #bfbffe 0%, #b2b2ea 100%);
       height: 5vh; }
       body.classic .timer.standard-timer .controls #end-technical:hover:not(:disabled) {
+        background: -webkit-gradient(linear, left top, left bottom, from(#7f7ffe), to(#7171ea));
         background: linear-gradient(to bottom, #7f7ffe 0%, #7171ea 100%); }
       body.classic .timer.standard-timer .controls #end-technical:disabled {
         display: none; }
     body.classic .timer.standard-timer .controls #adjust-time {
+      -webkit-box-ordinal-group: 71;
+      -ms-flex-order: 70;
       order: 70;
+      background: -webkit-gradient(linear, left top, left bottom, from(#fefefe), to(#efefe9));
       background: linear-gradient(to bottom, #fefefe 0%, #efefe9 100%); }
       body.classic .timer.standard-timer .controls #adjust-time:hover:not(:disabled) {
+        background: -webkit-gradient(linear, left top, left bottom, from(#dfdfdf), to(#d1d1cb));
         background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%); }
     body.classic .timer.standard-timer .controls #begin-extra-end {
+      -webkit-box-ordinal-group: 2;
+      -ms-flex-order: 1;
       order: 1;
+      background: -webkit-gradient(linear, left top, left bottom, from(#fefefe), to(#efefe9));
       background: linear-gradient(to bottom, #fefefe 0%, #efefe9 100%); }
       body.classic .timer.standard-timer .controls #begin-extra-end:hover:not(:disabled) {
+        background: -webkit-gradient(linear, left top, left bottom, from(#dfdfdf), to(#d1d1cb));
         background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%); }
     body.classic .timer.standard-timer .controls #begin-midgame-break {
+      -webkit-box-ordinal-group: 26;
+      -ms-flex-order: 25;
       order: 25;
+      background: -webkit-gradient(linear, left top, left bottom, from(#bffebf), to(#b2f0ab));
       background: linear-gradient(to bottom, #bffebf 0%, #b2f0ab 100%); }
       body.classic .timer.standard-timer .controls #begin-midgame-break:hover:not(:disabled) {
+        background: -webkit-gradient(linear, left top, left bottom, from(#7ffe7f), to(#71f06b));
         background: linear-gradient(to bottom, #7ffe7f 0%, #71f06b 100%); }
     body.classic .timer.standard-timer .controls #reset {
+      -webkit-box-ordinal-group: 76;
+      -ms-flex-order: 75;
       order: 75;
+      background: -webkit-gradient(linear, left top, left bottom, from(#fefefe), to(#efefe9));
       background: linear-gradient(to bottom, #fefefe 0%, #efefe9 100%); }
       body.classic .timer.standard-timer .controls #reset:hover:not(:disabled) {
+        background: -webkit-gradient(linear, left top, left bottom, from(#dfdfdf), to(#d1d1cb));
         background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%); }
 
 body.classic .confirm-dialog {
   position: fixed;
   top: 50%;
   left: 50%;
+  -webkit-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
   background-color: #f8f8f8;
   z-index: 15;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
   flex-direction: column;
+  -webkit-box-shadow: 0px 0px 3px 1px rgba(0, 0, 0, 0.4);
   box-shadow: 0px 0px 3px 1px rgba(0, 0, 0, 0.4); }
   body.classic .confirm-dialog .confirm-dialog-title {
+    display: -webkit-box;
+    display: -ms-flexbox;
     display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
     align-items: center;
     padding-left: 10px;
     height: 30px;
     border-bottom: 1px solid #ddd;
     text-transform: uppercase; }
   body.classic .confirm-dialog .confirm-dialog-message {
+    -webkit-box-flex: 1;
+    -ms-flex-positive: 1;
     flex-grow: 1;
     margin: 20px;
     font-size: 24px; }
   body.classic .confirm-dialog .confirm-dialog-buttons {
     height: 50px;
+    display: -webkit-box;
+    display: -ms-flexbox;
     display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
     align-items: center;
+    -webkit-box-pack: end;
+    -ms-flex-pack: end;
     justify-content: flex-end;
     padding-right: 10px; }
     body.classic .confirm-dialog .confirm-dialog-buttons button {
@@ -664,8 +874,14 @@ body.classic .modal-overlay {
 
 body.classic .team-time-input {
   width: 280px;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
   justify-content: space-between;
   margin-bottom: 10px; }
   body.classic .team-time-input input {
@@ -676,7 +892,11 @@ body.classic .team-time-input {
 
 body.classic .simple-input {
   width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
+  -webkit-box-pack: end;
+  -ms-flex-pack: end;
   justify-content: flex-end;
   margin-bottom: 5px; }
   body.classic .simple-input .simple-input-label {
@@ -695,19 +915,29 @@ body.classic .customize-timer-dialog {
   width: 400px;
   height: 320px; }
   body.classic .customize-timer-dialog .simple-or-standard-radios {
+    display: -webkit-box;
+    display: -ms-flexbox;
     display: flex;
+    -ms-flex-wrap: wrap;
     flex-wrap: wrap;
+    -ms-flex-pack: distribute;
     justify-content: space-around;
     margin-bottom: 16px;
     padding: 6px;
     border: 1px solid #212121; }
     body.classic .customize-timer-dialog .simple-or-standard-radios .simple-or-standard-radio-group-label {
+      -ms-flex-preferred-size: 100%;
       flex-basis: 100%;
       margin-bottom: 10px; }
     body.classic .customize-timer-dialog .simple-or-standard-radios .radio-label-pair {
+      display: -webkit-box;
+      display: -ms-flexbox;
       display: flex;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
       align-items: center; }
       body.classic .customize-timer-dialog .simple-or-standard-radios .radio-label-pair label {
+        -webkit-text-decoration: dotted underline rgba(0, 0, 0, 0.4);
         text-decoration: dotted underline rgba(0, 0, 0, 0.4); }
     body.classic .customize-timer-dialog .simple-or-standard-radios input {
       margin-right: 4px; }
@@ -721,7 +951,11 @@ div.debug {
   display: inline-block;
   width: 32px;
   height: 40px;
+  -webkit-transform: scaleY(0.75);
   transform: scaleY(0.75);
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
   user-select: none; }
   .fullscreen-button > span {
     position: absolute;

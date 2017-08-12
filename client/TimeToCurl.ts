@@ -502,7 +502,6 @@ export class TimeToCurl {
 			this.restoreSettingsFromStorage();
 
 			document.getElementById("createTimer")!.addEventListener("click", async event => {
-				(event.target as HTMLButtonElement).textContent = "Reset";
 				if (Object.keys(this.machines).length > 0) {
 					if (await confirm("Reset timers. Are you sure?")) {
 						window.location.href = "/";
@@ -597,6 +596,7 @@ export class TimeToCurl {
 			this,
 		);
 		this.machines[cm.state.id].initUI();
+		(document.getElementById("createTimer")! as HTMLButtonElement).textContent = "Reset";
 		const displayedTimers = getDisplayedTimers();
 		if (displayedTimers.indexOf(cm.state.id) === -1) {
 			displayedTimers.push(cm.state.id);

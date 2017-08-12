@@ -50,6 +50,25 @@ There are plans to run this application on a public server with a domain name. U
 
 At this point the program is running. You can open a web browser and navigate to http://localhost:3001 to use it. **From now on, to run Time to Curl, you only need to do step 5 above from within the application directory in a command prompt.
 
+## Curl with Curl...
+You can update timers with basic HTTP requests (i.e. using curl). Eventually I will have all the commands documented. Here's an example for now.
+
+**Add time to a basic timer**  
+`curl -XPOST -H "Content-type: application/json" -d '{"action": {"request":"QUERY_TIMER","options":{"command":"ADD_TIME","data":"{\"value\":nn}","timerId":"xxxxx"}}}' 'server-uri'`
+
+Replace `nn` with the number of seconds to add to the timer.  
+Replace `xxxxx` with the timer ID (look in the URL).  
+Replace `server-uri` with the URI to the server.
+
+**Example**  
+`curl -XPOST -H "Content-type: application/json" -d '{"action": {"request":"QUERY_TIMER","options":{"command":"ADD_TIME","data":"{\"value\":60}","timerId":"13586"}}}' 'http://localhost:3001/'`
+
+**Start a basic timer**  
+`curl -XPOST -H "Content-type: application/json" -d '{"action": {"request":"QUERY_TIMER","options":{"command":"START_TIMER","timerId":"xxxxx"}}}' 'server-uri'`
+
+**Pause a basic timer**  
+`curl -XPOST -H "Content-type: application/json" -d '{"action": {"request":"QUERY_TIMER","options":{"command":"PAUSE_TIMER","timerId":"xxxxx"}}}' 'server-uri'`
+
 ## Remaining tasks
 - [x] Fix *loaded* timers not working (30 min?)
 - [x] Show remaining timeouts for each team (30 min)

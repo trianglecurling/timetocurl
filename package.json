@@ -58,8 +58,10 @@
     "@types/lodash": "^4.14.69",
     "@types/socket.io-client": "^1.4.29",
     "@types/webpack-env": "^1.13.0",
+    "autoprefixer": "^7.1.2",
     "expect": "^1.20.2",
     "nodemon": "^1.11.0",
+    "postcss-loader": "^2.0.6",
     "typescript": "^2.4.1",
     "uglify-js": "^3.0.25",
     "uglifyjs-webpack-plugin": "^0.4.6"

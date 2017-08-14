@@ -220,6 +220,12 @@ function invalidateScaledText() {
     scaledElements.clear();
 }
 exports.invalidateScaledText = invalidateScaledText;
+function refitScaledElements() {
+    for (const elem of scaledElements) {
+        scaletext_1.default(elem);
+    }
+}
+exports.refitScaledElements = refitScaledElements;
 function setMonospaceText(elem, text) {
     elem.innerHTML = "";
     elem.textContent = text;
@@ -916,6 +922,7 @@ exports.TimerUIBase = TimerUIBase;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+const fscreen_1 = __webpack_require__(7);
 let currentOverlay = null;
 let currentDialog = null;
 let resolver = undefined;
@@ -969,8 +976,9 @@ async function confirm(message, title = null, okText = "OK", cancelText = "Cance
     dialog.appendChild(messageArea);
     dialog.appendChild(buttonsArea);
     // Render
-    document.body.appendChild(overlay);
-    document.body.appendChild(dialog);
+    const appendToElement = fscreen_1.default.fullscreenElement || document.body;
+    appendToElement.appendChild(overlay);
+    appendToElement.appendChild(dialog);
     currentOverlay = overlay;
     currentDialog = dialog;
     return promise.then(onConfirmButtonClick.bind(null, true), onConfirmButtonClick.bind(null, false));
@@ -1297,6 +1305,22 @@ class StandardTimerUI extends TimerUIBase_1.TimerUIBase {
         this.rootTimerElement.dataset["phase"] = this.state.phase;
         this.rootTimerElement.classList.add(this.rootTimerElement.dataset["phase"]);
         this.clearTimers();
+        // Hide time adjustment controls when timers are running
+        if (this.state.phase === "thinking") {
+            Object.keys(this.timeControls).forEach(k => {
+                for (const elem of this.timeControls[k]) {
+                    elem.classList.add("invisible");
+                }
+            });
+        }
+        else {
+            Object.keys(this.timeControls).forEach(k => {
+                for (const elem of this.timeControls[k]) {
+                    elem.classList.remove("invisible");
+                }
+            });
+        }
+        util_1.refitScaledElements();
         for (const teamId of this.options.teams) {
             util_1.setTimeToElem(this.thinkingTimeText[teamId], this.state.timeRemaining[teamId]);
             if (this.state.phase !== "technical") {
@@ -1429,21 +1453,6 @@ class StandardTimerUI extends TimerUIBase_1.TimerUIBase {
         }
         else if (this.state.phase !== "technical") {
             this.timeoutsRemainingContainerElement.classList.add("irrelevant");
-        }
-        // Hide time adjustment controls when timers are running
-        if (this.state.phase === "thinking") {
-            Object.keys(this.timeControls).forEach(k => {
-                for (const elem of this.timeControls[k]) {
-                    elem.classList.add("irrelevant");
-                }
-            });
-        }
-        else {
-            Object.keys(this.timeControls).forEach(k => {
-                for (const elem of this.timeControls[k]) {
-                    elem.classList.remove("irrelevant");
-                }
-            });
         }
     }
     async sendPhaseTransition(transition, data) {
@@ -18855,7 +18864,7 @@ function scaleText(el) {
     const text = el.textContent.replace(/11/g, "12");
     let current = (min + max) / 2;
     el.style.fontSize = current + "pt";
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < 20; i++) {
         const style = window.getComputedStyle(el);
         const font = style.getPropertyValue("font");
         const theight = parseInt(style.getPropertyValue("font-size"));

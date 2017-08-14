@@ -18,7 +18,7 @@ export default function scaleText(el: HTMLElement) {
 	let current = (min + max) / 2;
 	el.style.fontSize = current + "pt";
 
-	for (var i = 0; i < 10; i++) {
+	for (var i = 0; i < 20; i++) {
 		const style = window.getComputedStyle(el);
 		const font = style.getPropertyValue("font");
 		const theight = parseInt(style.getPropertyValue("font-size"));

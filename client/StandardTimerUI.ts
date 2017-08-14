@@ -1,7 +1,7 @@
 import { TimerUIBase } from "./TimerUIBase";
 import { CurlingMachineState, StandardTimerOptions, IMap, StandardStateAndOptions } from "./interfaces";
 import { registerTimerType, TimeToCurl } from "./TimeToCurl";
-import { secondsToStr, strToSeconds, setTimeToElem, clientId, invalidateScaledText } from "./util";
+import { secondsToStr, strToSeconds, setTimeToElem, clientId, invalidateScaledText, refitScaledElements } from "./util";
 import confirm from "./confirm";
 
 export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTimerOptions> {
@@ -198,6 +198,22 @@ export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTi
 		this.rootTimerElement.classList.add(this.rootTimerElement.dataset["phase"]!);
 
 		this.clearTimers();
+
+		// Hide time adjustment controls when timers are running
+		if (this.state.phase === "thinking") {
+			Object.keys(this.timeControls).forEach(k => {
+				for (const elem of this.timeControls[k]) {
+					elem.classList.add("invisible");
+				}
+			});
+		} else {
+			Object.keys(this.timeControls).forEach(k => {
+				for (const elem of this.timeControls[k]) {
+					elem.classList.remove("invisible");
+				}
+			});
+		}
+		refitScaledElements();
 		for (const teamId of this.options.teams) {
 			setTimeToElem(this.thinkingTimeText[teamId], this.state.timeRemaining[teamId]);
 			if (this.state.phase !== "technical") {
@@ -377,21 +393,6 @@ export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTi
 			this.timeoutsRemainingContainerElement.classList.remove("irrelevant");
 		} else if (this.state.phase !== "technical") {
 			this.timeoutsRemainingContainerElement.classList.add("irrelevant");
-		}
-
-		// Hide time adjustment controls when timers are running
-		if (this.state.phase === "thinking") {
-			Object.keys(this.timeControls).forEach(k => {
-				for (const elem of this.timeControls[k]) {
-					elem.classList.add("irrelevant");
-				}
-			});
-		} else {
-			Object.keys(this.timeControls).forEach(k => {
-				for (const elem of this.timeControls[k]) {
-					elem.classList.remove("irrelevant");
-				}
-			});
 		}
 	}
 

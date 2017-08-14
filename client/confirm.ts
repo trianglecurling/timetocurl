@@ -1,3 +1,5 @@
+import fscreen from "fscreen";
+
 let currentOverlay: HTMLElement | null = null;
 let currentDialog: HTMLElement | null = null;
 let resolver: ((value?: boolean | PromiseLike<boolean>) => void) | undefined = undefined;
@@ -64,8 +66,9 @@ export default async function confirm(
 	dialog.appendChild(buttonsArea);
 
 	// Render
-	document.body.appendChild(overlay);
-	document.body.appendChild(dialog);
+	const appendToElement = fscreen.fullscreenElement || document.body;
+	appendToElement.appendChild(overlay);
+	appendToElement.appendChild(dialog);
 
 	currentOverlay = overlay;
 	currentDialog = dialog;

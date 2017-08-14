@@ -165,6 +165,12 @@ export function invalidateScaledText() {
 	scaledElements.clear();
 }
 
+export function refitScaledElements() {
+	for (const elem of scaledElements) {
+		scaleText(elem);
+	}
+}
+
 export function setMonospaceText(elem: HTMLElement, text: string) {
 	elem.innerHTML = "";
 	elem.textContent = text;

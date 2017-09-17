@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const fscreen_1 = require("fscreen");
 let currentOverlay = null;
 let currentDialog = null;
 let resolver = undefined;
@@ -53,8 +54,9 @@ async function confirm(message, title = null, okText = "OK", cancelText = "Cance
     dialog.appendChild(messageArea);
     dialog.appendChild(buttonsArea);
     // Render
-    document.body.appendChild(overlay);
-    document.body.appendChild(dialog);
+    const appendToElement = fscreen_1.default.fullscreenElement || document.body;
+    appendToElement.appendChild(overlay);
+    appendToElement.appendChild(dialog);
     currentOverlay = overlay;
     currentDialog = dialog;
     return promise.then(onConfirmButtonClick.bind(null, true), onConfirmButtonClick.bind(null, false));

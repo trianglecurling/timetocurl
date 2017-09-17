@@ -3,6 +3,7 @@ import { CurlingMachineState, StandardTimerOptions, IMap, StandardStateAndOption
 import { registerTimerType, TimeToCurl } from "./TimeToCurl";
 import { secondsToStr, strToSeconds, setTimeToElem, clientId, invalidateScaledText, refitScaledElements } from "./util";
 import confirm from "./confirm";
+import { Stopwatch, TimeMinder } from "./time-minder";
 
 export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTimerOptions> {
 	protected addTimeoutButtons: IMap<HTMLButtonElement>;
@@ -175,7 +176,7 @@ export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTi
 		return { ...this.state };
 	}
 
-	public dispose() {}
+	public dispose() { }
 
 	public setNewState(state: CurlingMachineState) {
 		invalidateScaledText();
@@ -249,7 +250,7 @@ export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTi
 							setTimeToElem(
 								this.elapsedThinkingTime[teamId],
 								(stoneTimer.elapsedTime() + (this.state.currentTimerRunningTime || 0)) /
-									this.lengthOfSecond,
+								this.lengthOfSecond,
 							);
 						},
 						false,
@@ -324,7 +325,7 @@ export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTi
 			);
 			timeoutTimer.every(
 				this.lengthOfSecond / 10,
-				isImmediateInvocation => {
+				(isImmediateInvocation: boolean) => {
 					if (
 						this.options.timeoutTime >= this.state.timeoutTimeRemaining + scheduledTravelTime ||
 						(this.travelTimeCancelButton.textContent === "No coach" && !isImmediateInvocation)

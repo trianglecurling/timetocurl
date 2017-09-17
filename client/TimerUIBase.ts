@@ -2,13 +2,12 @@ import fscreen from "fscreen";
 import { BaseTimerState, TimerOptions, IMap, StateAndOptions, TimerUI } from "./interfaces";
 import { TimeToCurl } from "./TimeToCurl";
 import { instanceOfAny, clientId } from "./util";
+import { Stopwatch } from "./time-minder";
 
 const IGNORE_HOTKEY_TYPES = [HTMLInputElement, HTMLButtonElement, HTMLTextAreaElement, HTMLSelectElement];
 
-export abstract class TimerUIBase<
-	TState extends BaseTimerState = BaseTimerState,
-	TOptions extends TimerOptions = TimerOptions
-> implements TimerUI {
+export abstract class TimerUIBase<TState extends BaseTimerState = BaseTimerState, TOptions extends TimerOptions = TimerOptions>
+	implements TimerUI {
 	protected elements: IMap<Element[]>;
 	protected fullScreenButton: HTMLButtonElement;
 	protected lengthOfSecond: number;
@@ -19,11 +18,7 @@ export abstract class TimerUIBase<
 	protected timerContainerElement: HTMLElement;
 	protected titleElement: HTMLElement;
 
-	constructor(
-		initParams: StateAndOptions<TState, TOptions>,
-		protected container: HTMLElement,
-		protected application: TimeToCurl,
-	) {
+	constructor(initParams: StateAndOptions<TState, TOptions>, protected container: HTMLElement, protected application: TimeToCurl) {
 		this.elements = {};
 		this.state = initParams.state;
 		this.options = initParams.options;
@@ -35,7 +30,7 @@ export abstract class TimerUIBase<
 
 	protected abstract getTemplateId(): string;
 
-	private handleFullscreenToggled() {
+	public toggleFullscreen() {
 		if (fscreen.fullscreenElement) {
 			fscreen.exitFullscreen();
 		} else {
@@ -58,12 +53,12 @@ export abstract class TimerUIBase<
 
 		// full screen mode
 		if (this.fullScreenButton) {
-			this.fullScreenButton.addEventListener("click", this.handleFullscreenToggled.bind(this));
+			this.fullScreenButton.addEventListener("click", this.toggleFullscreen.bind(this));
 		}
 
 		document.addEventListener("keydown", event => {
 			if (!event.defaultPrevented && event.key === " " && !instanceOfAny(event.target, IGNORE_HOTKEY_TYPES)) {
-				this.handleFullscreenToggled();
+				this.toggleFullscreen();
 			}
 		});
 
@@ -143,10 +138,7 @@ export abstract class TimerUIBase<
 		if (elemData) {
 			key = elemData;
 		} else {
-			const nonTeamClasses = Array.prototype.filter.call(
-				elem.classList,
-				(c: string) => c.substr(0, 5) !== "team",
-			);
+			const nonTeamClasses = Array.prototype.filter.call(elem.classList, (c: string) => c.substr(0, 5) !== "team");
 			if (nonTeamClasses.length === 1) {
 				key = nonTeamClasses[0];
 			}

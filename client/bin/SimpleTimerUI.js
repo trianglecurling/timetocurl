@@ -3,11 +3,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const TimerUIBase_1 = require("./TimerUIBase");
 const TimeToCurl_1 = require("./TimeToCurl");
 const util_1 = require("./util");
+const time_minder_1 = require("./time-minder");
 class SimpleTimerUI extends TimerUIBase_1.TimerUIBase {
     constructor(initParams, container, application) {
         super(initParams, container, application);
         this.container = container;
         this.application = application;
+        this.currentMode = "normal";
     }
     initUI() {
         super.initUI();
@@ -27,19 +29,40 @@ class SimpleTimerUI extends TimerUIBase_1.TimerUIBase {
         this.state = state;
         this.clearTimers();
         this.titleElement.textContent = this.state.timerName;
-        const mainTimer = new TimeMinder(this.state.timeRemaining * this.lengthOfSecond);
+        const mainTimer = new time_minder_1.TimeMinder(this.state.timeRemaining * this.lengthOfSecond, () => {
+            if (this.options.sounds.end) {
+                new Audio(this.options.sounds.end).play();
+            }
+        });
         mainTimer.every(this.lengthOfSecond / 10, () => {
             let renderPacing = this.options.showPacing;
             const timeRemaining = mainTimer.getTimeRemaining() / this.lengthOfSecond;
             util_1.setTimeToElem(this.remainingTime, mainTimer.getTimeRemaining() / this.lengthOfSecond);
-            this.timerContainerElement.classList.remove("warning");
-            this.timerContainerElement.classList.remove("no-more-ends");
             if (timeRemaining <= this.options.noMoreEndsTime) {
-                this.timerContainerElement.classList.add("no-more-ends");
+                if (this.currentMode !== "noMoreEnds") {
+                    this.timerContainerElement.classList.remove("warning");
+                    this.timerContainerElement.classList.add("no-more-ends");
+                    if (this.options.sounds.noMoreEnds) {
+                        new Audio(this.options.sounds.noMoreEnds).play();
+                    }
+                    this.currentMode = "noMoreEnds";
+                }
                 renderPacing = false;
             }
             else if (timeRemaining <= this.options.warningTime) {
-                this.timerContainerElement.classList.add("warning");
+                if (this.currentMode !== "warning") {
+                    this.timerContainerElement.classList.remove("no-more-ends");
+                    this.timerContainerElement.classList.add("warning");
+                    if (this.options.sounds.warning) {
+                        new Audio(this.options.sounds.warning).play();
+                    }
+                    this.currentMode = "warning";
+                }
+            }
+            else {
+                this.currentMode = "normal";
+                this.timerContainerElement.classList.remove("warning");
+                this.timerContainerElement.classList.remove("no-more-ends");
             }
             if (renderPacing) {
                 this.pacingElement.classList.remove("irrelevant");

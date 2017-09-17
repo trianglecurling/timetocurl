@@ -61,9 +61,7 @@ class SimpleTimerMachine {
 			let stateChanged = true;
 			switch (action.command) {
 				case "ADD_TIME":
-					this.timer.setTimeRemaining(
-						this.timer.getTimeRemaining() + parseInt(action.data.value, 10) * this.lengthOfSecond,
-					);
+					this.timer.setTimeRemaining(this.timer.getTimeRemaining() + parseInt(action.data.value, 10) * this.lengthOfSecond);
 					break;
 				case "START_TIMER":
 					this.timer.unpause();
@@ -354,11 +352,7 @@ class CurlingMachine {
 				// Time individual stones by providing a segment name in the
 				// form: Yellow:n-m where n is the end number and m is the stone number.
 				nextState.timer.unpause(
-					nextState.phaseData.team +
-						":" +
-						nextState.end +
-						"-" +
-						nextState.currentStone[nextState.phaseData.team],
+					nextState.phaseData.team + ":" + nextState.end + "-" + nextState.currentStone[nextState.phaseData.team],
 				);
 			}
 
@@ -374,8 +368,7 @@ class CurlingMachine {
 					nextState.timer.unpause();
 				} else {
 					// Odd ends = home travel time
-					const extraTravelTime =
-						this.state.end % 2 === 1 ? this.options.travelTime["home"] : this.options.travelTime["away"];
+					const extraTravelTime = this.state.end % 2 === 1 ? this.options.travelTime["home"] : this.options.travelTime["away"];
 					nextState.timer = this.createTimer(this.options.timeoutTime + extraTravelTime, () => {
 						// Only deduct a timeout when it has been used completey.
 						// It may have been canceled.
@@ -421,20 +414,15 @@ class CurlingMachine {
 		const betweenEndTimeRemaining =
 			this.state.phase === "between-ends" ? this.state.timer.getTimeRemaining() / this.lengthOfSecond : null;
 		const timeoutsRemaining = Object.assign({}, this.timeoutsRemaining);
-		const timeoutTimeRemaining =
-			this.state.phase === "timeout" ? this.state.timer.getTimeRemaining() / this.lengthOfSecond : null;
-		const warmupTimeRemaining =
-			this.state.phase === "warm-up" ? this.state.timer.getTimeRemaining() / this.lengthOfSecond : null;
+		const timeoutTimeRemaining = this.state.phase === "timeout" ? this.state.timer.getTimeRemaining() / this.lengthOfSecond : null;
+		const warmupTimeRemaining = this.state.phase === "warm-up" ? this.state.timer.getTimeRemaining() / this.lengthOfSecond : null;
 		const timeRemaining = Object.assign({}, this.thinkingTimers);
-		Object.keys(timeRemaining).forEach(
-			team => (timeRemaining[team] = timeRemaining[team].getTimeRemaining() / this.lengthOfSecond),
-		);
+		Object.keys(timeRemaining).forEach(team => (timeRemaining[team] = timeRemaining[team].getTimeRemaining() / this.lengthOfSecond));
 
 		let currentTimerRunningTime = null;
 		if (state.timer) {
 			if (state.phase === "thinking") {
-				const segmentName =
-					state.phaseData.team + ":" + state.end + "-" + state.currentStone[state.phaseData.team];
+				const segmentName = state.phaseData.team + ":" + state.end + "-" + state.currentStone[state.phaseData.team];
 				currentTimerRunningTime = state.timer.getTotalSegmentTime(segmentName);
 			} else {
 				currentTimerRunningTime = state.timer.elapsedTime();
@@ -486,15 +474,8 @@ class CurlingMachine {
 	getNextEnd(action) {
 		const result = { end: this.state.end, extraEnd: this.state.extraEnd };
 		let isExtraEnd = false;
-		if (
-			(this.state.phase === "between-ends" && action.transition === "between-end-end") ||
-			action.transition === "begin-extra-end"
-		) {
-			if (
-				result.end >= this.options.numEnds ||
-				result.extraEnd !== null ||
-				action.transition === "begin-extra-end"
-			) {
+		if ((this.state.phase === "between-ends" && action.transition === "between-end-end") || action.transition === "begin-extra-end") {
+			if (result.end >= this.options.numEnds || result.extraEnd !== null || action.transition === "begin-extra-end") {
 				result.extraEnd = !result.extraEnd ? 1 : result.extraEnd + 1;
 				isExtraEnd = true;
 			} else {

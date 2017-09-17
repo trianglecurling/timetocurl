@@ -7,6 +7,10 @@ exports.StandardBaseOptions = {
     midGameBreakTime: 5 * 60,
     numEnds: 10,
     numTimeouts: 1,
+    sounds: {
+        start: "",
+        end: "",
+    },
     teams: ["Red", "Yellow"],
     thinkingTime: 38 * 60,
     timeoutTime: 60,
@@ -20,6 +24,12 @@ exports.SimpleBaseOptions = {
     noMoreEndsTime: 10 * 60,
     numEnds: 8,
     showPacing: true,
+    sounds: {
+        end: "",
+        noMoreEnds: "cowbell.mp3",
+        start: "",
+        warning: "",
+    },
     timerName: "",
     totalTime: 120 * 60,
     warningTime: 15 * 60,

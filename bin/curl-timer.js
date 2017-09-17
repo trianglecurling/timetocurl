@@ -28,7 +28,7 @@ var defaultSimpleTimerOptions = {
     warningTime: 15 * 60,
 };
 var MACHINE_ID_SEED = Math.floor(Math.random() * 10000 + 10001);
-var SimpleTimerMachine = (function () {
+var SimpleTimerMachine = /** @class */ (function () {
     function SimpleTimerMachine(options, onStateChange) {
         this.options = Object.assign({}, defaultSimpleTimerOptions, options);
         this.lengthOfSecond = this.options.lengthOfSecond;
@@ -97,7 +97,7 @@ var SimpleTimerMachine = (function () {
  * it also serves as the name of the node in an FSM - with phase transitions being defined by the
  * name of the transition.
  */
-var CurlingMachine = (function () {
+var CurlingMachine = /** @class */ (function () {
     function CurlingMachine(options, onStateChange) {
         this.options = Object.assign({}, defaultOptions, options);
         this.lengthOfSecond = this.options.lengthOfSecond;
@@ -320,11 +320,7 @@ var CurlingMachine = (function () {
                 nextState.timer = this.thinkingTimers[nextState.phaseData.team];
                 // Time individual stones by providing a segment name in the
                 // form: Yellow:n-m where n is the end number and m is the stone number.
-                nextState.timer.unpause(nextState.phaseData.team +
-                    ":" +
-                    nextState.end +
-                    "-" +
-                    nextState.currentStone[nextState.phaseData.team]);
+                nextState.timer.unpause(nextState.phaseData.team + ":" + nextState.end + "-" + nextState.currentStone[nextState.phaseData.team]);
             }
             if (nextState.phase === "timeout") {
                 if (this.state.timer) {
@@ -435,11 +431,8 @@ var CurlingMachine = (function () {
     CurlingMachine.prototype.getNextEnd = function (action) {
         var result = { end: this.state.end, extraEnd: this.state.extraEnd };
         var isExtraEnd = false;
-        if ((this.state.phase === "between-ends" && action.transition === "between-end-end") ||
-            action.transition === "begin-extra-end") {
-            if (result.end >= this.options.numEnds ||
-                result.extraEnd !== null ||
-                action.transition === "begin-extra-end") {
+        if ((this.state.phase === "between-ends" && action.transition === "between-end-end") || action.transition === "begin-extra-end") {
+            if (result.end >= this.options.numEnds || result.extraEnd !== null || action.transition === "begin-extra-end") {
                 result.extraEnd = !result.extraEnd ? 1 : result.extraEnd + 1;
                 isExtraEnd = true;
             }

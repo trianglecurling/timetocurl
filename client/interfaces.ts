@@ -182,10 +182,7 @@ export interface CurlingMachineState extends BaseTimerState {
 	warmupTimeRemaining: number;
 }
 
-export interface StateAndOptions<
-	TState extends BaseTimerState = BaseTimerState,
-	TOptions extends TimerOptions = TimerOptions
-> {
+export interface StateAndOptions<TState extends BaseTimerState = BaseTimerState, TOptions extends TimerOptions = TimerOptions> {
 	options: TOptions;
 	state: TState;
 	type: TimerType;
@@ -212,6 +209,7 @@ export interface TimerUI {
 	initUI: () => void;
 	setNewState: (state: any) => void;
 	scrollIntoView: () => void;
+	toggleFullscreen: () => void;
 }
 
 export interface TimerUIConstructor {

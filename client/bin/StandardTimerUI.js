@@ -4,6 +4,7 @@ const TimerUIBase_1 = require("./TimerUIBase");
 const TimeToCurl_1 = require("./TimeToCurl");
 const util_1 = require("./util");
 const confirm_1 = require("./confirm");
+const time_minder_1 = require("./time-minder");
 class StandardTimerUI extends TimerUIBase_1.TimerUIBase {
     constructor(initParams, container, application) {
         super(initParams, container, application);
@@ -146,6 +147,22 @@ class StandardTimerUI extends TimerUIBase_1.TimerUIBase {
         this.rootTimerElement.dataset["phase"] = this.state.phase;
         this.rootTimerElement.classList.add(this.rootTimerElement.dataset["phase"]);
         this.clearTimers();
+        // Hide time adjustment controls when timers are running
+        if (this.state.phase === "thinking") {
+            Object.keys(this.timeControls).forEach(k => {
+                for (const elem of this.timeControls[k]) {
+                    elem.classList.add("invisible");
+                }
+            });
+        }
+        else {
+            Object.keys(this.timeControls).forEach(k => {
+                for (const elem of this.timeControls[k]) {
+                    elem.classList.remove("invisible");
+                }
+            });
+        }
+        util_1.refitScaledElements();
         for (const teamId of this.options.teams) {
             util_1.setTimeToElem(this.thinkingTimeText[teamId], this.state.timeRemaining[teamId]);
             if (this.state.phase !== "technical") {
@@ -157,14 +174,14 @@ class StandardTimerUI extends TimerUIBase_1.TimerUIBase {
                 if (thinkingTeam === teamId) {
                     this.thinkingButtons[teamId].disabled = true;
                     // Main countdown timer
-                    const mainTimer = new TimeMinder(this.state.timeRemaining[thinkingTeam] * this.lengthOfSecond);
+                    const mainTimer = new time_minder_1.TimeMinder(this.state.timeRemaining[thinkingTeam] * this.lengthOfSecond);
                     mainTimer.every(this.lengthOfSecond / 10, () => {
                         util_1.setTimeToElem(this.thinkingTimeText[teamId], mainTimer.getTimeRemaining() / this.lengthOfSecond);
                     }, false);
                     mainTimer.start();
                     this.runningTimers.push(mainTimer);
                     // Time spent this stone
-                    const stoneTimer = new Stopwatch();
+                    const stoneTimer = new time_minder_1.Stopwatch();
                     this.elapsedThinkingTime[teamId].classList.add("running");
                     stoneTimer.every(this.lengthOfSecond / 10, () => {
                         util_1.setTimeToElem(this.elapsedThinkingTime[teamId], (stoneTimer.elapsedTime() + (this.state.currentTimerRunningTime || 0)) /
@@ -190,7 +207,7 @@ class StandardTimerUI extends TimerUIBase_1.TimerUIBase {
         }
         if (this.state.phase === "warm-up") {
             this.elements["warmup-time-container"][0].classList.remove("irrelevant");
-            const timer = new TimeMinder(this.state.warmupTimeRemaining * this.lengthOfSecond);
+            const timer = new time_minder_1.TimeMinder(this.state.warmupTimeRemaining * this.lengthOfSecond);
             timer.every(this.lengthOfSecond / 10, () => {
                 util_1.setTimeToElem(this.warmupTimeText, timer.getTimeRemaining() / this.lengthOfSecond);
             }, false);
@@ -202,7 +219,7 @@ class StandardTimerUI extends TimerUIBase_1.TimerUIBase {
         }
         if (this.state.phase === "between-ends") {
             this.elements["between-end-time-container"][0].classList.remove("irrelevant");
-            const timer = new TimeMinder(this.state.betweenEndTimeRemaining * this.lengthOfSecond);
+            const timer = new time_minder_1.TimeMinder(this.state.betweenEndTimeRemaining * this.lengthOfSecond);
             timer.every(this.lengthOfSecond / 10, () => {
                 util_1.setTimeToElem(this.betweenEndTimeText, timer.getTimeRemaining() / this.lengthOfSecond);
             }, false);
@@ -217,12 +234,12 @@ class StandardTimerUI extends TimerUIBase_1.TimerUIBase {
             const scheduledTravelTime = (this.state.end || 0) % 2 === 0 ? this.options.travelTime["away"] : this.options.travelTime["home"];
             // timeoutTimeRemaining includes travel time
             const travelTime = Math.max(0, this.state.timeoutTimeRemaining - this.options.timeoutTime);
-            const timeoutTimer = new TimeMinder((this.state.timeoutTimeRemaining - travelTime) * this.lengthOfSecond, undefined, () => {
+            const timeoutTimer = new time_minder_1.TimeMinder((this.state.timeoutTimeRemaining - travelTime) * this.lengthOfSecond, undefined, () => {
                 this.travelTimeCancelButton.textContent = "No coach";
                 this.travelTimeCancelButton.dataset["data"] = JSON.stringify({ value: -1 * scheduledTravelTime });
                 this.travelTimeContainer.classList.remove("irrelevant");
             });
-            timeoutTimer.every(this.lengthOfSecond / 10, isImmediateInvocation => {
+            timeoutTimer.every(this.lengthOfSecond / 10, (isImmediateInvocation) => {
                 if (this.options.timeoutTime >= this.state.timeoutTimeRemaining + scheduledTravelTime ||
                     (this.travelTimeCancelButton.textContent === "No coach" && !isImmediateInvocation)) {
                     this.travelTimeCancelButton.disabled = true;
@@ -232,7 +249,7 @@ class StandardTimerUI extends TimerUIBase_1.TimerUIBase {
                 }
                 util_1.setTimeToElem(this.timeoutTimeText, timeoutTimer.getTimeRemaining() / this.lengthOfSecond);
             }, false, true);
-            const travelTimer = new TimeMinder(travelTime * this.lengthOfSecond, () => {
+            const travelTimer = new time_minder_1.TimeMinder(travelTime * this.lengthOfSecond, () => {
                 timeoutTimer.start();
                 this.runningTimers.push(timeoutTimer);
                 this.travelTimeContainer.classList.add("irrelevant");
@@ -261,7 +278,7 @@ class StandardTimerUI extends TimerUIBase_1.TimerUIBase {
         if (this.state.phase === "technical") {
             this.elements["technical"][0].classList.add("irrelevant");
             this.technicalInfo.classList.remove("irrelevant");
-            const techTime = new Stopwatch();
+            const techTime = new time_minder_1.Stopwatch();
             techTime.every(this.lengthOfSecond / 10, () => {
                 util_1.setTimeToElem(this.technicalTimeoutTime, techTime.elapsedTime() / this.lengthOfSecond);
             }, true);
@@ -278,21 +295,6 @@ class StandardTimerUI extends TimerUIBase_1.TimerUIBase {
         }
         else if (this.state.phase !== "technical") {
             this.timeoutsRemainingContainerElement.classList.add("irrelevant");
-        }
-        // Hide time adjustment controls when timers are running
-        if (this.state.phase === "thinking") {
-            Object.keys(this.timeControls).forEach(k => {
-                for (const elem of this.timeControls[k]) {
-                    elem.classList.add("irrelevant");
-                }
-            });
-        }
-        else {
-            Object.keys(this.timeControls).forEach(k => {
-                for (const elem of this.timeControls[k]) {
-                    elem.classList.remove("irrelevant");
-                }
-            });
         }
     }
     async sendPhaseTransition(transition, data) {

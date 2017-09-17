@@ -45,16 +45,14 @@ var _a = require("./curl-timer"), CurlingMachine = _a.CurlingMachine, SimpleTime
 var fs = require("fs");
 function setupRoutes(app) {
     var _this = this;
-    app.get("/", function (req, res) {
+    app.get(/(^\/$)|(^\/t\/.*$)/, function (req, res) {
         console.log(__dirname);
         res.sendFile(join(process.cwd(), "client/index.html"));
     });
     app.post("/", function (req, res) {
+        console.log(req.body);
         handleAction(req.body.action);
         res.status(201).end();
-    });
-    app.get("/time-minder.js", function (req, res) {
-        res.sendFile(join(process.cwd(), "client/time-minder.js"));
     });
     app.get("/style.css", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
@@ -123,9 +121,14 @@ function handleAction(action, socket) {
         }
     }
     if (action.request === "GET_TIMER") {
-        var game = games[action.options.timerId];
-        socket && game.registerSocket(action.clientId, socket);
-        if (game) {
+        var timerId_1 = action.options.timerId;
+        var dollarIndex = timerId_1.indexOf("$");
+        if (dollarIndex >= 0) {
+            timerId_1 = timerId_1.substr(0, dollarIndex);
+        }
+        var game = games[timerId_1] || games[Object.keys(games).find(function (g) { return games[g].options.timerName === timerId_1; })];
+        if (socket && game) {
+            game.registerSocket(action.clientId, socket);
             var response = {
                 response: "GET_TIMER",
                 token: action.token,
@@ -135,7 +138,11 @@ function handleAction(action, socket) {
             socket && socket.emit("response", JSON.stringify(response));
         }
         else {
-            socket && socket.emit("response", "game not found");
+            socket &&
+                socket.emit("response", JSON.stringify({
+                    response: "error",
+                    data: "game not found",
+                }));
         }
     }
     if (action.request === "DELETE_TIMER") {

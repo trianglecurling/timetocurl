@@ -2,6 +2,7 @@ import { TimerUIBase } from "./TimerUIBase";
 import { SimpleTimerState, SimpleTimerOptions, SimpleStateAndOptions } from "./interfaces";
 import { registerTimerType, TimeToCurl } from "./TimeToCurl";
 import { setTimeToElem, roundPrecision, getOrdinalAdjective } from "./util";
+import { TimeMinder } from "./time-minder";
 
 export class SimpleTimerUI extends TimerUIBase<SimpleTimerState, SimpleTimerOptions> {
 	protected addMinuteButton: HTMLButtonElement;

@@ -11,15 +11,11 @@ export function instanceOfAny(obj: any, types: any[]) {
 }
 
 export function getDisplayedTimers(): string[] {
-	const hash = window.location.hash;
-	if (hash.length > 0) {
-		return hash.substr(1).split(";");
+	const timerIdentifiers = window.location.pathname.substr("/t/".length);
+	if (timerIdentifiers.length > 0) {
+		return timerIdentifiers.split(";");
 	}
 	return [];
-}
-
-export function setTimersInHash(ids: string[]) {
-	window.location.hash = `#${ids.join(";")}`;
 }
 
 export function uuid(): string {
@@ -155,7 +151,7 @@ const scaledElements = new Set();
 	}
 
 	function actualResizeHandler() {
-		for (const elem of scaledElements) {
+		for (const elem of scaledElements as any) {
 			scaleText(elem);
 		}
 	}
@@ -166,7 +162,7 @@ export function invalidateScaledText() {
 }
 
 export function refitScaledElements() {
-	for (const elem of scaledElements) {
+	for (const elem of scaledElements as any) {
 		scaleText(elem);
 	}
 }

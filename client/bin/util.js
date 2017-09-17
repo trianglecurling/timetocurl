@@ -11,7 +11,7 @@ function instanceOfAny(obj, types) {
 }
 exports.instanceOfAny = instanceOfAny;
 function getDisplayedTimers() {
-    const hash = window.location.hash;
+    const hash = window.location.pathname.substr(3);
     if (hash.length > 0) {
         return hash.substr(1).split(";");
     }
@@ -19,7 +19,7 @@ function getDisplayedTimers() {
 }
 exports.getDisplayedTimers = getDisplayedTimers;
 function setTimersInHash(ids) {
-    window.location.hash = `#${ids.join(";")}`;
+    window.history.replaceState(null, document.title, `${window.location.origin}/t/${ids.join(";")}`);
 }
 exports.setTimersInHash = setTimersInHash;
 function uuid() {
@@ -147,6 +147,12 @@ function invalidateScaledText() {
     scaledElements.clear();
 }
 exports.invalidateScaledText = invalidateScaledText;
+function refitScaledElements() {
+    for (const elem of scaledElements) {
+        scaletext_1.default(elem);
+    }
+}
+exports.refitScaledElements = refitScaledElements;
 function setMonospaceText(elem, text) {
     elem.innerHTML = "";
     elem.textContent = text;

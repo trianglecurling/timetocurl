@@ -16,16 +16,7 @@ import {
 import { TimerUIBase } from "./TimerUIBase";
 import { cloneDeep, isEqual } from "lodash";
 import { SimpleBaseOptions, StandardBaseOptions, TimerPresets } from "./presets";
-import {
-	getDisplayedTimers,
-	secondsToStr,
-	strToSeconds,
-	clientId,
-	uuid,
-	isSimpleTimer,
-	isStandardTimer,
-	setTimersInHash,
-} from "./util";
+import { getDisplayedTimers, secondsToStr, strToSeconds, clientId, uuid, isSimpleTimer, isStandardTimer } from "./util";
 
 export class TimeToCurl {
 	private socket: SocketIOClient.Socket;
@@ -59,6 +50,11 @@ export class TimeToCurl {
 				throw new Error(`Could not parse response as JSON: ${result}`);
 			}
 
+			if (response.response === "error") {
+				// @TODO: Check the kind of error. Just bail for now.
+				window.location.href = "/";
+			}
+
 			// Did we ask for this data?
 			if (this.requestResolvers[response.token]) {
 				this.requests[response.token] = response;
@@ -84,16 +80,19 @@ export class TimeToCurl {
 
 	private async loadTimers(ids: string[]) {
 		for (const timerId of ids) {
-			const timer = await this.emitAction<{ timerId: string }, StandardStateAndOptions>(
-				<SocketAction<{ timerId: string }>>{
-					request: "GET_TIMER",
-					options: { timerId },
-				},
-			);
+			let fullScreen = false;
+			if (timerId.indexOf("$") >= 0) {
+				fullScreen = true;
+			}
+			const timer = await this.emitAction<{ timerId: string }, StandardStateAndOptions>(<SocketAction<{ timerId: string }>>{
+				request: "GET_TIMER",
+				options: { timerId },
+			});
 			if (this.machines[timerId]) {
 				this.machines[timerId].setNewState(timer.data.state);
 			} else {
-				this.addCurlingMachine(timer.data);
+				delete this.machines[timerId];
+				this.addCurlingMachine(timer.data, fullScreen);
 			}
 		}
 	}
@@ -254,10 +253,7 @@ export class TimeToCurl {
 		}
 		const simpleRadioLabel = document.createElement("label");
 		simpleRadioLabel.setAttribute("for", "simpleRadioButton");
-		simpleRadioLabel.setAttribute(
-			"title",
-			"Simple timer that counts down to zero. No active timekeeping required.",
-		);
+		simpleRadioLabel.setAttribute("title", "Simple timer that counts down to zero. No active timekeeping required.");
 		simpleRadioLabel.textContent = "Simple";
 		simpleRadio.appendChild(simpleRadioInput);
 		simpleRadio.appendChild(simpleRadioLabel);
@@ -287,11 +283,7 @@ export class TimeToCurl {
 		simpleOrStandard.appendChild(standardRadio);
 
 		const standardOptions = this.nextStandardTimerOptions;
-		const thinkingTime = this.simpleInput(
-			"Thinking time",
-			"thinkingTime",
-			secondsToStr(standardOptions.thinkingTime),
-		);
+		const thinkingTime = this.simpleInput("Thinking time", "thinkingTime", secondsToStr(standardOptions.thinkingTime));
 		const numEndsStandard = this.simpleInput("Number of ends", "numEnds", standardOptions.numEnds);
 		const extraEndThinkingTime = this.simpleInput(
 			"Thinking time added for an extra end",
@@ -300,22 +292,10 @@ export class TimeToCurl {
 		);
 		const numTimeouts = this.simpleInput("Number of timeouts per team", "numTimeouts", standardOptions.numTimeouts);
 		const timeoutTime = this.simpleInput("Timeout time", "timeoutTime", secondsToStr(standardOptions.timeoutTime));
-		const homeTravelTime = this.simpleInput(
-			"Travel time (home end)",
-			"homeTravelTime",
-			secondsToStr(standardOptions.travelTime.home),
-		);
-		const awayTravelTime = this.simpleInput(
-			"Travel time (away end)",
-			"awayTravelTime",
-			secondsToStr(standardOptions.travelTime.away),
-		);
+		const homeTravelTime = this.simpleInput("Travel time (home end)", "homeTravelTime", secondsToStr(standardOptions.travelTime.home));
+		const awayTravelTime = this.simpleInput("Travel time (away end)", "awayTravelTime", secondsToStr(standardOptions.travelTime.away));
 		const warmupTime = this.simpleInput("Warmup time", "warmupTime", secondsToStr(standardOptions.warmupTime));
-		const betweenEndTime = this.simpleInput(
-			"Time between ends",
-			"betweenEndTime",
-			secondsToStr(standardOptions.betweenEndTime),
-		);
+		const betweenEndTime = this.simpleInput("Time between ends", "betweenEndTime", secondsToStr(standardOptions.betweenEndTime));
 		const midGameBreakTime = this.simpleInput(
 			"Mid game break time",
 			"midGameBreakTime",
@@ -355,15 +335,11 @@ export class TimeToCurl {
 			this.evaluatePresetDropdown();
 			this.saveTimerOptions();
 		});
-		const playSoundCheckbox = this.checkboxInput(
-			"Play sound when timer turns red",
-			!!simpleOptions.sounds.noMoreEnds,
-			checked => {
-				simpleOptions.sounds.noMoreEnds = checked ? "cowbell.mp3" : "";
-				this.evaluatePresetDropdown();
-				this.saveTimerOptions();
-			},
-		);
+		const playSoundCheckbox = this.checkboxInput("Play sound when timer turns red", !!simpleOptions.sounds.noMoreEnds, checked => {
+			simpleOptions.sounds.noMoreEnds = checked ? "cowbell.mp3" : "";
+			this.evaluatePresetDropdown();
+			this.saveTimerOptions();
+		});
 
 		const simpleContainer = document.createElement("div");
 		simpleContainer.classList.add("custom-settings-fields-container", "simple-settings", "irrelevant");
@@ -427,7 +403,7 @@ export class TimeToCurl {
 				standardOptions.thinkingTime = valThinkingTime || prevStandardSettings.thinkingTime;
 				standardOptions.numEnds = valNumEndsStandard || prevStandardSettings.numEnds;
 				standardOptions.extraEndThinkingTime = valXEndThinkingTime || prevStandardSettings.extraEndThinkingTime;
-				standardOptions.numTimeouts = valNumTimeouts || prevStandardSettings.numTimeouts;
+				standardOptions.numTimeouts = !isNaN(valNumTimeouts) ? valNumTimeouts : prevStandardSettings.numTimeouts;
 				standardOptions.timeoutTime = valTimeoutTime || prevStandardSettings.timeoutTime;
 				standardOptions.travelTime.home = valHomeTravelTime || prevStandardSettings.travelTime.home;
 				standardOptions.travelTime.away = valAwayTravelTime || prevStandardSettings.travelTime.away;
@@ -507,19 +483,18 @@ export class TimeToCurl {
 						window.location.href = "/";
 					}
 				} else {
-					const response = await this.emitAction<Partial<StandardTimerOptions>, StandardStateAndOptions>(
-						<SocketAction<Partial<StandardTimerOptions>>>{
-							request: "CREATE_TIMER",
-							clientId: clientId,
-							options: {
-								...this.nextTimerType === TimerType.Simple
-									? this.nextSimpleTimerOptions
-									: this.nextStandardTimerOptions,
-								lengthOfSecond: this.speedyClocks ? 100 : 1000,
-								type: this.nextTimerType,
-							},
+					const response = await this.emitAction<Partial<StandardTimerOptions>, StandardStateAndOptions>(<SocketAction<
+						Partial<StandardTimerOptions>
+					>>{
+						request: "CREATE_TIMER",
+						clientId: clientId,
+						options: {
+							...this.nextTimerType === TimerType.Simple ? this.nextSimpleTimerOptions : this.nextStandardTimerOptions,
+							lengthOfSecond: this.speedyClocks ? 100 : 1000,
+							timerName: (document.getElementById("timerName")! as HTMLInputElement).value.trim() || null,
+							type: this.nextTimerType,
 						},
-					);
+					});
 					this.addCurlingMachine(response.data).scrollIntoView();
 				}
 			});
@@ -589,20 +564,23 @@ export class TimeToCurl {
 		});
 	}
 
-	private addCurlingMachine(cm: StateAndOptions) {
-		this.machines[cm.state.id] = new (this.getMatchingTimer(cm))(
-			cm,
-			document.getElementById("timersContainer")!,
-			this,
-		);
+	private addCurlingMachine(cm: StateAndOptions, fullScreen?: boolean) {
+		this.machines[cm.state.id] = new (this.getMatchingTimer(cm))(cm, document.getElementById("timersContainer")!, this);
 		this.machines[cm.state.id].initUI();
 		(document.getElementById("createTimer")! as HTMLButtonElement).textContent = "Reset";
 		const displayedTimers = getDisplayedTimers();
 		if (displayedTimers.indexOf(cm.state.id) === -1) {
 			displayedTimers.push(cm.state.id);
 		}
-		setTimersInHash(displayedTimers);
+		this.setTimersInUrl();
+		if (fullScreen) {
+			this.machines[cm.state.id].toggleFullscreen();
+		}
 		return this.machines[cm.state.id];
+	}
+
+	private setTimersInUrl() {
+		window.history.replaceState(null, document.title, `${window.location.origin}/t/${Object.keys(this.machines).join(";")}`);
 	}
 
 	private getMatchingTimer(cm: StateAndOptions) {

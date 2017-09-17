@@ -5,9 +5,9 @@
 		"lib": ["dom", "es5", "es2015.promise", "es2017"],
 		"strict": true,
 		"importHelpers": true,
-		"typeRoots": ["../types", "../node_modules/@types"],
 		"sourceMap": false,
-		"outDir": "bin"
+		"outDir": "bin",
+		"typeRoots": ["../types", "../node_modules/@types"]
 	},
 	"include": ["app.ts"]
 }

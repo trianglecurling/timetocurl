@@ -136,6 +136,31 @@ class TimeToCurl {
         container.appendChild(currentValue);
         return container;
     }
+    checkboxInput(label, checked = false, onChange) {
+        const showPacing = document.createElement("div");
+        showPacing.classList.add("simple-input");
+        const showPacingLabel = document.createElement("label");
+        showPacingLabel.textContent = label;
+        showPacingLabel.classList.add("simple-input-label");
+        showPacingLabel.setAttribute("for", "showPacingCheckbox");
+        const showPacingCheckbox = document.createElement("input");
+        showPacingCheckbox.setAttribute("id", "showPacingCheckbox");
+        showPacingCheckbox.setAttribute("type", "checkbox");
+        showPacingCheckbox.setAttribute("value", "true");
+        showPacingCheckbox.checked = checked;
+        showPacingCheckbox.classList.add("simple-input-field");
+        const previewDummy = document.createElement("div");
+        previewDummy.classList.add("input-value-preview");
+        showPacing.appendChild(showPacingLabel);
+        showPacing.appendChild(showPacingCheckbox);
+        showPacing.appendChild(previewDummy);
+        if (onChange) {
+            showPacingCheckbox.addEventListener("change", () => {
+                onChange(showPacingCheckbox.checked);
+            });
+        }
+        return showPacing;
+    }
     evaluatePresetDropdown() {
         for (const preset of presets_1.TimerPresets) {
             if (this.nextTimerType === "standard" /* Standard */ && lodash_1.isEqual(preset.options, this.nextStandardTimerOptions)) {
@@ -227,23 +252,20 @@ class TimeToCurl {
         const warningTime = this.simpleInput("Turn yellow at", "warningTime", util_1.secondsToStr(simpleOptions.warningTime));
         const additionalEnds = this.simpleInput("Ends allowed after timer turns red", "allowableAdditionalEnds", simpleOptions.allowableAdditionalEnds);
         const numEndsSimple = this.simpleInput("Number of ends", "numEnds", simpleOptions.numEnds);
-        const showPacing = document.createElement("div");
-        showPacing.classList.add("simple-input");
-        const showPacingLabel = document.createElement("label");
-        showPacingLabel.textContent = "Display recommended pacing";
-        showPacingLabel.classList.add("simple-input-label");
-        showPacingLabel.setAttribute("for", "showPacingCheckbox");
-        const showPacingCheckbox = document.createElement("input");
-        showPacingCheckbox.setAttribute("id", "showPacingCheckbox");
-        showPacingCheckbox.setAttribute("type", "checkbox");
-        showPacingCheckbox.setAttribute("value", "true");
-        showPacingCheckbox.checked = simpleOptions.showPacing;
-        showPacingCheckbox.classList.add("simple-input-field");
-        const previewDummy = document.createElement("div");
-        previewDummy.classList.add("input-value-preview");
-        showPacing.appendChild(showPacingLabel);
-        showPacing.appendChild(showPacingCheckbox);
-        showPacing.appendChild(previewDummy);
+        // const startSound = this.simpleInput("Start sound", "startSound");
+        // const endSound = this.simpleInput("End sound", "endSound");
+        // const warningSound = this.simpleInput("Warning sound", "warningSound");
+        // const noMoreEndsSound = this.simpleInput("No more ends sound", "noMoreEndsSound");
+        const showPacing = this.checkboxInput("Show recommended pacing", simpleOptions.showPacing, checked => {
+            simpleOptions.showPacing = checked;
+            this.evaluatePresetDropdown();
+            this.saveTimerOptions();
+        });
+        const playSoundCheckbox = this.checkboxInput("Play sound when timer turns red", !!simpleOptions.sounds.noMoreEnds, checked => {
+            simpleOptions.sounds.noMoreEnds = checked ? "cowbell.mp3" : "";
+            this.evaluatePresetDropdown();
+            this.saveTimerOptions();
+        });
         const simpleContainer = document.createElement("div");
         simpleContainer.classList.add("custom-settings-fields-container", "simple-settings", "irrelevant");
         simpleContainer.appendChild(totalTime);
@@ -252,6 +274,7 @@ class TimeToCurl {
         simpleContainer.appendChild(additionalEnds);
         simpleContainer.appendChild(numEndsSimple);
         simpleContainer.appendChild(showPacing);
+        simpleContainer.appendChild(playSoundCheckbox);
         const onTimerTypeChanged = () => {
             const result = this.getRadioValue(simpleRadioInput, standardRadioInput);
             if (result === "standard") {
@@ -280,11 +303,6 @@ class TimeToCurl {
         const prevStandardSettings = lodash_1.cloneDeep(standardOptions);
         const prevSimpleSettings = lodash_1.cloneDeep(simpleOptions);
         const prevTimerType = this.nextTimerType;
-        showPacingCheckbox.addEventListener("change", () => {
-            simpleOptions.showPacing = showPacingCheckbox.checked;
-            this.evaluatePresetDropdown();
-            this.saveTimerOptions();
-        });
         allOptionsContainer.addEventListener("input", () => {
             const valThinkingTime = util_1.strToSeconds(thinkingTime.children[1].value);
             const valNumEndsStandard = Number(numEndsStandard.children[1].value);
@@ -369,7 +387,6 @@ class TimeToCurl {
             this.populateTimerOptions();
             this.restoreSettingsFromStorage();
             document.getElementById("createTimer").addEventListener("click", async (event) => {
-                event.target.textContent = "Reset";
                 if (Object.keys(this.machines).length > 0) {
                     if (await confirm_1.default("Reset timers. Are you sure?")) {
                         window.location.href = "/";
@@ -450,6 +467,7 @@ class TimeToCurl {
     addCurlingMachine(cm) {
         this.machines[cm.state.id] = new (this.getMatchingTimer(cm))(cm, document.getElementById("timersContainer"), this);
         this.machines[cm.state.id].initUI();
+        document.getElementById("createTimer").textContent = "Reset";
         const displayedTimers = util_1.getDisplayedTimers();
         if (displayedTimers.indexOf(cm.state.id) === -1) {
             displayedTimers.push(cm.state.id);

@@ -9,18 +9,15 @@ const { CurlingMachine, SimpleTimerMachine } = require("./curl-timer");
 const fs = require("fs");
 
 function setupRoutes(app) {
-	app.get("/", (req, res) => {
+	app.get(/(^\/$)|(^\/t\/.*$)/, (req, res) => {
 		console.log(__dirname);
 		res.sendFile(join(process.cwd(), "client/index.html"));
 	});
 
 	app.post("/", (req, res) => {
+		console.log(req.body);
 		handleAction(req.body.action);
 		res.status(201).end();
-	});
-
-	app.get("/time-minder.js", (req, res) => {
-		res.sendFile(join(process.cwd(), "client/time-minder.js"));
 	});
 
 	app.get("/style.css", async (req, res) => {
@@ -94,9 +91,15 @@ function handleAction(action, socket = null) {
 	}
 
 	if (action.request === "GET_TIMER") {
-		const game = games[action.options.timerId];
-		socket && game.registerSocket(action.clientId, socket);
-		if (game) {
+		let timerId = action.options.timerId;
+		const dollarIndex = timerId.indexOf("$");
+		if (dollarIndex >= 0) {
+			timerId = timerId.substr(0, dollarIndex);
+		}
+		let game = games[timerId] || games[Object.keys(games).find(g => games[g].options.timerName === timerId)];
+
+		if (socket && game) {
+			game.registerSocket(action.clientId, socket);
 			const response = {
 				response: "GET_TIMER",
 				token: action.token,
@@ -106,7 +109,14 @@ function handleAction(action, socket = null) {
 			//console.log("GET_TIMER response: " + require("util").inspect(response));
 			socket && socket.emit("response", JSON.stringify(response));
 		} else {
-			socket && socket.emit("response", "game not found");
+			socket &&
+				socket.emit(
+					"response",
+					JSON.stringify({
+						response: "error",
+						data: "game not found",
+					}),
+				);
 		}
 	}
 

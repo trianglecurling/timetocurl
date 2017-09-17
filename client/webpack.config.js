@@ -12,7 +12,7 @@ const extractSass = new ExtractTextPlugin({
 
 const plugins = [extractSass];
 if (isProd) {
-	plugins.push(new UglifyJSPlugin());
+	// plugins.push(new UglifyJSPlugin());
 }
 
 module.exports = {
@@ -28,10 +28,10 @@ module.exports = {
 			{
 				test: /\.tsx?$/,
 				loader:
-					"ts-loader?" +
-					JSON.stringify({
-						configFileName: isProd ? "tsconfig.prod.json" : "tsconfig.json",
-					}),
+				"ts-loader?" +
+				JSON.stringify({
+					configFileName: isProd ? "tsconfig.prod.json" : "tsconfig.json",
+				}),
 			},
 			{
 				test: /\.scss$/,

@@ -36,7 +36,7 @@ class SimpleTimerMachine {
 		this.options = Object.assign({}, defaultSimpleTimerOptions, options);
 		this.lengthOfSecond = this.options.lengthOfSecond;
 		this.id = String(CurlingMachine.nextMachineId++);
-		this.timer = new TimeMinder(this.options.totalTime * this.lengthOfSecond);
+		this.timer = new TimeMinder((this.options.totalTime + this.options.preGameTime) * this.lengthOfSecond);
 		if (!this.options.timerName) {
 			this.options.timerName = `Simple Timer ${String(this.id)}`;
 		}

@@ -324,6 +324,7 @@ export class TimeToCurl {
 			"allowableAdditionalEnds",
 			simpleOptions.allowableAdditionalEnds,
 		);
+		const preGameTime = this.simpleInput("Pre Game Time", "preGameTime", simpleOptions.preGameTime);
 		const numEndsSimple = this.simpleInput("Number of ends", "numEnds", simpleOptions.numEnds);
 		// const startSound = this.simpleInput("Start sound", "startSound");
 		// const endSound = this.simpleInput("End sound", "endSound");
@@ -347,6 +348,7 @@ export class TimeToCurl {
 		simpleContainer.appendChild(warningTime);
 		simpleContainer.appendChild(endTime);
 		simpleContainer.appendChild(additionalEnds);
+		simpleContainer.appendChild(preGameTime);
 		simpleContainer.appendChild(numEndsSimple);
 		simpleContainer.appendChild(showPacing);
 		simpleContainer.appendChild(playSoundCheckbox);
@@ -397,6 +399,7 @@ export class TimeToCurl {
 				const valTotalTime = strToSeconds((totalTime.children[1] as HTMLInputElement).value);
 				const valEndTime = strToSeconds((endTime.children[1] as HTMLInputElement).value);
 				const valWarningTime = strToSeconds((warningTime.children[1] as HTMLInputElement).value);
+				const valPreGameTime = strToSeconds((preGameTime.children[1] as HTMLInputElement).value);
 				const valAdditionalEnds = Number((additionalEnds.children[1] as HTMLInputElement).value);
 				const valNumEndsSimple = Number((numEndsSimple.children[1] as HTMLInputElement).value);
 
@@ -414,6 +417,7 @@ export class TimeToCurl {
 				simpleOptions.totalTime = valTotalTime || prevSimpleSettings.totalTime;
 				simpleOptions.noMoreEndsTime = valEndTime || prevSimpleSettings.noMoreEndsTime;
 				simpleOptions.warningTime = valWarningTime || prevSimpleSettings.warningTime;
+				simpleOptions.preGameTime = valPreGameTime || prevSimpleSettings.preGameTime;
 				simpleOptions.allowableAdditionalEnds = isNaN(valAdditionalEnds)
 					? prevSimpleSettings.allowableAdditionalEnds
 					: valAdditionalEnds;
@@ -433,6 +437,7 @@ export class TimeToCurl {
 				totalTime.children[2].textContent = secondsToStr(simpleOptions.totalTime);
 				endTime.children[2].textContent = secondsToStr(simpleOptions.noMoreEndsTime);
 				warningTime.children[2].textContent = secondsToStr(simpleOptions.warningTime);
+				preGameTime.children[2].textContent = secondsToStr(simpleOptions.preGameTime);
 				additionalEnds.children[2].textContent = String(simpleOptions.allowableAdditionalEnds);
 				numEndsSimple.children[2].textContent = String(simpleOptions.numEnds);
 

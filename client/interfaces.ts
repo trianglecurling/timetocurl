@@ -127,6 +127,12 @@ export interface SimpleTimerOptions extends TimerOptions<SimpleTimerSoundOptions
 	noMoreEndsTime: number;
 
 	/**
+	 * Amount of time before the start of the timer to count down
+	 * (with a negative sign in front)
+	 */
+	preGameTime: number;
+
+	/**
 	 * Whether or not to display information about the
 	 * recommended pace to finish the game on time.
 	 */

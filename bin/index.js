@@ -82,19 +82,32 @@ io.on("connection", function (socket) {
 var games = {};
 function dispatchStateChange(sockets, machineId) {
     console.log("sending updated state");
-    for (var _i = 0, sockets_1 = sockets; _i < sockets_1.length; _i++) {
-        var socket = sockets_1[_i];
-        socket.emit("statechange", JSON.stringify({
-            message: "SET_STATE",
-            machineId: machineId,
-            data: games[machineId].getSerializableState(),
-        }));
+    var game = getGame(machineId);
+    if (game) {
+        for (var _i = 0, sockets_1 = sockets; _i < sockets_1.length; _i++) {
+            var socket = sockets_1[_i];
+            socket.emit("statechange", JSON.stringify({
+                message: "SET_STATE",
+                machineId: machineId,
+                data: game.getSerializableState(),
+            }));
+        }
     }
+}
+function getGame(timerNameOrId) {
+    return games[timerNameOrId] || games[Object.keys(games).find(function (g) { return games[g].options.timerName === timerNameOrId; })];
 }
 function handleAction(action, socket) {
     //console.log("Action: " + action.request);
     if (socket === void 0) { socket = null; }
     if (action.request === "CREATE_TIMER") {
+        if (action.options.timerName) {
+            var existingGame = getGame(action.options.timerName);
+            if (existingGame) {
+                existingGame.dispose();
+                delete games[existingGame.id];
+            }
+        }
         var curlingMachine_1;
         if (action.options.type === "simple") {
             curlingMachine_1 = new SimpleTimerMachine(action.options, function (sockets) {
@@ -121,12 +134,12 @@ function handleAction(action, socket) {
         }
     }
     if (action.request === "GET_TIMER") {
-        var timerId_1 = action.options.timerId;
-        var dollarIndex = timerId_1.indexOf("$");
+        var timerId = action.options.timerId;
+        var dollarIndex = timerId.indexOf("$");
         if (dollarIndex >= 0) {
-            timerId_1 = timerId_1.substr(0, dollarIndex);
+            timerId = timerId.substr(0, dollarIndex);
         }
-        var game = games[timerId_1] || games[Object.keys(games).find(function (g) { return games[g].options.timerName === timerId_1; })];
+        var game = getGame(timerId);
         if (socket && game) {
             game.registerSocket(action.clientId, socket);
             var response = {
@@ -146,19 +159,21 @@ function handleAction(action, socket) {
         }
     }
     if (action.request === "DELETE_TIMER") {
-        games[action.options.timerId].dispose();
-        var deleted = !!games[action.options.timerId] ? "ok" : "not found";
-        delete games[action.options.timerId];
+        var game = getGame(action.options.timerId);
+        if (game) {
+            game.dispose();
+            delete games[game.id];
+        }
         socket &&
             socket.emit("response", JSON.stringify({
                 response: "DELETE_TIMER",
                 token: action.token,
-                data: deleted,
+                data: !!game,
             }));
     }
     if (action.request === "QUERY_TIMER") {
         //console.log("Query timer: " + JSON.stringify(action, null, 4));
-        var machine = games[action.options.timerId];
+        var machine = getGame(action.options.timerId);
         socket && machine.registerSocket(action.clientId, socket);
         if (machine) {
             if (action.options.state) {

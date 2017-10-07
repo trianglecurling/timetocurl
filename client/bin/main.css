@@ -177,6 +177,14 @@ body.classic .timer.simple-timer {
         background-color: rgba(255, 255, 255, 0.15); }
       body.classic .timer.simple-timer .timer-container.no-more-ends .controls button {
         border: 1px solid #fff; }
+    body.classic .timer.simple-timer .timer-container.pregame {
+      background-color: #1565c0;
+      color: #fff; }
+      body.classic .timer.simple-timer .timer-container.pregame button:hover,
+      body.classic .timer.simple-timer .timer-container.pregame button:active {
+        background-color: rgba(255, 255, 255, 0.15); }
+      body.classic .timer.simple-timer .timer-container.pregame .controls button {
+        border: 1px solid #fff; }
     body.classic .timer.simple-timer .timer-container .controls {
       grid-area: controls;
       display: -webkit-box;
@@ -214,7 +222,7 @@ body.classic .timer.simple-timer {
         -webkit-box-pack: center;
         -ms-flex-pack: center;
         justify-content: center;
-        width: 90vw;
+        width: 96vw;
         height: 100%; }
       body.classic .timer.simple-timer .timer-container .time-display .time-controls {
         font-size: 6vmin;
@@ -226,10 +234,9 @@ body.classic .timer.simple-timer {
         -ms-flex-direction: column;
         flex-direction: column; }
         body.classic .timer.simple-timer .timer-container .time-display .time-controls button {
-          width: 4vw;
+          width: 2vw;
           height: 4vh; }
     body.classic .timer.simple-timer .timer-container .pacing {
-      grid-area: pacing;
       display: -webkit-box;
       display: -ms-flexbox;
       display: flex;
@@ -237,46 +244,28 @@ body.classic .timer.simple-timer {
       -webkit-box-direction: normal;
       -ms-flex-direction: column;
       flex-direction: column;
-      -webkit-box-pack: center;
-      -ms-flex-pack: center;
-      justify-content: center;
       -webkit-box-align: center;
       -ms-flex-align: center;
       align-items: center;
       padding-bottom: 2vh; }
-      body.classic .timer.simple-timer .timer-container .pacing .title {
-        font-size: 8vmin;
-        text-transform: uppercase;
-        font-weight: bold;
-        text-decoration: underline; }
       body.classic .timer.simple-timer .timer-container .pacing .end-num {
-        display: -ms-grid;
-        display: grid;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
         -webkit-box-align: center;
         -ms-flex-align: center;
         align-items: center;
-        justify-items: start;
-        -ms-grid-columns: 1fr auto 1fr;
-        grid-template-columns: 1fr auto 1fr;
-        width: 100%; }
-        body.classic .timer.simple-timer .timer-container .pacing .end-num .pacing-spacer {
-          -ms-flex-preferred-size: 100%;
-          flex-basis: 100%; }
-        body.classic .timer.simple-timer .timer-container .pacing .end-num .ordinal-adjective {
-          font-weight: bold;
-          font-size: 18vmin; }
-          body.classic .timer.simple-timer .timer-container .pacing .end-num .ordinal-adjective sup {
-            font-size: 12vmin; }
-        body.classic .timer.simple-timer .timer-container .pacing .end-num .end-label {
-          text-transform: uppercase;
-          font-size: 5vmin;
-          -ms-flex-preferred-size: 100%;
-          flex-basis: 100%;
-          -webkit-transform: translateX(3vw);
-          transform: translateX(3vw); }
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        justify-content: center;
+        width: 100%;
+        font-size: 28vmin;
+        height: 24vmin;
+        font-weight: bold;
+        text-transform: uppercase; }
       body.classic .timer.simple-timer .timer-container .pacing .progress {
         width: 80vw;
-        height: 3vh; }
+        height: 8vh; }
   body.classic .timer.simple-timer .debug {
     position: fixed;
     bottom: 10px;

@@ -50,22 +50,36 @@ const games = {};
 
 function dispatchStateChange(sockets, machineId) {
 	console.log("sending updated state");
-	for (const socket of sockets) {
-		socket.emit(
-			"statechange",
-			JSON.stringify({
-				message: "SET_STATE",
-				machineId: machineId,
-				data: games[machineId].getSerializableState(),
-			}),
-		);
+	const game = getGame(machineId);
+	if (game) {
+		for (const socket of sockets) {
+			socket.emit(
+				"statechange",
+				JSON.stringify({
+					message: "SET_STATE",
+					machineId: machineId,
+					data: game.getSerializableState(),
+				}),
+			);
+		}
 	}
+}
+
+function getGame(timerNameOrId) {
+	return games[timerNameOrId] || games[Object.keys(games).find(g => games[g].options.timerName === timerNameOrId)];
 }
 
 function handleAction(action, socket = null) {
 	//console.log("Action: " + action.request);
 
 	if (action.request === "CREATE_TIMER") {
+		if (action.options.timerName) {
+			const existingGame = getGame(action.options.timerName);
+			if (existingGame) {
+				existingGame.dispose();
+				delete games[existingGame.id];
+			}
+		}
 		let curlingMachine;
 		if (action.options.type === "simple") {
 			curlingMachine = new SimpleTimerMachine(action.options, sockets => {
@@ -96,7 +110,7 @@ function handleAction(action, socket = null) {
 		if (dollarIndex >= 0) {
 			timerId = timerId.substr(0, dollarIndex);
 		}
-		let game = games[timerId] || games[Object.keys(games).find(g => games[g].options.timerName === timerId)];
+		let game = getGame(timerId);
 
 		if (socket && game) {
 			game.registerSocket(action.clientId, socket);
@@ -121,23 +135,25 @@ function handleAction(action, socket = null) {
 	}
 
 	if (action.request === "DELETE_TIMER") {
-		games[action.options.timerId].dispose();
-		const deleted = !!games[action.options.timerId] ? "ok" : "not found";
-		delete games[action.options.timerId];
+		const game = getGame(action.options.timerId);
+		if (game) {
+			game.dispose();
+			delete games[game.id];
+		}
 		socket &&
 			socket.emit(
 				"response",
 				JSON.stringify({
 					response: "DELETE_TIMER",
 					token: action.token,
-					data: deleted,
+					data: !!game,
 				}),
 			);
 	}
 
 	if (action.request === "QUERY_TIMER") {
 		//console.log("Query timer: " + JSON.stringify(action, null, 4));
-		const machine = games[action.options.timerId];
+		const machine = getGame(action.options.timerId);
 		socket && machine.registerSocket(action.clientId, socket);
 		if (machine) {
 			if (action.options.state) {

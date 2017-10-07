@@ -1,7 +1,7 @@
 import { TimerUIBase } from "./TimerUIBase";
 import { SimpleTimerState, SimpleTimerOptions, SimpleStateAndOptions } from "./interfaces";
 import { registerTimerType, TimeToCurl } from "./TimeToCurl";
-import { setTimeToElem, roundPrecision, getOrdinalAdjective } from "./util";
+import { setTimeToElem, roundPrecision, getOrdinalAdjective, refitScaledElements } from "./util";
 import { TimeMinder } from "./time-minder";
 
 export class SimpleTimerUI extends TimerUIBase<SimpleTimerState, SimpleTimerOptions> {
@@ -10,20 +10,16 @@ export class SimpleTimerUI extends TimerUIBase<SimpleTimerState, SimpleTimerOpti
 	private currentMode: "normal" | "warning" | "noMoreEnds" = "normal";
 	protected debugElement: HTMLElement;
 	protected pacingElement: HTMLElement;
-	protected pacingTitle: HTMLElement;
-	protected pacingOrdinal: HTMLElement;
+	protected pacingMessage: HTMLElement;
 	protected pacingProgress: HTMLElement;
 	protected pauseButton: HTMLButtonElement;
 	protected remainingTime: HTMLElement;
 	protected startButton: HTMLButtonElement;
+	private lastTimeSet: number = 0;
 
 	public static readonly timerType = "simple";
 
-	constructor(
-		initParams: SimpleStateAndOptions,
-		protected container: HTMLElement,
-		protected application: TimeToCurl,
-	) {
+	constructor(initParams: SimpleStateAndOptions, protected container: HTMLElement, protected application: TimeToCurl) {
 		super(initParams, container, application);
 	}
 
@@ -59,13 +55,27 @@ export class SimpleTimerUI extends TimerUIBase<SimpleTimerState, SimpleTimerOpti
 		mainTimer.every(
 			this.lengthOfSecond / 10,
 			() => {
-				let renderPacing = this.options.showPacing;
 				const timeRemaining = mainTimer.getTimeRemaining() / this.lengthOfSecond;
-				setTimeToElem(this.remainingTime, mainTimer.getTimeRemaining() / this.lengthOfSecond);
+				const isPregame = timeRemaining > this.options.totalTime;
+				let renderPacing = this.options.showPacing && !isPregame;
 
-				if (timeRemaining <= this.options.noMoreEndsTime) {
+				const timeToSet = isPregame ? -1 * (timeRemaining - this.options.totalTime) : timeRemaining;
+
+				const refit = timeToSet !== this.lastTimeSet;
+				this.lastTimeSet = timeToSet;
+				setTimeToElem(this.remainingTime, timeToSet, isPregame);
+
+				if (refit) {
+					refitScaledElements();
+				}
+
+				// We're in the pre-game phase
+				if (isPregame) {
+					this.timerContainerElement.classList.remove("warning", "no-more-ends");
+					this.timerContainerElement.classList.add("pregame");
+				} else if (timeRemaining <= this.options.noMoreEndsTime) {
 					if (this.currentMode !== "noMoreEnds") {
-						this.timerContainerElement.classList.remove("warning");
+						this.timerContainerElement.classList.remove("warning", "pregame");
 						this.timerContainerElement.classList.add("no-more-ends");
 						if (this.options.sounds.noMoreEnds) {
 							new Audio(this.options.sounds.noMoreEnds).play();
@@ -75,7 +85,7 @@ export class SimpleTimerUI extends TimerUIBase<SimpleTimerState, SimpleTimerOpti
 					renderPacing = false;
 				} else if (timeRemaining <= this.options.warningTime) {
 					if (this.currentMode !== "warning") {
-						this.timerContainerElement.classList.remove("no-more-ends");
+						this.timerContainerElement.classList.remove("no-more-ends", "pregame");
 						this.timerContainerElement.classList.add("warning");
 						if (this.options.sounds.warning) {
 							new Audio(this.options.sounds.warning).play();
@@ -84,14 +94,13 @@ export class SimpleTimerUI extends TimerUIBase<SimpleTimerState, SimpleTimerOpti
 					}
 				} else {
 					this.currentMode = "normal";
-					this.timerContainerElement.classList.remove("warning");
-					this.timerContainerElement.classList.remove("no-more-ends");
+					this.timerContainerElement.classList.remove("warning", "no-more-ends", "pregame");
 				}
 				if (renderPacing) {
-					this.pacingElement.classList.remove("irrelevant");
+					this.pacingElement.classList.remove("invisible");
 					this.renderPacing(mainTimer);
 				} else {
-					this.pacingElement.classList.add("irrelevant");
+					this.pacingElement.classList.add("invisible");
 				}
 			},
 			false,
@@ -117,11 +126,10 @@ export class SimpleTimerUI extends TimerUIBase<SimpleTimerState, SimpleTimerOpti
 
 		const timePerEnd = totalTimeUntilRed / endsToPlayBeforeRed;
 		const parEnd = Math.floor(elapsedTime / timePerEnd) + 1;
-		const fractionThroughEnd = elapsedTime % timePerEnd / timePerEnd;
+		const fractionThroughEnd = (elapsedTime % timePerEnd) / timePerEnd;
 
-		const ordinalElem = getOrdinalAdjective(parEnd);
-		this.pacingOrdinal.parentNode!.replaceChild(ordinalElem, this.pacingOrdinal);
-		this.pacingOrdinal = ordinalElem;
+		this.pacingMessage.textContent = "End " + parEnd;
+
 		const pacingPercentage = roundPrecision(fractionThroughEnd * 100, 2);
 		this.pacingProgress.setAttribute("value", String(pacingPercentage));
 		this.pacingProgress.textContent = pacingPercentage + "%";
@@ -156,11 +164,8 @@ export class SimpleTimerUI extends TimerUIBase<SimpleTimerState, SimpleTimerOpti
 		if (this.elements["pacing"] && this.elements["pacing"][0]) {
 			this.pacingElement = this.elements["pacing"][0] as HTMLElement;
 		}
-		if (this.elements["pacing-title"] && this.elements["pacing-title"][0]) {
-			this.pacingTitle = this.elements["pacing-title"][0] as HTMLElement;
-		}
-		if (this.elements["pacing-ordinal"] && this.elements["pacing-ordinal"][0]) {
-			this.pacingOrdinal = this.elements["pacing-ordinal"][0] as HTMLElement;
+		if (this.elements["pacing-message"] && this.elements["pacing-message"][0]) {
+			this.pacingMessage = this.elements["pacing-message"][0] as HTMLElement;
 		}
 		if (this.elements["pacing-progress"] && this.elements["pacing-progress"][0]) {
 			this.pacingProgress = this.elements["pacing-progress"][0] as HTMLElement;

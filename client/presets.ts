@@ -24,6 +24,7 @@ export const SimpleBaseOptions: SimpleTimerOptions = {
 	lengthOfSecond: 1000,
 	noMoreEndsTime: 10 * 60,
 	numEnds: 8,
+	preGameTime: 0,
 	showPacing: true,
 	sounds: {
 		end: "",

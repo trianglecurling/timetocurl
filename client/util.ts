@@ -90,15 +90,16 @@ export function forceMonospace(element: Node) {
 	}
 }
 
-export function secondsToStr(seconds: number) {
-	const clampedSeconds = Math.max(0, seconds);
+export function secondsToStr(seconds: number, allowNegative: boolean = false) {
+	const isNegative = seconds < 0;
+	const clampedSeconds = Math.abs(allowNegative ? seconds : Math.max(0, seconds));
 	const h = Math.floor(clampedSeconds / 3600);
 	const m = Math.floor((clampedSeconds - 3600 * h) / 60);
 	const s = Math.floor(clampedSeconds - h * 3600 - m * 60);
 	const slz = s < 10 ? "0" + String(s) : String(s);
 	const mlz = h > 0 && m < 10 ? "0" + String(m) : String(m);
 	const hwcolon = h > 0 ? String(h) + ":" : "";
-	return `${hwcolon}${mlz}:${slz}`;
+	return `${isNegative ? "-" : ""}${hwcolon}${mlz}:${slz}`;
 }
 
 export function strToSeconds(str: string) {
@@ -129,8 +130,8 @@ export function strToSeconds(str: string) {
 	return null;
 }
 
-export function setTimeToElem(elem: HTMLElement, seconds: number) {
-	setMonospaceText(elem, secondsToStr(seconds));
+export function setTimeToElem(elem: HTMLElement, seconds: number, allowNegative: boolean = false) {
+	setMonospaceText(elem, secondsToStr(seconds, allowNegative));
 }
 
 const scaledElements = new Set();
@@ -184,7 +185,7 @@ export function getOrdinalAdjective(num: number): HTMLElement {
 
 	const cardinalNumber = document.createElement("span");
 	cardinalNumber.classList.add("cardinal-number");
-	cardinalNumber.textContent = String(num);
+	cardinalNumber.textContent = "END " + num;
 
 	const superScript = document.createElement("sup");
 	if (num % 100 > 10 && num % 100 < 14) {

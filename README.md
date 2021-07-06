@@ -2,20 +2,17 @@
 ***Time To Curl*** is a node web server that manages timers for curling matches, as well as a client interface to display and manage those timers. Using Web Sockets, we sync clients with all updates in real-time.
 
 ## Goals of this project
-- Facilitate easy timekeeping for multiple curling matches
+- Facilitate easy timekeeping for different kinds of curling matches
+- Support "thinking time" and simple (unmanaged) timers
 - Allow easy display of one or more time clocks
-- Extremely low latency
-- Automatic generation of game log
-- Full audit log
+- Low latency
+- Remote control
 
 ## Features (including planned features)
 - Client-server timer model - allows multiple clients to view a timer
 - Instantaneous updates
 - Fully configurable, but still works out of the box
 - Easy error correction
-- Replay an end at the touch of a button
-- Automatic generation of game log (PDF)
-- Full audit log
 - Fault-tolerant - can recover even after a network outage
 - Auto-scaling UI fits the given screen size
 - Supports multiple concurrent timers
@@ -24,7 +21,28 @@
 
 ## Screenshots
 
-### Main UI
+### Simple timers
+![Before the game begins](assets/simple-ui-blue.png)
+
+Show a countdown to the start of the game so players are actively aware of when they need to be on the ice to begin their game. Timer automatically starts the game clock when the countdown hits 0:00.
+
+![Early game](assets/simple-ui.png)
+
+Progress through each end is shown so curlers know when they are falling behind. The current end is calculated based on the total time, the total number of ends played, and the number of ends allowed _after_ the clock turns red.
+
+![Nearly out of time](assets/simple-ui-yellow.png)
+
+The yellow background serves as a warning that their time is almost up. Completely configurable.
+
+![Time is up, no more ends](assets/simple-ui-red.png)
+
+When the clock turns red, the pressure is off. Some clubs prefer no more ends to be played, some allow one additional. Completely configurable.
+
+![Simple timer settings](assets/timer-settings-simple.png)
+
+Configure timers.
+
+### Standard (thinking time) timers
 ![Main ui](assets/main-ui.png)
 
 Classic theme is familiar to experienced timekeepers.
@@ -33,6 +51,11 @@ Classic theme is familiar to experienced timekeepers.
 ![Between ends](assets/between-end-time-ui.png)
 
 Includes controls for adjusting time during breaks such as timeouts, between ends, and mid-game.
+
+### Timer settings
+![Stadard timer settings](assets/timer-settings-standard.png)
+
+Configure all the variables!
 
 ### Synchronized timers
 ![Synchronized timers](assets/synchronized-ui.png)

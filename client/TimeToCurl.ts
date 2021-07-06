@@ -17,19 +17,20 @@ import { TimerUIBase } from "./TimerUIBase";
 import { cloneDeep, isEqual } from "lodash";
 import { SimpleBaseOptions, StandardBaseOptions, TimerPresets } from "./presets";
 import { getDisplayedTimers, secondsToStr, strToSeconds, clientId, uuid, isSimpleTimer, isStandardTimer } from "./util";
+import { Socket, io } from "socket.io-client";
 
 export class TimeToCurl {
-	private socket: SocketIOClient.Socket;
-	private requests: { [key: string]: any };
-	private requestResolvers: { [key: string]: (value?: any | PromiseLike<any>) => void };
-	private machines: IMap<TimerUI>;
-	private machineOrder: IMap<number>;
-	private currentTheme: string;
+	private socket!: Socket;
+	private requests!: { [key: string]: any };
+	private requestResolvers!: { [key: string]: (value?: any | PromiseLike<any>) => void };
+	private machines!: IMap<TimerUI>;
+	private machineOrder!: IMap<number>;
+	private currentTheme!: string;
 	private speedyClocks: boolean = false;
-	private nextSimpleTimerOptions: SimpleTimerOptions;
-	private nextStandardTimerOptions: StandardTimerOptions;
-	private nextTimerType: TimerType;
-	private timerPresetsDropdown: HTMLSelectElement;
+	private nextSimpleTimerOptions!: SimpleTimerOptions;
+	private nextStandardTimerOptions!: StandardTimerOptions;
+	private nextTimerType!: TimerType;
+	private timerPresetsDropdown!: HTMLSelectElement;
 
 	public init() {
 		this.setUpEvents();
@@ -539,7 +540,7 @@ export class TimeToCurl {
 		const showDebug = document.getElementById("showDebug")! as HTMLInputElement;
 		const debugElements = document.getElementsByClassName("debug");
 		for (let i = 0; i < debugElements.length; ++i) {
-			const elem = debugElements.item(i);
+			const elem = debugElements.item(i)!;
 			elem.classList[showDebug.checked ? "remove" : "add"]("hidden");
 		}
 		window.localStorage["show-debug"] = showDebug.checked;

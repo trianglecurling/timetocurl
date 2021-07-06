@@ -52,6 +52,8 @@ export interface TimerOptions<TSoundOptions extends BaseSoundOptions = BaseSound
 	 * Name given to this timer, e.g. Sheet B
 	 */
 	timerName: string;
+
+	type: TimerType;
 }
 
 /**

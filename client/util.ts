@@ -147,7 +147,7 @@ const scaledElements = new Set();
 				actualResizeHandler();
 
 				// The actualResizeHandler will execute at a rate of 10fps
-			}, 100);
+			}, 100) as any;
 		}
 	}
 

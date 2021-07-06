@@ -7,30 +7,30 @@ import { Stopwatch, TimeMinder } from "./time-minder";
 
 export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTimerOptions> {
 	protected addTimeoutButtons: IMap<HTMLButtonElement>;
-	protected betweenEndTimeText: HTMLElement;
-	protected debugElement: HTMLElement;
+	protected betweenEndTimeText!: HTMLElement;
+	protected debugElement!: HTMLElement;
 	protected designationToTeam: IMap<string>;
 	protected elapsedThinkingTime: IMap<HTMLElement>;
-	protected elapsedThinkingTimeContainer: HTMLElement;
-	protected spacer: HTMLElement;
-	protected spacerCenter: HTMLElement;
-	protected spacerLeft: HTMLElement;
-	protected spacerRight: HTMLElement;
+	protected elapsedThinkingTimeContainer!: HTMLElement;
+	protected spacer!: HTMLElement;
+	protected spacerCenter!: HTMLElement;
+	protected spacerLeft!: HTMLElement;
+	protected spacerRight!: HTMLElement;
 	protected subtractTimeoutButtons: IMap<HTMLButtonElement>;
 	protected teamsToDesignation: IMap<string>;
-	protected technicalInfo: HTMLElement;
-	protected technicalTimeoutTime: HTMLElement;
-	protected technicalTimeoutTitle: HTMLElement;
+	protected technicalInfo!: HTMLElement;
+	protected technicalTimeoutTime!: HTMLElement;
+	protected technicalTimeoutTitle!: HTMLElement;
 	protected thinkingButtons: IMap<HTMLButtonElement>;
 	protected thinkingTimeText: IMap<HTMLElement>;
 	protected timeControls: IMap<HTMLElement[]>;
-	protected timeoutsRemainingContainerElement: HTMLElement;
+	protected timeoutsRemainingContainerElement!: HTMLElement;
 	protected timeoutsRemainingText: IMap<HTMLElement>;
-	protected timeoutTimeText: HTMLElement;
-	protected travelTimeCancelButton: HTMLButtonElement;
-	protected travelTimeContainer: HTMLElement;
-	protected travelTimeValue: HTMLElement;
-	protected warmupTimeText: HTMLElement;
+	protected timeoutTimeText!: HTMLElement;
+	protected travelTimeCancelButton!: HTMLButtonElement;
+	protected travelTimeContainer!: HTMLElement;
+	protected travelTimeValue!: HTMLElement;
+	protected warmupTimeText!: HTMLElement;
 
 	public static readonly timerType = "standard";
 
@@ -526,4 +526,4 @@ export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTi
 	}
 }
 
-registerTimerType(StandardTimerUI, cm => cm.type === StandardTimerUI.timerType);
+registerTimerType(StandardTimerUI as any, cm => cm.type === StandardTimerUI.timerType);

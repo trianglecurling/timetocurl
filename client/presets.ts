@@ -17,6 +17,7 @@ export const StandardBaseOptions: StandardTimerOptions = {
 	timerName: "",
 	travelTime: { home: 20, away: 40 },
 	warmupTime: 9 * 60,
+	type: TimerType.Standard
 };
 
 export const SimpleBaseOptions: SimpleTimerOptions = {
@@ -35,6 +36,7 @@ export const SimpleBaseOptions: SimpleTimerOptions = {
 	timerName: "",
 	totalTime: 120 * 60,
 	warningTime: 15 * 60,
+	type: TimerType.Simple
 };
 
 export const TimerPresets: TimerPreset[] = [

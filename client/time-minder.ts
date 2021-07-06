@@ -7,10 +7,10 @@ interface Interval {
 
 export class ManagedTimer {
 	private elapsed: number;
-	private firstStarted: number | null;
+	private firstStarted!: number | null;
 	private clearMethod: any;
-	private startedAt: number;
-	private clear: Function;
+	private startedAt!: number;
+	private clear!: Function;
 
 	constructor(
 		private callback: Function,
@@ -213,7 +213,7 @@ export class Stopwatch {
 export class TimeMinder extends Stopwatch {
 	private totalTime: number;
 	private onComplete: Function | undefined;
-	private timeout: number;
+	private timeout!: number;
 
 	constructor(totalTime: number, onComplete?: Function, onDispose?: Function) {
 		super(onDispose);
@@ -267,7 +267,7 @@ export class TimeMinder extends Stopwatch {
 			for (const timer of this.tickTimers) {
 				timer.timer.cancel();
 			}
-		}, this.getTimeRemaining());
+		}, this.getTimeRemaining()) as any;
 
 		// Unpause all tick timers that were paused
 		for (const timer of this.tickTimers) {

@@ -73,7 +73,7 @@ export default async function confirm(
 	currentOverlay = overlay;
 	currentDialog = dialog;
 
-	return promise.then<boolean>(onConfirmButtonClick.bind(null, true), onConfirmButtonClick.bind(null, false));
+	return promise.then<boolean>(onConfirmButtonClick.bind(null, true), onConfirmButtonClick.bind(null, false) as any);
 }
 
 function onConfirmButtonClick(value: boolean) {

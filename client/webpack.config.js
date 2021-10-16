@@ -1,24 +1,17 @@
 const path = require("path");
 const cwd = require("process").cwd();
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
-const UglifyJSPlugin = require("uglifyjs-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const isProd = process.env.NODE_ENV === "production";
 
-const extractSass = new ExtractTextPlugin({
-	filename: path.relative(cwd, path.join(__dirname, "bin", "[name].css")),
-	disable: process.env.NODE_ENV === "development",
-});
-
-const plugins = [extractSass];
-if (isProd) {
-	// plugins.push(new UglifyJSPlugin());
-}
+const plugins = [new MiniCssExtractPlugin()];
 
 module.exports = {
-	entry: "./" + path.relative(cwd, path.join(__dirname, "app.ts")),
+	mode: isProd ? "production" : "development",
+	entry: path.join(__dirname, "app.ts"),
 	output: {
-		filename: path.relative(cwd, path.join(__dirname, "bin", "app.js")),
+		filename: "app.js",
+		path: path.join(__dirname, "bin")
 	},
 	resolve: {
 		extensions: [".ts", ".tsx", ".js", ".scss"],
@@ -27,31 +20,20 @@ module.exports = {
 		rules: [
 			{
 				test: /\.tsx?$/,
-				loader:
-				"ts-loader?" +
-				JSON.stringify({
-					configFileName: isProd ? "tsconfig.prod.json" : "tsconfig.json",
-				}),
+				loader: "ts-loader",
 			},
 			{
-				test: /\.scss$/,
-				use: extractSass.extract({
-					use: [
-						{
-							loader: "css-loader",
-							options: { importLoaders: 1 },
-						},
-						{
-							loader: "sass-loader",
-						},
-						{
-							loader: "postcss-loader",
-						},
-					],
-					fallback: "style-loader",
-				}),
+				test: /\.s[ac]ss$/i,
+				use: [
+					// Makes a .css file
+					MiniCssExtractPlugin.loader,
+					// Translates CSS into CommonJS
+					"css-loader",
+					// Compiles Sass to CSS
+					"sass-loader",
+				],
 			},
 		],
 	},
-	plugins: plugins,
+	plugins,
 };

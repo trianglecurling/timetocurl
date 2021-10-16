@@ -1,6 +1,6 @@
 const { TimeMinder } = require("./time-minder");
-const merge = require("lodash.merge");
-const uuidV4 = require("uuid/v4");
+const merge = require("lodash/merge");
+const { v4: uuidV4 } = require('uuid');
 
 const defaultOptions = {
 	betweenEndTime: 10,

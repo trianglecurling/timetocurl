@@ -19,20 +19,22 @@ import { TimerUIBase } from "./TimerUIBase";
 import { cloneDeep, isEqual } from "lodash";
 import { SimpleBaseOptions, StandardBaseOptions, TimerPresets } from "./presets";
 import { getDisplayedTimers, secondsToStr, strToSeconds, clientId, uuid, isSimpleTimer, isStandardTimer } from "./util";
+import { io, Socket } from "socket.io-client";
+import { DefaultEventsMap } from "socket.io/dist/typed-events";
 
 export class TimeToCurl {
-	private socket: SocketIOClient.Socket;
-	private requests: { [key: string]: any };
-	private requestResolvers: { [key: string]: (value?: any | PromiseLike<any>) => void };
-	private machines: IMap<TimerUI>;
-	private machineOrder: IMap<number>;
-	private currentTheme: string;
+	private socket!: Socket<DefaultEventsMap, DefaultEventsMap>;
+	private requests!: { [key: string]: any };
+	private requestResolvers!: { [key: string]: (value?: any | PromiseLike<any>) => void };
+	private machines!: IMap<TimerUI>;
+	private machineOrder!: IMap<number>;
+	private currentTheme!: string;
 	private speedyClocks: boolean = false;
-	private nextSimpleTimerOptions: SimpleTimerOptions;
-	private nextStandardTimerOptions: StandardTimerOptions;
-	private nextTimerType: TimerType;
-	private timerPresetsDropdown: HTMLSelectElement;
-	private allPresets: TimerPreset[];
+	private nextSimpleTimerOptions!: SimpleTimerOptions;
+	private nextStandardTimerOptions!: StandardTimerOptions;
+	private nextTimerType!: TimerType;
+	private timerPresetsDropdown!: HTMLSelectElement;
+	private allPresets!: TimerPreset[];
 
 	public async init() {
 		this.setUpEvents();
@@ -99,7 +101,9 @@ export class TimeToCurl {
 			if (timerId.indexOf("$") >= 0) {
 				fullScreen = true;
 			}
-			const timer = await this.emitAction<{ timerId: string }, StandardStateAndOptions>(<SocketAction<{ timerId: string }>>{
+			const timer = await this.emitAction<{ timerId: string }, StandardStateAndOptions>(<
+				SocketAction<{ timerId: string }>
+			>{
 				request: "GET_TIMER",
 				options: { timerId },
 			});
@@ -268,7 +272,10 @@ export class TimeToCurl {
 		}
 		const simpleRadioLabel = document.createElement("label");
 		simpleRadioLabel.setAttribute("for", "simpleRadioButton");
-		simpleRadioLabel.setAttribute("title", "Simple timer that counts down to zero. No active timekeeping required.");
+		simpleRadioLabel.setAttribute(
+			"title",
+			"Simple timer that counts down to zero. No active timekeeping required.",
+		);
 		simpleRadioLabel.textContent = "Simple";
 		simpleRadio.appendChild(simpleRadioInput);
 		simpleRadio.appendChild(simpleRadioLabel);
@@ -298,7 +305,11 @@ export class TimeToCurl {
 		simpleOrStandard.appendChild(standardRadio);
 
 		const standardOptions = this.nextStandardTimerOptions;
-		const thinkingTime = this.simpleInput("Thinking time", "thinkingTime", secondsToStr(standardOptions.thinkingTime));
+		const thinkingTime = this.simpleInput(
+			"Thinking time",
+			"thinkingTime",
+			secondsToStr(standardOptions.thinkingTime),
+		);
 		const numEndsStandard = this.simpleInput("Number of ends", "numEnds", standardOptions.numEnds);
 		const extraEndThinkingTime = this.simpleInput(
 			"Thinking time added for an extra end",
@@ -307,10 +318,22 @@ export class TimeToCurl {
 		);
 		const numTimeouts = this.simpleInput("Number of timeouts per team", "numTimeouts", standardOptions.numTimeouts);
 		const timeoutTime = this.simpleInput("Timeout time", "timeoutTime", secondsToStr(standardOptions.timeoutTime));
-		const homeTravelTime = this.simpleInput("Travel time (home end)", "homeTravelTime", secondsToStr(standardOptions.travelTime.home));
-		const awayTravelTime = this.simpleInput("Travel time (away end)", "awayTravelTime", secondsToStr(standardOptions.travelTime.away));
+		const homeTravelTime = this.simpleInput(
+			"Travel time (home end)",
+			"homeTravelTime",
+			secondsToStr(standardOptions.travelTime.home),
+		);
+		const awayTravelTime = this.simpleInput(
+			"Travel time (away end)",
+			"awayTravelTime",
+			secondsToStr(standardOptions.travelTime.away),
+		);
 		const warmupTime = this.simpleInput("Warmup time", "warmupTime", secondsToStr(standardOptions.warmupTime));
-		const betweenEndTime = this.simpleInput("Time between ends", "betweenEndTime", secondsToStr(standardOptions.betweenEndTime));
+		const betweenEndTime = this.simpleInput(
+			"Time between ends",
+			"betweenEndTime",
+			secondsToStr(standardOptions.betweenEndTime),
+		);
 		const midGameBreakTime = this.simpleInput(
 			"Mid game break time",
 			"midGameBreakTime",
@@ -346,16 +369,20 @@ export class TimeToCurl {
 		// const warningSound = this.simpleInput("Warning sound", "warningSound");
 		// const noMoreEndsSound = this.simpleInput("No more ends sound", "noMoreEndsSound");
 
-		const showPacing = this.checkboxInput("Show recommended pacing", simpleOptions.showPacing, checked => {
+		const showPacing = this.checkboxInput("Show recommended pacing", simpleOptions.showPacing, (checked) => {
 			simpleOptions.showPacing = checked;
 			this.evaluatePresetDropdown();
 			this.saveTimerOptions();
 		});
-		const playSoundCheckbox = this.checkboxInput("Play sound when timer turns red", !!simpleOptions.sounds.noMoreEnds, checked => {
-			simpleOptions.sounds.noMoreEnds = checked ? "cowbell.mp3" : "";
-			this.evaluatePresetDropdown();
-			this.saveTimerOptions();
-		});
+		const playSoundCheckbox = this.checkboxInput(
+			"Play sound when timer turns red",
+			!!simpleOptions.sounds.noMoreEnds,
+			(checked) => {
+				simpleOptions.sounds.noMoreEnds = checked ? "cowbell.mp3" : "";
+				this.evaluatePresetDropdown();
+				this.saveTimerOptions();
+			},
+		);
 
 		const simpleContainer = document.createElement("div");
 		simpleContainer.classList.add("custom-settings-fields-container", "simple-settings", "irrelevant");
@@ -421,7 +448,9 @@ export class TimeToCurl {
 				standardOptions.thinkingTime = valThinkingTime || prevStandardSettings.thinkingTime;
 				standardOptions.numEnds = valNumEndsStandard || prevStandardSettings.numEnds;
 				standardOptions.extraEndThinkingTime = valXEndThinkingTime || prevStandardSettings.extraEndThinkingTime;
-				standardOptions.numTimeouts = !isNaN(valNumTimeouts) ? valNumTimeouts : prevStandardSettings.numTimeouts;
+				standardOptions.numTimeouts = !isNaN(valNumTimeouts)
+					? valNumTimeouts
+					: prevStandardSettings.numTimeouts;
 				standardOptions.timeoutTime = valTimeoutTime || prevStandardSettings.timeoutTime;
 				standardOptions.travelTime.home = valHomeTravelTime || prevStandardSettings.travelTime.home;
 				standardOptions.travelTime.away = valAwayTravelTime || prevStandardSettings.travelTime.away;
@@ -462,7 +491,7 @@ export class TimeToCurl {
 			true,
 		);
 
-		if (!await confirm(optionsDialog, "Customize timer settings")) {
+		if (!(await confirm(optionsDialog, "Customize timer settings"))) {
 			this.nextStandardTimerOptions = prevStandardSettings;
 			this.nextSimpleTimerOptions = prevSimpleSettings;
 			this.nextTimerType = prevTimerType;
@@ -472,7 +501,7 @@ export class TimeToCurl {
 
 	private setNextTimerOptionsFromDropdown() {
 		const dropdownValue = this.timerPresetsDropdown.value;
-		const matchedPreset = this.allPresets.filter(p => p.id === dropdownValue)[0];
+		const matchedPreset = this.allPresets.filter((p) => p.id === dropdownValue)[0];
 		if (matchedPreset) {
 			if (matchedPreset.type === TimerType.Simple) {
 				this.nextSimpleTimerOptions = cloneDeep(matchedPreset).options as SimpleTimerOptions;
@@ -497,19 +526,31 @@ export class TimeToCurl {
 			this.populateTimerOptions();
 			this.restoreSettingsFromStorage();
 
-			document.getElementById("createTimer")!.addEventListener("click", async event => {
+			document.getElementById("createTimer")!.addEventListener("click", async (event) => {
 				if (Object.keys(this.machines).length > 0) {
 					if (await confirm("Reset timers. Are you sure?")) {
+						const currentTimers = getDisplayedTimers()
+						const response = await this.emitAction<Partial<StandardTimerOptions>, StandardStateAndOptions>(<
+							SocketAction<Partial<StandardTimerOptions>>
+						>{
+							request: "DELETE_TIMER",
+							clientId: clientId,
+							options: <any>{
+								timerId: currentTimers[0]
+							},
+						});
 						window.location.href = "/";
 					}
 				} else {
-					const response = await this.emitAction<Partial<StandardTimerOptions>, StandardStateAndOptions>(<SocketAction<
-						Partial<StandardTimerOptions>
-					>>{
+					const response = await this.emitAction<Partial<StandardTimerOptions>, StandardStateAndOptions>(<
+						SocketAction<Partial<StandardTimerOptions>>
+					>{
 						request: "CREATE_TIMER",
 						clientId: clientId,
 						options: <any>{
-							...this.nextTimerType === TimerType.Simple ? this.nextSimpleTimerOptions : this.nextStandardTimerOptions,
+							...(this.nextTimerType === TimerType.Simple
+								? this.nextSimpleTimerOptions
+								: this.nextStandardTimerOptions),
 							lengthOfSecond: this.speedyClocks ? 100 : 1000,
 							timerName: (document.getElementById("timerName")! as HTMLInputElement).value.trim() || null,
 							type: this.nextTimerType,
@@ -562,7 +603,7 @@ export class TimeToCurl {
 		const debugElements = document.getElementsByClassName("debug");
 		for (let i = 0; i < debugElements.length; ++i) {
 			const elem = debugElements.item(i);
-			elem.classList[showDebug.checked ? "remove" : "add"]("hidden");
+			elem?.classList[showDebug.checked ? "remove" : "add"]("hidden");
 		}
 		window.localStorage["show-debug"] = showDebug.checked;
 	}
@@ -592,7 +633,11 @@ export class TimeToCurl {
 	}
 
 	private addCurlingMachine(cm: StateAndOptions, fullScreen?: boolean) {
-		this.machines[cm.state.id] = new (this.getMatchingTimer(cm))(cm, document.getElementById("timersContainer")!, this);
+		this.machines[cm.state.id] = new (this.getMatchingTimer(cm))(
+			cm,
+			document.getElementById("timersContainer")!,
+			this,
+		);
 		this.machines[cm.state.id].initUI();
 		(document.getElementById("createTimer")! as HTMLButtonElement).textContent = "Reset";
 		const displayedTimers = getDisplayedTimers();
@@ -607,7 +652,11 @@ export class TimeToCurl {
 	}
 
 	private setTimersInUrl() {
-		window.history.replaceState(null, document.title, `${window.location.origin}/t/${Object.keys(this.machines).join(";")}`);
+		window.history.replaceState(
+			null,
+			document.title,
+			`${window.location.origin}/t/${Object.keys(this.machines).join(";")}`,
+		);
 	}
 
 	private getMatchingTimer(cm: StateAndOptions) {
@@ -620,7 +669,10 @@ export class TimeToCurl {
 	}
 }
 
-const timerTypes: { decider: TimerDecider; timer: TimerUIConstructor }[] = [];
-export function registerTimerType(timer: TimerUIConstructor, decider: TimerDecider) {
+const timerTypes: { decider: TimerDecider; timer: TimerUIConstructor<any> }[] = [];
+export function registerTimerType<TOptions extends StateAndOptions>(
+	timer: TimerUIConstructor<TOptions>,
+	decider: TimerDecider,
+) {
 	timerTypes.push({ timer, decider });
 }

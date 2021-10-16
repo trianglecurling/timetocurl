@@ -5,16 +5,16 @@ import { setTimeToElem, roundPrecision, getOrdinalAdjective, refitScaledElements
 import { TimeMinder } from "./time-minder";
 
 export class SimpleTimerUI extends TimerUIBase<SimpleTimerState, SimpleTimerOptions> {
-	protected addMinuteButton: HTMLButtonElement;
-	protected addSecondButton: HTMLButtonElement;
+	protected addMinuteButton!: HTMLButtonElement;
+	protected addSecondButton!: HTMLButtonElement;
 	private currentMode: "normal" | "warning" | "noMoreEnds" = "normal";
-	protected debugElement: HTMLElement;
-	protected pacingElement: HTMLElement;
-	protected pacingMessage: HTMLElement;
-	protected pacingProgress: HTMLElement;
-	protected pauseButton: HTMLButtonElement;
-	protected remainingTime: HTMLElement;
-	protected startButton: HTMLButtonElement;
+	protected debugElement!: HTMLElement;
+	protected pacingElement!: HTMLElement;
+	protected pacingMessage!: HTMLElement;
+	protected pacingProgress!: HTMLElement;
+	protected pauseButton!: HTMLButtonElement;
+	protected remainingTime!: HTMLElement;
+	protected startButton!: HTMLButtonElement;
 	private lastTimeSet: number = 0;
 
 	public static readonly timerType = "simple";

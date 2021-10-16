@@ -1,13 +1,16 @@
+/*!************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./client/style.scss ***!
+  \************************************************************************************************************/
 @charset "UTF-8";
 * {
   margin: 0;
   padding: 0;
-  -webkit-box-sizing: inherit;
-  box-sizing: inherit; }
+  box-sizing: inherit;
+}
 
 html {
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box; }
+  box-sizing: border-box;
+}
 
 body {
   font: 13px Helvetica, Arial;
@@ -16,837 +19,808 @@ body {
   top: 0;
   bottom: 0;
   left: 0;
-  right: 0; }
-  body.scroll-disabled {
-    overflow: hidden !important; }
+  right: 0;
+}
+body.scroll-disabled {
+  overflow: hidden !important;
+}
 
 button,
 label {
-  cursor: pointer; }
+  cursor: pointer;
+}
 
 button {
   background: none;
   border: 0;
   outline: 0;
   color: inherit;
-  font-size: inherit; }
-  button:disabled {
-    cursor: not-allowed; }
+  font-size: inherit;
+}
+button:disabled {
+  cursor: not-allowed;
+}
 
 header {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
   align-items: center;
   margin-bottom: 10px;
   border-bottom: 1px solid #ccc;
-  background-color: #e6e6e6; }
-  header h1 {
-    margin: 10px;
-    margin-right: 16px; }
-    header h1 a {
-      color: #333;
-      text-decoration: none; }
-  header .timer-name {
-    width: 190px;
-    margin-right: 6px;
-    height: 28px;
-    font-size: 22px; }
-  header .timer-presets {
-    width: 190px;
-    margin-right: 6px;
-    height: 28px;
-    font-size: 18px; }
-  header button.create-timer {
-    background-color: #43a047;
-    border: 1px solid #163417;
-    padding-left: 6px;
-    padding-right: 6px;
-    border-radius: 3px;
-    color: #fff;
-    height: 28px;
-    margin-right: 3px; }
-    header button.create-timer:hover:not(:disabled) {
-      background-color: #3a8a3d; }
-    header button.create-timer:active, header button.create-timer:focus {
-      background-color: #347c37;
-      outline: 0; }
-    header button.create-timer:disabled {
-      opacity: 0.5; }
-  header button.customize-settings {
-    font-size: 18px;
-    width: 28px;
-    height: 28px;
-    padding-left: 2px;
-    padding-bottom: 1px;
-    border-radius: 3px; }
-    header button.customize-settings:hover {
-      background-color: rgba(0, 0, 0, 0.2); }
-    header button.customize-settings:active {
-      background-color: rgba(0, 0, 0, 0.3); }
-  header .view-settings-container {
-    margin: 4px 10px 4px auto;
-    text-align: right; }
-    header .view-settings-container .theme-selector-container {
-      margin-bottom: 4px; }
-      header .view-settings-container .theme-selector-container select {
-        min-width: 150px; }
-    header .view-settings-container .debug-toggle-container {
-      display: -webkit-box;
-      display: -ms-flexbox;
-      display: flex;
-      -webkit-box-align: center;
-      -ms-flex-align: center;
-      align-items: center;
-      -webkit-box-pack: end;
-      -ms-flex-pack: end;
-      justify-content: flex-end; }
-      header .view-settings-container .debug-toggle-container label {
-        margin-left: 16px; }
-    header .view-settings-container label {
-      margin-right: 8px; }
+  background-color: #e6e6e6;
+}
+header h1 {
+  margin: 10px;
+  margin-right: 16px;
+}
+header h1 a {
+  color: #333;
+  text-decoration: none;
+}
+header .timer-name {
+  width: 190px;
+  margin-right: 6px;
+  height: 28px;
+  font-size: 22px;
+}
+header .timer-presets {
+  width: 190px;
+  margin-right: 6px;
+  height: 28px;
+  font-size: 18px;
+}
+header button.create-timer {
+  background-color: #43a047;
+  border: 1px solid #163417;
+  padding-left: 6px;
+  padding-right: 6px;
+  border-radius: 3px;
+  color: #fff;
+  height: 28px;
+  margin-right: 3px;
+}
+header button.create-timer:hover:not(:disabled) {
+  background-color: #3a8a3d;
+}
+header button.create-timer:active, header button.create-timer:focus {
+  background-color: #347c37;
+  outline: 0;
+}
+header button.create-timer:disabled {
+  opacity: 0.5;
+}
+header button.customize-settings {
+  font-size: 18px;
+  width: 28px;
+  height: 28px;
+  padding-left: 2px;
+  padding-bottom: 1px;
+  border-radius: 3px;
+}
+header button.customize-settings:hover {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+header button.customize-settings:active {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+header .view-settings-container {
+  margin: 4px 10px 4px auto;
+  text-align: right;
+}
+header .view-settings-container .theme-selector-container {
+  margin-bottom: 4px;
+}
+header .view-settings-container .theme-selector-container select {
+  min-width: 150px;
+}
+header .view-settings-container .debug-toggle-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+header .view-settings-container .debug-toggle-container label {
+  margin-left: 16px;
+}
+header .view-settings-container label {
+  margin-right: 8px;
+}
 
 main {
-  height: 100%; }
+  height: 100%;
+}
 
 #timersContainer {
-  height: 100%; }
+  height: 100%;
+}
 
 #templates {
-  display: none; }
+  display: none;
+}
 
 body.classic .irrelevant:not(.placeholder):not(.travel-time-container) {
-  display: none !important; }
-
+  display: none !important;
+}
 body.classic .irrelevant.placeholder {
-  visibility: hidden !important; }
-
+  visibility: hidden !important;
+}
 body.classic .timer-title-bar {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: justify;
-  -ms-flex-pack: justify;
-  justify-content: space-between; }
-  body.classic .timer-title-bar .timer-title {
-    margin-left: 10px;
-    font-size: 22px; }
-    body.classic .timer-title-bar .timer-title:hover {
-      color: #1565c0;
-      cursor: pointer; }
-  body.classic .timer-title-bar .fullscreen-button {
-    margin-right: 8px; }
-    body.classic .timer-title-bar .fullscreen-button:hover {
-      background-color: rgba(0, 0, 0, 0.1); }
-    body.classic .timer-title-bar .fullscreen-button:active {
-      background-color: rgba(0, 0, 0, 0.15); }
-
+  justify-content: space-between;
+}
+body.classic .timer-title-bar .timer-title {
+  margin-left: 10px;
+  font-size: 22px;
+}
+body.classic .timer-title-bar .timer-title:hover {
+  color: #1565c0;
+  cursor: pointer;
+}
+body.classic .timer-title-bar .fullscreen-button {
+  margin-right: 8px;
+}
+body.classic .timer-title-bar .fullscreen-button:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+body.classic .timer-title-bar .fullscreen-button:active {
+  background-color: rgba(0, 0, 0, 0.15);
+}
 body.classic .timer.simple-timer {
   width: 100%;
-  height: 100vh; }
-  body.classic .timer.simple-timer .timer-container {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    background-color: #61ff67;
-    color: #000;
-    display: -ms-grid;
-    display: grid;
-    -ms-grid-rows: auto 1fr auto;
-    grid-template-rows: auto 1fr auto;
-    -ms-grid-columns: 1fr;
-    grid-template-columns: 1fr;
-    grid-template-areas: "controls" "time" "pacing"; }
-    body.classic .timer.simple-timer .timer-container button {
-      font-size: 2vmin; }
-      body.classic .timer.simple-timer .timer-container button:hover, body.classic .timer.simple-timer .timer-container button:active {
-        background-color: rgba(0, 0, 0, 0.15); }
-    body.classic .timer.simple-timer .timer-container.warning {
-      background-color: #ffee58;
-      color: #000; }
-      body.classic .timer.simple-timer .timer-container.warning button:hover,
-      body.classic .timer.simple-timer .timer-container.warning button:active {
-        background-color: rgba(0, 0, 0, 0.15); }
-      body.classic .timer.simple-timer .timer-container.warning .controls button {
-        border: 1px solid #000; }
-    body.classic .timer.simple-timer .timer-container.no-more-ends {
-      background-color: #c62828;
-      color: #fff; }
-      body.classic .timer.simple-timer .timer-container.no-more-ends button:hover,
-      body.classic .timer.simple-timer .timer-container.no-more-ends button:active {
-        background-color: rgba(255, 255, 255, 0.15); }
-      body.classic .timer.simple-timer .timer-container.no-more-ends .controls button {
-        border: 1px solid #fff; }
-    body.classic .timer.simple-timer .timer-container.pregame {
-      background-color: #1565c0;
-      color: #fff; }
-      body.classic .timer.simple-timer .timer-container.pregame button:hover,
-      body.classic .timer.simple-timer .timer-container.pregame button:active {
-        background-color: rgba(255, 255, 255, 0.15); }
-      body.classic .timer.simple-timer .timer-container.pregame .controls button {
-        border: 1px solid #fff; }
-    body.classic .timer.simple-timer .timer-container .controls {
-      grid-area: controls;
-      display: -webkit-box;
-      display: -ms-flexbox;
-      display: flex;
-      -webkit-box-pack: center;
-      -ms-flex-pack: center;
-      justify-content: center;
-      padding-top: 2vh; }
-      body.classic .timer.simple-timer .timer-container .controls button {
-        border: 1px solid #000;
-        width: 10vw;
-        height: 4vh; }
-    body.classic .timer.simple-timer .timer-container .time-display {
-      grid-area: time;
-      display: -webkit-box;
-      display: -ms-flexbox;
-      display: flex;
-      font-size: 34vmin;
-      font-weight: bold;
-      -webkit-box-pack: center;
-      -ms-flex-pack: center;
-      justify-content: center;
-      -webkit-box-align: center;
-      -ms-flex-align: center;
-      align-items: center;
-      overflow: hidden; }
-      body.classic .timer.simple-timer .timer-container .time-display .remaining-time {
-        display: -webkit-box;
-        display: -ms-flexbox;
-        display: flex;
-        -webkit-box-align: center;
-        -ms-flex-align: center;
-        align-items: center;
-        -webkit-box-pack: center;
-        -ms-flex-pack: center;
-        justify-content: center;
-        width: 96vw;
-        height: 100%; }
-      body.classic .timer.simple-timer .timer-container .time-display .time-controls {
-        font-size: 6vmin;
-        display: -webkit-box;
-        display: -ms-flexbox;
-        display: flex;
-        -webkit-box-orient: vertical;
-        -webkit-box-direction: normal;
-        -ms-flex-direction: column;
-        flex-direction: column; }
-        body.classic .timer.simple-timer .timer-container .time-display .time-controls button {
-          width: 2vw;
-          height: 4vh; }
-    body.classic .timer.simple-timer .timer-container .pacing {
-      display: -webkit-box;
-      display: -ms-flexbox;
-      display: flex;
-      -webkit-box-orient: vertical;
-      -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-      flex-direction: column;
-      -webkit-box-align: center;
-      -ms-flex-align: center;
-      align-items: center;
-      padding-bottom: 2vh; }
-      body.classic .timer.simple-timer .timer-container .pacing .end-num {
-        display: -webkit-box;
-        display: -ms-flexbox;
-        display: flex;
-        -webkit-box-align: center;
-        -ms-flex-align: center;
-        align-items: center;
-        -webkit-box-pack: center;
-        -ms-flex-pack: center;
-        justify-content: center;
-        width: 100%;
-        font-size: 28vmin;
-        height: 24vmin;
-        font-weight: bold;
-        text-transform: uppercase; }
-      body.classic .timer.simple-timer .timer-container .pacing .progress {
-        width: 80vw;
-        height: 8vh; }
-  body.classic .timer.simple-timer .debug {
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    background-color: rgba(248, 248, 248, 0.7);
-    z-index: 5;
-    -webkit-transition: all 0.4s;
-    transition: all 0.4s; }
-    body.classic .timer.simple-timer .debug.hidden {
-      bottom: -25%;
-      opacity: 0; }
-
+  height: 100vh;
+}
+body.classic .timer.simple-timer .timer-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background-color: #61ff67;
+  color: #000;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 1fr;
+  grid-template-areas: "controls" "time" "pacing";
+}
+body.classic .timer.simple-timer .timer-container button {
+  font-size: 2vmin;
+}
+body.classic .timer.simple-timer .timer-container button:hover, body.classic .timer.simple-timer .timer-container button:active {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+body.classic .timer.simple-timer .timer-container.warning {
+  background-color: #ffee58;
+  color: #000;
+}
+body.classic .timer.simple-timer .timer-container.warning button:hover,
+body.classic .timer.simple-timer .timer-container.warning button:active {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+body.classic .timer.simple-timer .timer-container.warning .controls button {
+  border: 1px solid #000;
+}
+body.classic .timer.simple-timer .timer-container.no-more-ends {
+  background-color: #c62828;
+  color: #fff;
+}
+body.classic .timer.simple-timer .timer-container.no-more-ends button:hover,
+body.classic .timer.simple-timer .timer-container.no-more-ends button:active {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+body.classic .timer.simple-timer .timer-container.no-more-ends .controls button {
+  border: 1px solid #fff;
+}
+body.classic .timer.simple-timer .timer-container.pregame {
+  background-color: #1565c0;
+  color: #fff;
+}
+body.classic .timer.simple-timer .timer-container.pregame button:hover,
+body.classic .timer.simple-timer .timer-container.pregame button:active {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+body.classic .timer.simple-timer .timer-container.pregame .controls button {
+  border: 1px solid #fff;
+}
+body.classic .timer.simple-timer .timer-container .controls {
+  grid-area: controls;
+  display: flex;
+  justify-content: center;
+  padding-top: 2vh;
+}
+body.classic .timer.simple-timer .timer-container .controls button {
+  border: 1px solid #000;
+  width: 10vw;
+  height: 4vh;
+}
+body.classic .timer.simple-timer .timer-container .time-display {
+  grid-area: time;
+  display: flex;
+  font-size: 34vmin;
+  font-weight: bold;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+body.classic .timer.simple-timer .timer-container .time-display .remaining-time {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96vw;
+  height: 100%;
+}
+body.classic .timer.simple-timer .timer-container .time-display .time-controls {
+  font-size: 6vmin;
+  display: flex;
+  flex-direction: column;
+}
+body.classic .timer.simple-timer .timer-container .time-display .time-controls button {
+  width: 2vw;
+  height: 4vh;
+}
+body.classic .timer.simple-timer .timer-container .pacing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 2vh;
+}
+body.classic .timer.simple-timer .timer-container .pacing .end-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  font-size: 28vmin;
+  height: 24vmin;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+body.classic .timer.simple-timer .timer-container .pacing .progress {
+  width: 80vw;
+  height: 8vh;
+}
+body.classic .timer.simple-timer .debug {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  background-color: rgba(248, 248, 248, 0.7);
+  z-index: 5;
+  transition: all 0.4s;
+}
+body.classic .timer.simple-timer .debug.hidden {
+  bottom: -25%;
+  opacity: 0;
+}
 body.classic .timer.standard-timer {
   position: relative;
   width: 100%;
-  height: 100%; }
-  body.classic .timer.standard-timer.pregame .thinking-time-container, body.classic .timer.standard-timer.idle .thinking-time-container {
-    display: none; }
-  body.classic .timer.standard-timer :disabled {
-    opacity: 0.4; }
-  body.classic .timer.standard-timer .timer-container {
-    height: 100%;
-    width: 100%;
-    position: relative; }
-  body.classic .timer.standard-timer .time-value {
-    font-weight: bold;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    cursor: default; }
-  body.classic .timer.standard-timer .overlay-time-container {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    left: 0;
-    top: 0;
-    background-color: #c0c0c0;
-    z-index: 2; }
-    body.classic .timer.standard-timer .overlay-time-container > .time-value {
-      position: absolute;
-      width: 75%;
-      height: 40%;
-      top: 30%;
-      left: 12.5%;
-      background-color: #80ff80;
-      border: 2px solid #333;
-      font-size: 32vmin;
-      display: -webkit-box;
-      display: -ms-flexbox;
-      display: flex;
-      -webkit-box-align: center;
-      -ms-flex-align: center;
-      align-items: center;
-      -webkit-box-pack: center;
-      -ms-flex-pack: center;
-      justify-content: center; }
-    body.classic .timer.standard-timer .overlay-time-container .cancel-timer-button {
-      position: absolute;
-      width: 120px;
-      height: 40px;
-      left: calc(50% - 60px);
-      border: 2px solid #1b4f7f;
-      background: -webkit-gradient(linear, left top, left bottom, from(#e0e0e0), to(#b0afc2));
-      background: linear-gradient(to bottom, #e0e0e0 0%, #b0afc2 100%);
-      border-radius: 2px;
-      top: 92%; }
-      body.classic .timer.standard-timer .overlay-time-container .cancel-timer-button:hover {
-        background: -webkit-gradient(linear, left top, left bottom, from(#dfdfdf), to(#d1d1cb));
-        background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%); }
-    body.classic .timer.standard-timer .overlay-time-container h2 {
-      text-align: center;
-      margin-top: 6%;
-      font-size: 32px; }
-    body.classic .timer.standard-timer .overlay-time-container .travel-time-container {
-      position: absolute;
-      width: 25vw;
-      height: 6vh;
-      top: 32vh;
-      left: calc(50% - 12.5vw);
-      border: 1px solid #212121;
-      display: -webkit-box;
-      display: -ms-flexbox;
-      display: flex;
-      -webkit-box-align: start;
-      -ms-flex-align: start;
-      align-items: flex-start;
-      -webkit-box-pack: center;
-      -ms-flex-pack: center;
-      justify-content: center;
-      z-index: 15;
-      font-size: 3vmin;
-      padding-top: 0.5vh;
-      padding-bottom: 0.5vh;
-      -ms-flex-wrap: wrap;
-      flex-wrap: wrap; }
-      body.classic .timer.standard-timer .overlay-time-container .travel-time-container .travel-time-label {
-        margin-right: 1.5vw; }
-      body.classic .timer.standard-timer .overlay-time-container .travel-time-container button.travel-time-cancel {
-        -ms-flex-preferred-size: 100%;
-        flex-basis: 100%;
-        border: 2px solid #1b4f7f;
-        background: -webkit-gradient(linear, left top, left bottom, from(#e0e0e0), to(#b0afc2));
-        background: linear-gradient(to bottom, #e0e0e0 0%, #b0afc2 100%);
-        border-radius: 2px;
-        max-width: 10vw;
-        height: 2vh;
-        font-size: 1.6vmin; }
-        body.classic .timer.standard-timer .overlay-time-container .travel-time-container button.travel-time-cancel:hover:not(:disabled) {
-          background: -webkit-gradient(linear, left top, left bottom, from(#dfdfdf), to(#d1d1cb));
-          background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%); }
-      body.classic .timer.standard-timer .overlay-time-container .travel-time-container.irrelevant {
-        -webkit-transition: opacity 3s ease-in 0.5s;
-        transition: opacity 3s ease-in 0.5s;
-        display: -webkit-box !important;
-        display: -ms-flexbox !important;
-        display: flex !important;
-        opacity: 0;
-        pointer-events: all; }
-  body.classic .timer.standard-timer .timer-container {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex; }
-  body.classic .timer.standard-timer .elapsed-thinking-time-container {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    pointer-events: none; }
-    body.classic .timer.standard-timer .elapsed-thinking-time-container h2 {
-      display: none; }
-    body.classic .timer.standard-timer .elapsed-thinking-time-container .elapsed-thinking-time {
-      position: absolute;
-      right: 2vw;
-      opacity: 0.5;
-      font-size: 1.5vmin; }
-      body.classic .timer.standard-timer .elapsed-thinking-time-container .elapsed-thinking-time.running {
-        opacity: 1;
-        font-size: 2.4vmin;
-        text-decoration: none; }
-      body.classic .timer.standard-timer .elapsed-thinking-time-container .elapsed-thinking-time.team-A {
-        top: 44vh;
-        color: #fff; }
-      body.classic .timer.standard-timer .elapsed-thinking-time-container .elapsed-thinking-time.team-B {
-        top: 96vh; }
-  body.classic .timer.standard-timer .timeouts-remaining-container {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    pointer-events: none; }
-    body.classic .timer.standard-timer .timeouts-remaining-container h2 {
-      display: none; }
-    body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining {
-      position: absolute;
-      width: 15vmin;
-      height: 7vmin;
-      right: 2%;
-      padding: 0.5vmin;
-      text-align: center;
-      font-size: 2.5vmin;
-      font-weight: bold;
-      pointer-events: all; }
-      body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-A {
-        border: 2px solid #fff;
-        color: #fff;
-        top: 2%; }
-        body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-A .add-timeout,
-        body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-A .subtract-timeout {
-          color: #fff; }
-          body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-A .add-timeout:hover,
-          body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-A .subtract-timeout:hover {
-            background-color: rgba(255, 255, 255, 0.3); }
-      body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-B {
-        border: 2px solid #000;
-        color: #000;
-        top: 54%; }
-        body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-B .add-timeout,
-        body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-B .subtract-timeout {
-          color: #000; }
-          body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-B .add-timeout:hover,
-          body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-B .subtract-timeout:hover {
-            background-color: rgba(0, 0, 0, 0.1); }
-      body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining::before {
-        content: "Timeouts";
-        display: block; }
-      body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining .add-timeout,
-      body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining .subtract-timeout {
-        cursor: pointer;
-        width: 1.5vmin;
-        height: 1.5vmin;
-        font-size: 1.4vmin;
-        position: absolute;
-        right: 0; }
-      body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining .add-timeout {
-        bottom: 1.2vh; }
-      body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining .subtract-timeout {
-        bottom: 0; }
-  body.classic .timer.standard-timer .thinking-time-container {
-    -webkit-box-ordinal-group: 6;
-    -ms-flex-order: 5;
-    order: 5;
-    width: 100%; }
-    body.classic .timer.standard-timer .thinking-time-container h2 {
-      display: none; }
-    body.classic .timer.standard-timer .thinking-time-container .thinking-times {
-      height: 100%;
-      display: -webkit-box;
-      display: -ms-flexbox;
-      display: flex;
-      -webkit-box-align: center;
-      -ms-flex-align: center;
-      align-items: center;
-      -webkit-box-orient: vertical;
-      -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-      flex-direction: column; }
-      body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer {
-        display: -ms-grid;
-        display: grid;
-        -ms-grid-columns: 1fr auto 1fr;
-        grid-template-columns: 1fr auto 1fr;
-        grid-template-areas: "spacer-left spacer-center spacer-right";
-        height: 4vh;
-        width: 100%;
-        font-size: 2.5vmin;
-        border: 2px solid #c0c0c0; }
-        body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .left {
-          grid-area: spacer-left;
-          text-align: left; }
-        body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .center {
-          grid-area: spacer-center;
-          text-align: center; }
-          body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .center .technical-info {
-            display: -ms-grid;
-            display: grid;
-            -ms-grid-rows: 1fr 2.1vh;
-            grid-template-rows: 1fr 2.1vh;
-            grid-template-areas: "title" "time"; }
-            body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .center .technical-info.irrelevant {
-              -webkit-transition: opacity 3s ease-in 0.5s;
-              transition: opacity 3s ease-in 0.5s;
-              display: -ms-grid !important;
-              display: grid !important;
-              opacity: 0;
-              pointer-events: none; }
-            body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .center .technical-info .technical-timeout-title {
-              grid-area: title;
-              overflow: hidden;
-              font-size: 1.6vmin;
-              font-style: italic; }
-              body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .center .technical-info .technical-timeout-title::before {
-                content: "Technical Timeout"; }
-            body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .center .technical-info .technical-timeout-time {
-              grid-area: time;
-              overflow: hidden; }
-        body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .right {
-          grid-area: spacer-right;
-          text-align: right; }
-      body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls {
-        height: 48vh;
-        width: 100%;
-        display: -webkit-box;
-        display: -ms-flexbox;
-        display: flex;
-        -webkit-box-align: center;
-        -ms-flex-align: center;
-        align-items: center;
-        -webkit-box-pack: center;
-        -ms-flex-pack: center;
-        justify-content: center; }
-        body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls.team-A {
-          color: #fff;
-          background-color: #c00000; }
-          body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls.team-A button.time-control-button:hover {
-            background-color: rgba(255, 255, 255, 0.3); }
-        body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls.team-B {
-          background-color: #ffff00; }
-          body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls.team-B button.time-control-button:hover {
-            background-color: rgba(0, 0, 0, 0.1); }
-        body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls .thinking-time {
-          width: 100%;
-          height: 100%;
-          font-size: 34vmin;
-          display: -webkit-box;
-          display: -ms-flexbox;
-          display: flex;
-          -webkit-box-align: center;
-          -ms-flex-align: center;
-          align-items: center;
-          -webkit-box-pack: center;
-          -ms-flex-pack: center;
-          justify-content: center;
-          font-weight: bold;
-          overflow: hidden; }
-        body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls .time-controls {
-          display: -webkit-box;
-          display: -ms-flexbox;
-          display: flex;
-          -webkit-box-orient: vertical;
-          -webkit-box-direction: normal;
-          -ms-flex-direction: column;
-          flex-direction: column;
-          -webkit-box-pack: justify;
-          -ms-flex-pack: justify;
-          justify-content: space-between;
-          -webkit-box-align: center;
-          -ms-flex-align: center;
-          align-items: center;
-          font-size: 3vmin;
-          height: 8vmin; }
-          body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls .time-controls .time-control-button {
-            width: 2vw; }
-  body.classic .timer.standard-timer.between-ends .thinking-time-container, body.classic .timer.standard-timer.warm-up .thinking-time-container, body.classic .timer.standard-timer.timeout .thinking-time-container {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    left: 0;
-    top: 0;
-    z-index: 3;
-    pointer-events: none; }
-    body.classic .timer.standard-timer.between-ends .thinking-time-container .spacer, body.classic .timer.standard-timer.warm-up .thinking-time-container .spacer, body.classic .timer.standard-timer.timeout .thinking-time-container .spacer {
-      display: none; }
-    body.classic .timer.standard-timer.between-ends .thinking-time-container .time-with-controls, body.classic .timer.standard-timer.warm-up .thinking-time-container .time-with-controls, body.classic .timer.standard-timer.timeout .thinking-time-container .time-with-controls {
-      height: 20vh;
-      pointer-events: all;
-      position: absolute;
-      width: 50%;
-      left: 25%; }
-      body.classic .timer.standard-timer.between-ends .thinking-time-container .time-with-controls.team-A, body.classic .timer.standard-timer.warm-up .thinking-time-container .time-with-controls.team-A, body.classic .timer.standard-timer.timeout .thinking-time-container .time-with-controls.team-A {
-        top: 9%; }
-      body.classic .timer.standard-timer.between-ends .thinking-time-container .time-with-controls.team-B, body.classic .timer.standard-timer.warm-up .thinking-time-container .time-with-controls.team-B, body.classic .timer.standard-timer.timeout .thinking-time-container .time-with-controls.team-B {
-        top: 71%; }
-      body.classic .timer.standard-timer.between-ends .thinking-time-container .time-with-controls .thinking-time, body.classic .timer.standard-timer.warm-up .thinking-time-container .time-with-controls .thinking-time, body.classic .timer.standard-timer.timeout .thinking-time-container .time-with-controls .thinking-time {
-        font-size: 18vmin;
-        width: 87%; }
-  body.classic .timer.standard-timer .debug {
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    background-color: rgba(248, 248, 248, 0.7);
-    z-index: 5;
-    -webkit-transition: all 0.4s;
-    transition: all 0.4s; }
-    body.classic .timer.standard-timer .debug.hidden {
-      bottom: -25%;
-      opacity: 0; }
-  body.classic .timer.standard-timer .controls {
-    text-transform: capitalize;
-    width: 100px;
-    min-width: 100px;
-    max-width: 100px;
-    height: 100vh;
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -ms-flex-direction: column;
-    flex-direction: column;
-    -webkit-box-ordinal-group: 0;
-    -ms-flex-order: -1;
-    order: -1; }
-    body.classic .timer.standard-timer .controls button {
-      font-size: 16px;
-      height: 10vh;
-      border: 1px solid #666; }
-      body.classic .timer.standard-timer .controls button:hover:not(.start-game) {
-        border-color: #f8b330; }
-        body.classic .timer.standard-timer .controls button:hover:not(.start-game):disabled {
-          border-color: #666;
-          cursor: not-allowed; }
-    body.classic .timer.standard-timer .controls #game-start-warmup {
-      background-color: #43a047;
-      position: absolute;
-      top: 25%;
-      left: calc(50% - 150px);
-      height: 100px;
-      width: 300px; }
-      body.classic .timer.standard-timer .controls #game-start-warmup:disabled {
-        display: none; }
-      body.classic .timer.standard-timer .controls #game-start-warmup:hover {
-        background-color: #51b655; }
-      body.classic .timer.standard-timer .controls #game-start-warmup:active {
-        background-color: #63be67; }
-    body.classic .timer.standard-timer .controls #game-start-no-warmup {
-      background-color: #009688;
-      position: absolute;
-      height: 100px;
-      width: 300px;
-      top: calc(25% + 110px);
-      left: calc(50% - 150px); }
-      body.classic .timer.standard-timer .controls #game-start-no-warmup:disabled {
-        display: none; }
-      body.classic .timer.standard-timer .controls #game-start-no-warmup:hover {
-        background-color: #00baa8; }
-      body.classic .timer.standard-timer .controls #game-start-no-warmup:active {
-        background-color: #00c9b6; }
-    body.classic .timer.standard-timer .controls .start-game {
-      border-radius: 5px;
-      color: white;
-      font-weight: bold;
-      font-size: 18px; }
-    body.classic .timer.standard-timer .controls #yellow-begin-thinking {
-      -webkit-box-ordinal-group: 51;
-      -ms-flex-order: 50;
-      order: 50;
-      background: -webkit-gradient(linear, left top, left bottom, from(#fefebf), to(#f0f0ab));
-      background: linear-gradient(to bottom, #fefebf 0%, #f0f0ab 100%); }
-      body.classic .timer.standard-timer .controls #yellow-begin-thinking:hover:not(:disabled) {
-        background: -webkit-gradient(linear, left top, left bottom, from(#fefe00), to(#f0f000));
-        background: linear-gradient(to bottom, #fefe00 0%, #f0f000 100%); }
-    body.classic .timer.standard-timer .controls #red-begin-thinking {
-      -webkit-box-ordinal-group: 21;
-      -ms-flex-order: 20;
-      order: 20;
-      background: -webkit-gradient(linear, left top, left bottom, from(#febfbf), to(#f0b1ab));
-      background: linear-gradient(to bottom, #febfbf 0%, #f0b1ab 100%); }
-      body.classic .timer.standard-timer .controls #red-begin-thinking:hover:not(:disabled) {
-        background: -webkit-gradient(linear, left top, left bottom, from(#fe7f7f), to(#f0716b));
-        background: linear-gradient(to bottom, #fe7f7f 0%, #f0716b 100%); }
-    body.classic .timer.standard-timer .controls #end-red-thinking {
-      -webkit-box-ordinal-group: 22;
-      -ms-flex-order: 21;
-      order: 21;
-      background: -webkit-gradient(linear, left top, left bottom, from(#febfbf), to(#f0b1ab));
-      background: linear-gradient(to bottom, #febfbf 0%, #f0b1ab 100%); }
-      body.classic .timer.standard-timer .controls #end-red-thinking:hover:not(:disabled) {
-        background: -webkit-gradient(linear, left top, left bottom, from(#fe7f7f), to(#f0716b));
-        background: linear-gradient(to bottom, #fe7f7f 0%, #f0716b 100%); }
-    body.classic .timer.standard-timer .controls #end-yellow-thinking {
-      -webkit-box-ordinal-group: 52;
-      -ms-flex-order: 51;
-      order: 51;
-      background: -webkit-gradient(linear, left top, left bottom, from(#fefebf), to(#f0f0ab));
-      background: linear-gradient(to bottom, #fefebf 0%, #f0f0ab 100%); }
-      body.classic .timer.standard-timer .controls #end-yellow-thinking:hover:not(:disabled) {
-        background: -webkit-gradient(linear, left top, left bottom, from(#fefe00), to(#f0f000));
-        background: linear-gradient(to bottom, #fefe00 0%, #f0f000 100%); }
-    body.classic .timer.standard-timer .controls #end-end {
-      -webkit-box-ordinal-group: 23;
-      -ms-flex-order: 22;
-      order: 22;
-      background: -webkit-gradient(linear, left top, left bottom, from(#bffebf), to(#b2f0ab));
-      background: linear-gradient(to bottom, #bffebf 0%, #b2f0ab 100%); }
-      body.classic .timer.standard-timer .controls #end-end:hover:not(:disabled) {
-        background: -webkit-gradient(linear, left top, left bottom, from(#7ffe7f), to(#71f06b));
-        background: linear-gradient(to bottom, #7ffe7f 0%, #71f06b 100%); }
-    body.classic .timer.standard-timer .controls #begin-timeout {
-      -webkit-box-ordinal-group: 24;
-      -ms-flex-order: 23;
-      order: 23;
-      background: -webkit-gradient(linear, left top, left bottom, from(#bfbffe), to(#b2b2ea));
-      background: linear-gradient(to bottom, #bfbffe 0%, #b2b2ea 100%);
-      height: 5vh; }
-      body.classic .timer.standard-timer .controls #begin-timeout:hover:not(:disabled) {
-        background: -webkit-gradient(linear, left top, left bottom, from(#7f7ffe), to(#7171ea));
-        background: linear-gradient(to bottom, #7f7ffe 0%, #7171ea 100%); }
-    body.classic .timer.standard-timer .controls #technical {
-      -webkit-box-ordinal-group: 25;
-      -ms-flex-order: 24;
-      order: 24;
-      background: -webkit-gradient(linear, left top, left bottom, from(#bfbffe), to(#b2b2ea));
-      background: linear-gradient(to bottom, #bfbffe 0%, #b2b2ea 100%);
-      height: 5vh; }
-      body.classic .timer.standard-timer .controls #technical:hover:not(:disabled) {
-        background: -webkit-gradient(linear, left top, left bottom, from(#7f7ffe), to(#7171ea));
-        background: linear-gradient(to bottom, #7f7ffe 0%, #7171ea 100%); }
-    body.classic .timer.standard-timer .controls #end-technical {
-      -webkit-box-ordinal-group: 25;
-      -ms-flex-order: 24;
-      order: 24;
-      background: -webkit-gradient(linear, left top, left bottom, from(#bfbffe), to(#b2b2ea));
-      background: linear-gradient(to bottom, #bfbffe 0%, #b2b2ea 100%);
-      height: 5vh; }
-      body.classic .timer.standard-timer .controls #end-technical:hover:not(:disabled) {
-        background: -webkit-gradient(linear, left top, left bottom, from(#7f7ffe), to(#7171ea));
-        background: linear-gradient(to bottom, #7f7ffe 0%, #7171ea 100%); }
-      body.classic .timer.standard-timer .controls #end-technical:disabled {
-        display: none; }
-    body.classic .timer.standard-timer .controls #adjust-time {
-      -webkit-box-ordinal-group: 71;
-      -ms-flex-order: 70;
-      order: 70;
-      background: -webkit-gradient(linear, left top, left bottom, from(#fefefe), to(#efefe9));
-      background: linear-gradient(to bottom, #fefefe 0%, #efefe9 100%); }
-      body.classic .timer.standard-timer .controls #adjust-time:hover:not(:disabled) {
-        background: -webkit-gradient(linear, left top, left bottom, from(#dfdfdf), to(#d1d1cb));
-        background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%); }
-    body.classic .timer.standard-timer .controls #begin-extra-end {
-      -webkit-box-ordinal-group: 2;
-      -ms-flex-order: 1;
-      order: 1;
-      background: -webkit-gradient(linear, left top, left bottom, from(#fefefe), to(#efefe9));
-      background: linear-gradient(to bottom, #fefefe 0%, #efefe9 100%); }
-      body.classic .timer.standard-timer .controls #begin-extra-end:hover:not(:disabled) {
-        background: -webkit-gradient(linear, left top, left bottom, from(#dfdfdf), to(#d1d1cb));
-        background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%); }
-    body.classic .timer.standard-timer .controls #begin-midgame-break {
-      -webkit-box-ordinal-group: 26;
-      -ms-flex-order: 25;
-      order: 25;
-      background: -webkit-gradient(linear, left top, left bottom, from(#bffebf), to(#b2f0ab));
-      background: linear-gradient(to bottom, #bffebf 0%, #b2f0ab 100%); }
-      body.classic .timer.standard-timer .controls #begin-midgame-break:hover:not(:disabled) {
-        background: -webkit-gradient(linear, left top, left bottom, from(#7ffe7f), to(#71f06b));
-        background: linear-gradient(to bottom, #7ffe7f 0%, #71f06b 100%); }
-    body.classic .timer.standard-timer .controls #reset {
-      -webkit-box-ordinal-group: 76;
-      -ms-flex-order: 75;
-      order: 75;
-      background: -webkit-gradient(linear, left top, left bottom, from(#fefefe), to(#efefe9));
-      background: linear-gradient(to bottom, #fefefe 0%, #efefe9 100%); }
-      body.classic .timer.standard-timer .controls #reset:hover:not(:disabled) {
-        background: -webkit-gradient(linear, left top, left bottom, from(#dfdfdf), to(#d1d1cb));
-        background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%); }
-
+  height: 100%;
+}
+body.classic .timer.standard-timer.pregame .thinking-time-container, body.classic .timer.standard-timer.idle .thinking-time-container {
+  display: none;
+}
+body.classic .timer.standard-timer :disabled {
+  opacity: 0.4;
+}
+body.classic .timer.standard-timer .timer-container {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+body.classic .timer.standard-timer .time-value {
+  font-weight: bold;
+  user-select: none;
+  cursor: default;
+}
+body.classic .timer.standard-timer .overlay-time-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background-color: #c0c0c0;
+  z-index: 2;
+}
+body.classic .timer.standard-timer .overlay-time-container > .time-value {
+  position: absolute;
+  width: 75%;
+  height: 40%;
+  top: 30%;
+  left: 12.5%;
+  background-color: #80ff80;
+  border: 2px solid #333;
+  font-size: 32vmin;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+body.classic .timer.standard-timer .overlay-time-container .cancel-timer-button {
+  position: absolute;
+  width: 120px;
+  height: 40px;
+  left: calc(50% - 60px);
+  border: 2px solid #1b4f7f;
+  background: linear-gradient(to bottom, #e0e0e0 0%, #b0afc2 100%);
+  border-radius: 2px;
+  top: 92%;
+}
+body.classic .timer.standard-timer .overlay-time-container .cancel-timer-button:hover {
+  background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%);
+}
+body.classic .timer.standard-timer .overlay-time-container h2 {
+  text-align: center;
+  margin-top: 6%;
+  font-size: 32px;
+}
+body.classic .timer.standard-timer .overlay-time-container .travel-time-container {
+  position: absolute;
+  width: 25vw;
+  height: 6vh;
+  top: 32vh;
+  left: calc(50% - 12.5vw);
+  border: 1px solid #212121;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 15;
+  font-size: 3vmin;
+  padding-top: 0.5vh;
+  padding-bottom: 0.5vh;
+  flex-wrap: wrap;
+}
+body.classic .timer.standard-timer .overlay-time-container .travel-time-container .travel-time-label {
+  margin-right: 1.5vw;
+}
+body.classic .timer.standard-timer .overlay-time-container .travel-time-container button.travel-time-cancel {
+  flex-basis: 100%;
+  border: 2px solid #1b4f7f;
+  background: linear-gradient(to bottom, #e0e0e0 0%, #b0afc2 100%);
+  border-radius: 2px;
+  max-width: 10vw;
+  height: 2vh;
+  font-size: 1.6vmin;
+}
+body.classic .timer.standard-timer .overlay-time-container .travel-time-container button.travel-time-cancel:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%);
+}
+body.classic .timer.standard-timer .overlay-time-container .travel-time-container.irrelevant {
+  transition: opacity 3s ease-in 0.5s;
+  display: flex !important;
+  opacity: 0;
+  pointer-events: all;
+}
+body.classic .timer.standard-timer .timer-container {
+  display: flex;
+}
+body.classic .timer.standard-timer .elapsed-thinking-time-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+body.classic .timer.standard-timer .elapsed-thinking-time-container h2 {
+  display: none;
+}
+body.classic .timer.standard-timer .elapsed-thinking-time-container .elapsed-thinking-time {
+  position: absolute;
+  right: 2vw;
+  opacity: 0.5;
+  font-size: 1.5vmin;
+}
+body.classic .timer.standard-timer .elapsed-thinking-time-container .elapsed-thinking-time.running {
+  opacity: 1;
+  font-size: 2.4vmin;
+  text-decoration: none;
+}
+body.classic .timer.standard-timer .elapsed-thinking-time-container .elapsed-thinking-time.team-A {
+  top: 44vh;
+  color: #fff;
+}
+body.classic .timer.standard-timer .elapsed-thinking-time-container .elapsed-thinking-time.team-B {
+  top: 96vh;
+}
+body.classic .timer.standard-timer .timeouts-remaining-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+body.classic .timer.standard-timer .timeouts-remaining-container h2 {
+  display: none;
+}
+body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining {
+  position: absolute;
+  width: 15vmin;
+  height: 7vmin;
+  right: 2%;
+  padding: 0.5vmin;
+  text-align: center;
+  font-size: 2.5vmin;
+  font-weight: bold;
+  pointer-events: all;
+}
+body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-A {
+  border: 2px solid #fff;
+  color: #fff;
+  top: 2%;
+}
+body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-A .add-timeout,
+body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-A .subtract-timeout {
+  color: #fff;
+}
+body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-A .add-timeout:hover,
+body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-A .subtract-timeout:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-B {
+  border: 2px solid #000;
+  color: #000;
+  top: 54%;
+}
+body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-B .add-timeout,
+body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-B .subtract-timeout {
+  color: #000;
+}
+body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-B .add-timeout:hover,
+body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining.team-B .subtract-timeout:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining::before {
+  content: "Timeouts";
+  display: block;
+}
+body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining .add-timeout,
+body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining .subtract-timeout {
+  cursor: pointer;
+  width: 1.5vmin;
+  height: 1.5vmin;
+  font-size: 1.4vmin;
+  position: absolute;
+  right: 0;
+}
+body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining .add-timeout {
+  bottom: 1.2vh;
+}
+body.classic .timer.standard-timer .timeouts-remaining-container .timeouts-remaining .subtract-timeout {
+  bottom: 0;
+}
+body.classic .timer.standard-timer .thinking-time-container {
+  order: 5;
+  width: 100%;
+}
+body.classic .timer.standard-timer .thinking-time-container h2 {
+  display: none;
+}
+body.classic .timer.standard-timer .thinking-time-container .thinking-times {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  grid-template-areas: "spacer-left spacer-center spacer-right";
+  height: 4vh;
+  width: 100%;
+  font-size: 2.5vmin;
+  border: 2px solid #c0c0c0;
+}
+body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .left {
+  grid-area: spacer-left;
+  text-align: left;
+}
+body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .center {
+  grid-area: spacer-center;
+  text-align: center;
+}
+body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .center .technical-info {
+  display: grid;
+  grid-template-rows: 1fr 2.1vh;
+  grid-template-areas: "title" "time";
+}
+body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .center .technical-info.irrelevant {
+  transition: opacity 3s ease-in 0.5s;
+  display: grid !important;
+  opacity: 0;
+  pointer-events: none;
+}
+body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .center .technical-info .technical-timeout-title {
+  grid-area: title;
+  overflow: hidden;
+  font-size: 1.6vmin;
+  font-style: italic;
+}
+body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .center .technical-info .technical-timeout-title::before {
+  content: "Technical Timeout";
+}
+body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .center .technical-info .technical-timeout-time {
+  grid-area: time;
+  overflow: hidden;
+}
+body.classic .timer.standard-timer .thinking-time-container .thinking-times .spacer .right {
+  grid-area: spacer-right;
+  text-align: right;
+}
+body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls {
+  height: 48vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls.team-A {
+  color: #fff;
+  background-color: #c00000;
+}
+body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls.team-A button.time-control-button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls.team-B {
+  background-color: #ffff00;
+}
+body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls.team-B button.time-control-button:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls .thinking-time {
+  width: 100%;
+  height: 100%;
+  font-size: 34vmin;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  overflow: hidden;
+}
+body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls .time-controls {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 3vmin;
+  height: 8vmin;
+}
+body.classic .timer.standard-timer .thinking-time-container .thinking-times .time-with-controls .time-controls .time-control-button {
+  width: 2vw;
+}
+body.classic .timer.standard-timer.between-ends .thinking-time-container, body.classic .timer.standard-timer.warm-up .thinking-time-container, body.classic .timer.standard-timer.timeout .thinking-time-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+body.classic .timer.standard-timer.between-ends .thinking-time-container .spacer, body.classic .timer.standard-timer.warm-up .thinking-time-container .spacer, body.classic .timer.standard-timer.timeout .thinking-time-container .spacer {
+  display: none;
+}
+body.classic .timer.standard-timer.between-ends .thinking-time-container .time-with-controls, body.classic .timer.standard-timer.warm-up .thinking-time-container .time-with-controls, body.classic .timer.standard-timer.timeout .thinking-time-container .time-with-controls {
+  height: 20vh;
+  pointer-events: all;
+  position: absolute;
+  width: 50%;
+  left: 25%;
+}
+body.classic .timer.standard-timer.between-ends .thinking-time-container .time-with-controls.team-A, body.classic .timer.standard-timer.warm-up .thinking-time-container .time-with-controls.team-A, body.classic .timer.standard-timer.timeout .thinking-time-container .time-with-controls.team-A {
+  top: 9%;
+}
+body.classic .timer.standard-timer.between-ends .thinking-time-container .time-with-controls.team-B, body.classic .timer.standard-timer.warm-up .thinking-time-container .time-with-controls.team-B, body.classic .timer.standard-timer.timeout .thinking-time-container .time-with-controls.team-B {
+  top: 71%;
+}
+body.classic .timer.standard-timer.between-ends .thinking-time-container .time-with-controls .thinking-time, body.classic .timer.standard-timer.warm-up .thinking-time-container .time-with-controls .thinking-time, body.classic .timer.standard-timer.timeout .thinking-time-container .time-with-controls .thinking-time {
+  font-size: 18vmin;
+  width: 87%;
+}
+body.classic .timer.standard-timer .debug {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  background-color: rgba(248, 248, 248, 0.7);
+  z-index: 5;
+  transition: all 0.4s;
+}
+body.classic .timer.standard-timer .debug.hidden {
+  bottom: -25%;
+  opacity: 0;
+}
+body.classic .timer.standard-timer .controls {
+  text-transform: capitalize;
+  width: 100px;
+  min-width: 100px;
+  max-width: 100px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  order: -1;
+}
+body.classic .timer.standard-timer .controls button {
+  font-size: 16px;
+  height: 10vh;
+  border: 1px solid #666;
+}
+body.classic .timer.standard-timer .controls button:hover:not(.start-game) {
+  border-color: #f8b330;
+}
+body.classic .timer.standard-timer .controls button:hover:not(.start-game):disabled {
+  border-color: #666;
+  cursor: not-allowed;
+}
+body.classic .timer.standard-timer .controls #game-start-warmup {
+  background-color: #43a047;
+  position: absolute;
+  top: 25%;
+  left: calc(50% - 150px);
+  height: 100px;
+  width: 300px;
+}
+body.classic .timer.standard-timer .controls #game-start-warmup:disabled {
+  display: none;
+}
+body.classic .timer.standard-timer .controls #game-start-warmup:hover {
+  background-color: #51b655;
+}
+body.classic .timer.standard-timer .controls #game-start-warmup:active {
+  background-color: #63be67;
+}
+body.classic .timer.standard-timer .controls #game-start-no-warmup {
+  background-color: #009688;
+  position: absolute;
+  height: 100px;
+  width: 300px;
+  top: calc(25% + 110px);
+  left: calc(50% - 150px);
+}
+body.classic .timer.standard-timer .controls #game-start-no-warmup:disabled {
+  display: none;
+}
+body.classic .timer.standard-timer .controls #game-start-no-warmup:hover {
+  background-color: #00baa8;
+}
+body.classic .timer.standard-timer .controls #game-start-no-warmup:active {
+  background-color: #00c9b6;
+}
+body.classic .timer.standard-timer .controls .start-game {
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+}
+body.classic .timer.standard-timer .controls #yellow-begin-thinking {
+  order: 50;
+  background: linear-gradient(to bottom, #fefebf 0%, #f0f0ab 100%);
+}
+body.classic .timer.standard-timer .controls #yellow-begin-thinking:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #fefe00 0%, #f0f000 100%);
+}
+body.classic .timer.standard-timer .controls #red-begin-thinking {
+  order: 20;
+  background: linear-gradient(to bottom, #febfbf 0%, #f0b1ab 100%);
+}
+body.classic .timer.standard-timer .controls #red-begin-thinking:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #fe7f7f 0%, #f0716b 100%);
+}
+body.classic .timer.standard-timer .controls #end-red-thinking {
+  order: 21;
+  background: linear-gradient(to bottom, #febfbf 0%, #f0b1ab 100%);
+}
+body.classic .timer.standard-timer .controls #end-red-thinking:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #fe7f7f 0%, #f0716b 100%);
+}
+body.classic .timer.standard-timer .controls #end-yellow-thinking {
+  order: 51;
+  background: linear-gradient(to bottom, #fefebf 0%, #f0f0ab 100%);
+}
+body.classic .timer.standard-timer .controls #end-yellow-thinking:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #fefe00 0%, #f0f000 100%);
+}
+body.classic .timer.standard-timer .controls #end-end {
+  order: 22;
+  background: linear-gradient(to bottom, #bffebf 0%, #b2f0ab 100%);
+}
+body.classic .timer.standard-timer .controls #end-end:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #7ffe7f 0%, #71f06b 100%);
+}
+body.classic .timer.standard-timer .controls #begin-timeout {
+  order: 23;
+  background: linear-gradient(to bottom, #bfbffe 0%, #b2b2ea 100%);
+  height: 5vh;
+}
+body.classic .timer.standard-timer .controls #begin-timeout:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #7f7ffe 0%, #7171ea 100%);
+}
+body.classic .timer.standard-timer .controls #technical {
+  order: 24;
+  background: linear-gradient(to bottom, #bfbffe 0%, #b2b2ea 100%);
+  height: 5vh;
+}
+body.classic .timer.standard-timer .controls #technical:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #7f7ffe 0%, #7171ea 100%);
+}
+body.classic .timer.standard-timer .controls #end-technical {
+  order: 24;
+  background: linear-gradient(to bottom, #bfbffe 0%, #b2b2ea 100%);
+  height: 5vh;
+}
+body.classic .timer.standard-timer .controls #end-technical:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #7f7ffe 0%, #7171ea 100%);
+}
+body.classic .timer.standard-timer .controls #end-technical:disabled {
+  display: none;
+}
+body.classic .timer.standard-timer .controls #adjust-time {
+  order: 70;
+  background: linear-gradient(to bottom, #fefefe 0%, #efefe9 100%);
+}
+body.classic .timer.standard-timer .controls #adjust-time:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%);
+}
+body.classic .timer.standard-timer .controls #begin-extra-end {
+  order: 1;
+  background: linear-gradient(to bottom, #fefefe 0%, #efefe9 100%);
+}
+body.classic .timer.standard-timer .controls #begin-extra-end:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%);
+}
+body.classic .timer.standard-timer .controls #begin-midgame-break {
+  order: 25;
+  background: linear-gradient(to bottom, #bffebf 0%, #b2f0ab 100%);
+}
+body.classic .timer.standard-timer .controls #begin-midgame-break:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #7ffe7f 0%, #71f06b 100%);
+}
+body.classic .timer.standard-timer .controls #reset {
+  order: 75;
+  background: linear-gradient(to bottom, #fefefe 0%, #efefe9 100%);
+}
+body.classic .timer.standard-timer .controls #reset:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #dfdfdf 0%, #d1d1cb 100%);
+}
 body.classic .confirm-dialog {
   position: fixed;
   top: 50%;
   left: 50%;
-  -webkit-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
   background-color: #f8f8f8;
   z-index: 15;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -ms-flex-direction: column;
   flex-direction: column;
-  -webkit-box-shadow: 0px 0px 3px 1px rgba(0, 0, 0, 0.4);
-  box-shadow: 0px 0px 3px 1px rgba(0, 0, 0, 0.4); }
-  body.classic .confirm-dialog .confirm-dialog-title {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-align: center;
-    -ms-flex-align: center;
-    align-items: center;
-    padding-left: 10px;
-    height: 30px;
-    border-bottom: 1px solid #ddd;
-    text-transform: uppercase; }
-  body.classic .confirm-dialog .confirm-dialog-message {
-    -webkit-box-flex: 1;
-    -ms-flex-positive: 1;
-    flex-grow: 1;
-    margin: 20px;
-    font-size: 24px; }
-  body.classic .confirm-dialog .confirm-dialog-buttons {
-    height: 50px;
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-align: center;
-    -ms-flex-align: center;
-    align-items: center;
-    -webkit-box-pack: end;
-    -ms-flex-pack: end;
-    justify-content: flex-end;
-    padding-right: 10px; }
-    body.classic .confirm-dialog .confirm-dialog-buttons button {
-      background-color: #2196f3;
-      border: 1px solid #0d47a1;
-      padding-left: 6px;
-      padding-right: 6px;
-      border-radius: 3px;
-      color: #fff;
-      height: 30px;
-      min-width: 90px;
-      margin-left: 20px;
-      text-align: middle;
-      text-transform: capitalize; }
-      body.classic .confirm-dialog .confirm-dialog-buttons button:hover {
-        background-color: #51adf6; }
-      body.classic .confirm-dialog .confirm-dialog-buttons button:active, body.classic .confirm-dialog .confirm-dialog-buttons button:focus {
-        background-color: #0c7cd5;
-        outline: 0; }
-
+  box-shadow: 0px 0px 3px 1px rgba(0, 0, 0, 0.4);
+}
+body.classic .confirm-dialog .confirm-dialog-title {
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  height: 30px;
+  border-bottom: 1px solid #ddd;
+  text-transform: uppercase;
+}
+body.classic .confirm-dialog .confirm-dialog-message {
+  flex-grow: 1;
+  margin: 20px;
+  font-size: 24px;
+}
+body.classic .confirm-dialog .confirm-dialog-buttons {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+}
+body.classic .confirm-dialog .confirm-dialog-buttons button {
+  background-color: #2196f3;
+  border: 1px solid #0d47a1;
+  padding-left: 6px;
+  padding-right: 6px;
+  border-radius: 3px;
+  color: #fff;
+  height: 30px;
+  min-width: 90px;
+  margin-left: 20px;
+  text-align: middle;
+  text-transform: capitalize;
+}
+body.classic .confirm-dialog .confirm-dialog-buttons button:hover {
+  background-color: #51adf6;
+}
+body.classic .confirm-dialog .confirm-dialog-buttons button:active, body.classic .confirm-dialog .confirm-dialog-buttons button:focus {
+  background-color: #0c7cd5;
+  outline: 0;
+}
 body.classic .modal-overlay {
   position: fixed;
   top: 0;
@@ -855,125 +829,126 @@ body.classic .modal-overlay {
   bottom: 0;
   background-color: #000;
   opacity: 0.15;
-  z-index: 10; }
-
+  z-index: 10;
+}
 body.classic .team-time-input {
   width: 280px;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
   align-items: center;
-  -webkit-box-pack: justify;
-  -ms-flex-pack: justify;
   justify-content: space-between;
-  margin-bottom: 10px; }
-  body.classic .team-time-input input {
-    height: 25px;
-    font-size: 20px;
-    width: 100px;
-    padding-top: 2px; }
-
+  margin-bottom: 10px;
+}
+body.classic .team-time-input input {
+  height: 25px;
+  font-size: 20px;
+  width: 100px;
+  padding-top: 2px;
+}
 body.classic .simple-input {
   width: 100%;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: end;
-  -ms-flex-pack: end;
   justify-content: flex-end;
-  margin-bottom: 5px; }
-  body.classic .simple-input .simple-input-label {
-    font-size: 14px;
-    text-align: right;
-    margin-right: 20px; }
-  body.classic .simple-input .simple-input-field {
-    width: 66px;
-    margin-right: 8px; }
-  body.classic .simple-input .input-value-preview {
-    font-size: 14px;
-    width: 66px; }
-
+  margin-bottom: 5px;
+}
+body.classic .simple-input .simple-input-label {
+  font-size: 14px;
+  text-align: right;
+  margin-right: 20px;
+}
+body.classic .simple-input .simple-input-field {
+  width: 66px;
+  margin-right: 8px;
+}
+body.classic .simple-input .input-value-preview {
+  font-size: 14px;
+  width: 66px;
+}
 body.classic .customize-timer-dialog {
   font-size: 14px;
   width: 400px;
-  height: 320px; }
-  body.classic .customize-timer-dialog .simple-or-standard-radios {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -ms-flex-wrap: wrap;
-    flex-wrap: wrap;
-    -ms-flex-pack: distribute;
-    justify-content: space-around;
-    margin-bottom: 16px;
-    padding: 6px;
-    border: 1px solid #212121; }
-    body.classic .customize-timer-dialog .simple-or-standard-radios .simple-or-standard-radio-group-label {
-      -ms-flex-preferred-size: 100%;
-      flex-basis: 100%;
-      margin-bottom: 10px; }
-    body.classic .customize-timer-dialog .simple-or-standard-radios .radio-label-pair {
-      display: -webkit-box;
-      display: -ms-flexbox;
-      display: flex;
-      -webkit-box-align: center;
-      -ms-flex-align: center;
-      align-items: center; }
-      body.classic .customize-timer-dialog .simple-or-standard-radios .radio-label-pair label {
-        -webkit-text-decoration: dotted underline rgba(0, 0, 0, 0.4);
-        text-decoration: dotted underline rgba(0, 0, 0, 0.4); }
-    body.classic .customize-timer-dialog .simple-or-standard-radios input {
-      margin-right: 4px; }
+  height: 320px;
+}
+body.classic .customize-timer-dialog .simple-or-standard-radios {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  margin-bottom: 16px;
+  padding: 6px;
+  border: 1px solid #212121;
+}
+body.classic .customize-timer-dialog .simple-or-standard-radios .simple-or-standard-radio-group-label {
+  flex-basis: 100%;
+  margin-bottom: 10px;
+}
+body.classic .customize-timer-dialog .simple-or-standard-radios .radio-label-pair {
+  display: flex;
+  align-items: center;
+}
+body.classic .customize-timer-dialog .simple-or-standard-radios .radio-label-pair label {
+  text-decoration: dotted underline rgba(0, 0, 0, 0.4);
+}
+body.classic .customize-timer-dialog .simple-or-standard-radios input {
+  margin-right: 4px;
+}
 
 div.debug {
   white-space: pre;
   font-family: Consolas, Courier New, Courier, monospace;
-  pointer-events: none; }
+  pointer-events: none;
+}
 
 .invisible {
-  visibility: hidden; }
+  visibility: hidden;
+}
 
 .fullscreen-button {
   display: inline-block;
   width: 32px;
   height: 40px;
-  -webkit-transform: scaleY(0.75);
   transform: scaleY(0.75);
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none; }
-  .fullscreen-button > span {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 50%; }
-  .fullscreen-button.enter .b {
-    left: 16px; }
-  .fullscreen-button.enter .c {
-    top: 24px; }
-  .fullscreen-button.enter .d {
-    top: 24px;
-    left: 16px; }
-  .fullscreen-button.exit .d {
-    left: 4px;
-    top: 8px; }
-  .fullscreen-button.exit .c {
-    left: 10px;
-    top: 8px; }
-  .fullscreen-button.exit .b {
-    left: 4px;
-    top: 16px; }
-  .fullscreen-button.exit .a {
-    top: 16px;
-    left: 10px; }
-  .fullscreen-button .a::before {
-    content: "\250C"; }
-  .fullscreen-button .b::before {
-    content: "\2510"; }
-  .fullscreen-button .c::before {
-    content: "\2514"; }
-  .fullscreen-button .d::before {
-    content: "\2518"; }
+  user-select: none;
+}
+.fullscreen-button > span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+}
+.fullscreen-button.enter .b {
+  left: 16px;
+}
+.fullscreen-button.enter .c {
+  top: 24px;
+}
+.fullscreen-button.enter .d {
+  top: 24px;
+  left: 16px;
+}
+.fullscreen-button.exit .d {
+  left: 4px;
+  top: 8px;
+}
+.fullscreen-button.exit .c {
+  left: 10px;
+  top: 8px;
+}
+.fullscreen-button.exit .b {
+  left: 4px;
+  top: 16px;
+}
+.fullscreen-button.exit .a {
+  top: 16px;
+  left: 10px;
+}
+.fullscreen-button .a::before {
+  content: "┌";
+}
+.fullscreen-button .b::before {
+  content: "┐";
+}
+.fullscreen-button .c::before {
+  content: "└";
+}
+.fullscreen-button .d::before {
+  content: "┘";
+}

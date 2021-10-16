@@ -1,6 +1,5 @@
 require("./polyfills");
 const express = require("express");
-const bodyParser = require("body-parser");
 const app = express();
 const http = require("http").Server(app);
 const io = require("socket.io")(http);
@@ -41,8 +40,12 @@ function setupRoutes(app) {
 
 	app.post("/", (req, res) => {
 		console.log(req.body);
-		handleAction(req.body.action);
-		res.status(201).end();
+		const result = handleAction(req.body.action);
+		if (result) {
+			res.status(200).end(JSON.stringify(result, null, 4));
+		} else {
+			res.status(201).end();
+		}
 	});
 
 	app.get("/style.css", async (req, res) => {
@@ -51,33 +54,33 @@ function setupRoutes(app) {
 
 	app.get("/plugins.js", (req, res) => {
 		const pluginScripts = [];
-		forEachPlugin(p => {
+		forEachPlugin((p) => {
 			if (typeof p.getScripts === "function") {
 				pluginScripts.push(p.getScripts());
 			}
 		});
 
-		res.end(pluginScripts.map(s => "!function(){\n" + s + "\n}();").join("\n\n"));
+		res.end(pluginScripts.map((s) => "!function(){\n" + s + "\n}();").join("\n\n"));
 	});
 
 	app.use(express.static(join(__dirname, "../client", "icons")));
 	app.use(express.static(join(__dirname, "../client", "bin")));
 	app.use(express.static(join(__dirname, "../assets")));
 
-	forEachPlugin(p => {
+	forEachPlugin((p) => {
 		if (typeof p.setupRoutes === "function") {
 			p.setupRoutes(app);
 		}
 	});
 }
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 setupRoutes(app);
 
-io.on("connection", socket => {
-	socket.on("action", message => {
+io.on("connection", (socket) => {
+	socket.on("action", (message) => {
 		let payload;
 		try {
 			payload = JSON.parse(message);
@@ -108,7 +111,7 @@ function dispatchStateChange(sockets, machineId) {
 }
 
 function getGame(timerNameOrId) {
-	return games[timerNameOrId] || games[Object.keys(games).find(g => games[g].options.timerName === timerNameOrId)];
+	return games[timerNameOrId] || games[Object.keys(games).find((g) => games[g].options.timerName === timerNameOrId)];
 }
 
 function handleAction(action, socket = null) {
@@ -124,11 +127,11 @@ function handleAction(action, socket = null) {
 		}
 		let curlingMachine;
 		if (action.options.type === "simple") {
-			curlingMachine = new SimpleTimerMachine(action.options, sockets => {
+			curlingMachine = new SimpleTimerMachine(action.options, (sockets) => {
 				dispatchStateChange(sockets, curlingMachine.id);
 			});
 		} else if (action.options.type === "standard") {
-			curlingMachine = new CurlingMachine(action.options, sockets => {
+			curlingMachine = new CurlingMachine(action.options, (sockets) => {
 				dispatchStateChange(sockets, curlingMachine.id);
 			});
 		}
@@ -141,7 +144,7 @@ function handleAction(action, socket = null) {
 				data: curlingMachine.getSerializableState(),
 			};
 			socket && socket.emit("response", JSON.stringify(response));
-			forEachPlugin(p => {
+			forEachPlugin((p) => {
 				if (typeof p.onTimerCreated === "function") {
 					p.onTimerCreated(curlingMachine);
 				}
@@ -159,13 +162,14 @@ function handleAction(action, socket = null) {
 		}
 		let game = getGame(timerId);
 
+		const response = {
+			response: "GET_TIMER",
+			token: action.token,
+			data: game ? game.getSerializableState() : undefined,
+		};
+
 		if (socket && game) {
 			game.registerSocket(action.clientId, socket);
-			const response = {
-				response: "GET_TIMER",
-				token: action.token,
-				data: game.getSerializableState(),
-			};
 
 			//console.log("GET_TIMER response: " + require("util").inspect(response));
 			socket && socket.emit("response", JSON.stringify(response));
@@ -179,6 +183,7 @@ function handleAction(action, socket = null) {
 					}),
 				);
 		}
+		return response;
 	}
 
 	if (action.request === "DELETE_TIMER") {

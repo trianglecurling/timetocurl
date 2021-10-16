@@ -1,11 +1,9 @@
 {
 	"compilerOptions": {
 		"module": "commonjs",
-		"target": "es5",
+		"target": "es2017",
 		"lib": [
 			"dom",
-			"es5",
-			"es2015.promise",
 			"es2017"
 		],
 		"strict": true,
@@ -15,7 +13,8 @@
 		"typeRoots": [
 			"../types",
 			"../node_modules/@types"
-		]
+		],
+		"types": ["fscreen", "time"],
 	},
 	"include": [
 		"app.ts"

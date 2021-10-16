@@ -19,7 +19,7 @@ export function getDisplayedTimers(): string[] {
 }
 
 export function uuid(): string {
-	return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+	return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
 		const r = (Math.random() * 16) | 0,
 			v = c === "x" ? r : (r & 0x3) | 0x8;
 		return v.toString(16);
@@ -119,8 +119,8 @@ export function strToSeconds(str: string) {
 	const verbose = sanitized
 		.replace(",", "")
 		.match(
-		/^(?:(\d+)\s*(?:(?:h|hr|hrs|hour|hours)\.?))?\s*(?:(\d+)\s*(?:(?:m|min|mins|minute|minutes)\.?))?\s*(?:(\d+)\s*(?:(?:s|sec|secs|second|seconds)\.?))?$/,
-	);
+			/^(?:(\d+)\s*(?:(?:h|hr|hrs|hour|hours)\.?))?\s*(?:(\d+)\s*(?:(?:m|min|mins|minute|minutes)\.?))?\s*(?:(\d+)\s*(?:(?:s|sec|secs|second|seconds)\.?))?$/,
+		);
 	if (verbose && verbose.length >= 4) {
 		// In the format of hh hours mm minutes ss seconds, e.g.
 		// 2h3m1s, 3 hours, 1 hour, 2 minutes, 3 seconds, etc.
@@ -142,7 +142,7 @@ const scaledElements = new Set();
 	function resizeThrottler() {
 		// ignore resize events as long as an actualResizeHandler execution is in the queue
 		if (!resizeTimeout) {
-			resizeTimeout = setTimeout(function () {
+			resizeTimeout = window.setTimeout(function () {
 				resizeTimeout = null;
 				actualResizeHandler();
 

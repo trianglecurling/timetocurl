@@ -1,7 +1,7 @@
 "use strict";
 var TimeMinder = require("./time-minder").TimeMinder;
-var merge = require("lodash.merge");
-var uuidV4 = require("uuid/v4");
+var merge = require("lodash/merge");
+var uuidV4 = require('uuid').v4;
 var defaultOptions = {
     betweenEndTime: 10,
     extraEndThinkingTime: 60 * 4.5,
@@ -28,7 +28,7 @@ var defaultSimpleTimerOptions = {
     warningTime: 15 * 60,
 };
 var MACHINE_ID_SEED = Math.floor(Math.random() * 10000 + 10001);
-var SimpleTimerMachine = (function () {
+var SimpleTimerMachine = /** @class */ (function () {
     function SimpleTimerMachine(options, onStateChange) {
         this.options = Object.assign({}, defaultSimpleTimerOptions, options);
         this.lengthOfSecond = this.options.lengthOfSecond;
@@ -97,7 +97,7 @@ var SimpleTimerMachine = (function () {
  * it also serves as the name of the node in an FSM - with phase transitions being defined by the
  * name of the transition.
  */
-var CurlingMachine = (function () {
+var CurlingMachine = /** @class */ (function () {
     function CurlingMachine(options, onStateChange) {
         this.options = Object.assign({}, defaultOptions, options);
         this.lengthOfSecond = this.options.lengthOfSecond;

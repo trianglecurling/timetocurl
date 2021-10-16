@@ -9,14 +9,14 @@ const IGNORE_HOTKEY_TYPES = [HTMLInputElement, HTMLButtonElement, HTMLTextAreaEl
 export abstract class TimerUIBase<TState extends BaseTimerState = BaseTimerState, TOptions extends TimerOptions = TimerOptions>
 	implements TimerUI {
 	protected elements: IMap<Element[]>;
-	protected fullScreenButton: HTMLButtonElement;
-	protected lengthOfSecond: number;
+	protected fullScreenButton!: HTMLButtonElement;
+	protected lengthOfSecond!: number;
 	protected options: TOptions;
-	protected rootTimerElement: HTMLElement;
+	protected rootTimerElement!: HTMLElement;
 	protected runningTimers: Stopwatch[];
 	protected state: TState;
-	protected timerContainerElement: HTMLElement;
-	protected titleElement: HTMLElement;
+	protected timerContainerElement!: HTMLElement;
+	protected titleElement!: HTMLElement;
 
 	constructor(initParams: StateAndOptions<TState, TOptions>, protected container: HTMLElement, protected application: TimeToCurl) {
 		this.elements = {};
@@ -39,7 +39,7 @@ export abstract class TimerUIBase<TState extends BaseTimerState = BaseTimerState
 	}
 
 	public initUI() {
-		const template = document.getElementById(this.getTemplateId())!.children!.item(0);
+		const template = document.getElementById(this.getTemplateId())!.children!.item(0)!;
 		const newUI = template.cloneNode(true) as Element;
 		this.initElements(newUI);
 		this.container.appendChild(newUI);
@@ -108,7 +108,7 @@ export abstract class TimerUIBase<TState extends BaseTimerState = BaseTimerState
 			for (const elem of this.elements[action]) {
 				const actionAttr = (elem as HTMLElement).dataset["action"];
 				if (elem.tagName.toLowerCase() === "button" && actionAttr) {
-					callback.call(null, elem, actionAttr);
+					callback.call(null, elem as HTMLButtonElement, actionAttr);
 				}
 			}
 		}
@@ -126,7 +126,7 @@ export abstract class TimerUIBase<TState extends BaseTimerState = BaseTimerState
 			for (const elem of this.elements[commandKey]) {
 				const commandAttr = (elem as HTMLElement).dataset["command"];
 				if (elem.tagName.toLowerCase() === "button" && commandAttr) {
-					callback.call(null, elem, commandAttr, team);
+					callback.call(null, elem as HTMLButtonElement, commandAttr, team);
 				}
 			}
 		}
@@ -162,7 +162,7 @@ export abstract class TimerUIBase<TState extends BaseTimerState = BaseTimerState
 
 		if (elem.children) {
 			for (let i = 0; i < elem.children.length; ++i) {
-				this.populateElements(elem.children.item(i), foundTeamContext);
+				this.populateElements(elem.children.item(i)!, foundTeamContext);
 			}
 		}
 	}

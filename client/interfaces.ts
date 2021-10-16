@@ -218,8 +218,8 @@ export interface TimerUI {
 	toggleFullscreen: () => void;
 }
 
-export interface TimerUIConstructor {
-	new (cm: StateAndOptions, elem: HTMLElement, app: any): TimerUI;
+export interface TimerUIConstructor<TOptions extends StateAndOptions> {
+	new (cm: TOptions, elem: HTMLElement, app: any): TimerUI;
 }
 
 export interface TimerDecider {

@@ -1,9 +1,10 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -14,8 +15,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
         while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
                 case 0: case 1: t = op; break;
                 case 4: _.label++; return { value: op[1], done: false };
@@ -36,7 +37,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 require("./polyfills");
 var express = require("express");
-var bodyParser = require("body-parser");
 var app = express();
 var http = require("http").Server(app);
 var io = require("socket.io")(http);
@@ -75,8 +75,13 @@ function setupRoutes(app) {
     });
     app.post("/", function (req, res) {
         console.log(req.body);
-        handleAction(req.body.action);
-        res.status(201).end();
+        var result = handleAction(req.body.action);
+        if (result) {
+            res.status(200).end(JSON.stringify(result, null, 4));
+        }
+        else {
+            res.status(201).end();
+        }
     });
     app.get("/style.css", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
@@ -102,8 +107,8 @@ function setupRoutes(app) {
         }
     });
 }
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 setupRoutes(app);
 io.on("connection", function (socket) {
     socket.on("action", function (message) {
@@ -183,13 +188,13 @@ function handleAction(action, socket) {
             timerId = timerId.substr(0, dollarIndex);
         }
         var game = getGame(timerId);
+        var response = {
+            response: "GET_TIMER",
+            token: action.token,
+            data: game ? game.getSerializableState() : undefined,
+        };
         if (socket && game) {
             game.registerSocket(action.clientId, socket);
-            var response = {
-                response: "GET_TIMER",
-                token: action.token,
-                data: game.getSerializableState(),
-            };
             //console.log("GET_TIMER response: " + require("util").inspect(response));
             socket && socket.emit("response", JSON.stringify(response));
         }
@@ -200,6 +205,7 @@ function handleAction(action, socket) {
                     data: "game not found",
                 }));
         }
+        return response;
     }
     if (action.request === "DELETE_TIMER") {
         var game = getGame(action.options.timerId);

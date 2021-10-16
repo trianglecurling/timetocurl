@@ -7,10 +7,10 @@ interface Interval {
 
 export class ManagedTimer {
 	private elapsed: number;
-	private firstStarted: number | null;
+	private firstStarted!: number | null;
 	private clearMethod: any;
-	private startedAt: number;
-	private clear: Function;
+	private startedAt!: number;
+	private clear!: Function;
 
 	constructor(
 		private callback: Function,
@@ -213,7 +213,7 @@ export class Stopwatch {
 export class TimeMinder extends Stopwatch {
 	private totalTime: number;
 	private onComplete: Function | undefined;
-	private timeout: number;
+	private timeout!: number;
 
 	constructor(totalTime: number, onComplete?: Function, onDispose?: Function) {
 		super(onDispose);
@@ -256,7 +256,7 @@ export class TimeMinder extends Stopwatch {
 			newInterval.segmentName = segmentName;
 		}
 		this.intervals.push(newInterval);
-		this.timeout = setTimeout(() => {
+		this.timeout = window.setTimeout(() => {
 			this.intervals[this.intervals.length - 1].end = new Date();
 			if (this.onComplete) {
 				this.onComplete(this.intervals);

@@ -1,69 +1,60 @@
 {
-  "name": "timetocurl",
-  "version": "1.0.0",
-  "description": "Client and server software to run a timer for curling matches.",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc -p . && webpack --config ./client/webpack.config.js",
-    "watch:client": "webpack --config ./client/webpack.config.js --watch",
-    "watch:server": "tsc -w -p .",
-    "mon": "nodemon ./bin/index.js",
-    "start": "node ./bin/index.js"
-  },
-  "engines": {
-    "node": ">=8.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/trianglecurling/timetocurl.git"
-  },
-  "keywords": [
-    "curling",
-    "timer",
-    "curltime",
-    "timetocurl",
-    "typescript",
-    "nodejs",
-    "javascript",
-    "socketio",
-    "websockets"
-  ],
-  "author": "Trevor Gau",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/trianglecurling/timetocurl/issues"
-  },
-  "homepage": "https://github.com/trianglecurling/timetocurl#readme",
-  "dependencies": {
-    "body-parser": "^1.17.2",
-    "css-loader": "^0.28.4",
-    "express": "^4.14.0",
-    "extract-text-webpack-plugin": "^2.1.2",
-    "fscreen": "^1.0.1",
-    "lodash": "^4.17.4",
-    "lodash.clonedeep": "^4.5.0",
-    "lodash.isequal": "^4.5.0",
-    "lodash.merge": "^4.6.0",
-    "node-sass": "^4.5.3",
-    "sass-loader": "^6.0.6",
-    "socket.io": "^1.7.2",
-    "style-loader": "^0.18.2",
-    "ts-loader": "^2.3.0",
-    "tslib": "^1.7.1",
-    "uuid": "^3.0.1",
-    "webpack": "^2.7.0"
-  },
-  "devDependencies": {
-    "@types/lodash": "^4.14.69",
-    "@types/socket.io-client": "^1.4.29",
-    "@types/webpack-env": "^1.13.0",
-    "autoprefixer": "^7.1.2",
-    "expect": "^1.20.2",
-    "nodemon": "^1.11.0",
-    "postcss-loader": "^2.0.6",
-    "typescript": "^2.4.1",
-    "uglify-js": "^3.0.25",
-    "uglifyjs-webpack-plugin": "^0.4.6"
-  }
+	"name": "timetocurl",
+	"version": "1.0.0",
+	"description": "Client and server software to run a timer for curling matches.",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"build": "tsc -p . && webpack --config ./client/webpack.config.js",
+		"watch:client": "webpack --config ./client/webpack.config.js --watch",
+		"watch:server": "tsc -w -p .",
+		"mon": "nodemon ./bin/index.js --plugins-path ..\\ttc-plugins",
+		"pm2": "pm2 start ./bin/index.js --name TimeToCurl --watch -- --plugins-path ..\\ttc-plugins",
+		"start": "node ./bin/index.js"
+	},
+	"engines": {
+		"node": ">=8.0.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/trianglecurling/timetocurl.git"
+	},
+	"keywords": ["curling", "timer", "curltime", "timetocurl", "typescript", "nodejs", "javascript", "socketio", "websockets"],
+	"author": "Trevor Gau",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/trianglecurling/timetocurl/issues"
+	},
+	"homepage": "https://github.com/trianglecurling/timetocurl#readme",
+	"dependencies": {
+		"body-parser": "^1.17.2",
+		"css-loader": "^0.28.4",
+		"express": "^4.14.0",
+		"extract-text-webpack-plugin": "^2.1.2",
+		"fscreen": "^1.0.1",
+		"lodash": "^4.17.4",
+		"lodash.clonedeep": "^4.5.0",
+		"lodash.isequal": "^4.5.0",
+		"lodash.merge": "^4.6.0",
+		"node-sass": "^4.5.3",
+		"sass-loader": "^6.0.6",
+		"socket.io": "^1.7.2",
+		"style-loader": "^0.18.2",
+		"ts-loader": "^2.3.0",
+		"tslib": "^1.7.1",
+		"uuid": "^3.0.1",
+		"webpack": "^2.7.0"
+	},
+	"devDependencies": {
+		"@types/lodash": "^4.14.69",
+		"@types/socket.io-client": "^1.4.29",
+		"@types/webpack-env": "^1.13.0",
+		"autoprefixer": "^7.1.2",
+		"expect": "^1.20.2",
+		"nodemon": "^1.11.0",
+		"postcss-loader": "^2.0.6",
+		"typescript": "^2.4.1",
+		"uglify-js": "^3.0.25",
+		"uglifyjs-webpack-plugin": "^0.4.6"
+	}
 }

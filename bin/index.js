@@ -43,11 +43,35 @@ var io = require("socket.io")(http);
 var join = require("path").join;
 var _a = require("./curl-timer"), CurlingMachine = _a.CurlingMachine, SimpleTimerMachine = _a.SimpleTimerMachine;
 var fs = require("fs");
+var path = require("path");
+function loadPlugins() {
+    var plugins = [];
+    var pluginPathArg = process.argv.indexOf("--plugins-path");
+    if (pluginPathArg >= 0) {
+        var argPath = process.argv[pluginPathArg + 1];
+        var pluginPath = path.isAbsolute(argPath) ? argPath : path.join(process.cwd(), argPath);
+        var items = fs.readdirSync(pluginPath);
+        for (var _i = 0, items_1 = items; _i < items_1.length; _i++) {
+            var item = items_1[_i];
+            if (/\.plugin\.js$/.test(item)) {
+                plugins.push(require(path.join(pluginPath, item)));
+            }
+        }
+    }
+    return plugins;
+}
+var plugins = loadPlugins();
+function forEachPlugin(action) {
+    for (var _i = 0, plugins_1 = plugins; _i < plugins_1.length; _i++) {
+        var plugin = plugins_1[_i];
+        action(plugin);
+    }
+}
 function setupRoutes(app) {
     var _this = this;
     app.get(/(^\/$)|(^\/t\/.*$)/, function (req, res) {
         console.log(__dirname);
-        res.sendFile(join(process.cwd(), "client/index.html"));
+        res.sendFile(join(__dirname, "../client/index.html"));
     });
     app.post("/", function (req, res) {
         console.log(req.body);
@@ -56,13 +80,27 @@ function setupRoutes(app) {
     });
     app.get("/style.css", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            res.sendFile(join(process.cwd(), "client/bin/main.css"));
+            res.sendFile(join(__dirname, "../client/bin/main.css"));
             return [2 /*return*/];
         });
     }); });
-    app.use(express.static(join(process.cwd(), "client", "icons")));
-    app.use(express.static(join(process.cwd(), "client", "bin")));
-    app.use(express.static(join(process.cwd(), "assets")));
+    app.get("/plugins.js", function (req, res) {
+        var pluginScripts = [];
+        forEachPlugin(function (p) {
+            if (typeof p.getScripts === "function") {
+                pluginScripts.push(p.getScripts());
+            }
+        });
+        res.end(pluginScripts.map(function (s) { return "!function(){\n" + s + "\n}();"; }).join("\n\n"));
+    });
+    app.use(express.static(join(__dirname, "../client", "icons")));
+    app.use(express.static(join(__dirname, "../client", "bin")));
+    app.use(express.static(join(__dirname, "../assets")));
+    forEachPlugin(function (p) {
+        if (typeof p.setupRoutes === "function") {
+            p.setupRoutes(app);
+        }
+    });
 }
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -128,6 +166,11 @@ function handleAction(action, socket) {
                 data: curlingMachine_1.getSerializableState(),
             };
             socket && socket.emit("response", JSON.stringify(response));
+            forEachPlugin(function (p) {
+                if (typeof p.onTimerCreated === "function") {
+                    p.onTimerCreated(curlingMachine_1);
+                }
+            });
         }
         else {
             socket && socket.emit("response", JSON.stringify({ error: true, message: "Unknown timer type." }));

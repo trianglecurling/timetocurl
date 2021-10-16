@@ -7,6 +7,8 @@ import { Stopwatch, TimeMinder } from "./time-minder";
 
 export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTimerOptions> {
 	protected addTimeoutButtons: IMap<HTMLButtonElement>;
+	protected beginTimeoutButton: HTMLButtonElement;
+	protected beginWarmupButton: HTMLButtonElement;
 	protected betweenEndTimeText: HTMLElement;
 	protected debugElement: HTMLElement;
 	protected designationToTeam: IMap<string>;
@@ -30,15 +32,12 @@ export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTi
 	protected travelTimeCancelButton: HTMLButtonElement;
 	protected travelTimeContainer: HTMLElement;
 	protected travelTimeValue: HTMLElement;
+	protected useTimeouts: boolean;
 	protected warmupTimeText: HTMLElement;
 
 	public static readonly timerType = "standard";
 
-	constructor(
-		initParams: StandardStateAndOptions,
-		protected container: HTMLElement,
-		protected application: TimeToCurl,
-	) {
+	constructor(initParams: StandardStateAndOptions, protected container: HTMLElement, protected application: TimeToCurl) {
 		super(initParams, container, application);
 		this.addTimeoutButtons = {};
 		this.designationToTeam = {};
@@ -49,6 +48,7 @@ export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTi
 		this.timeControls = {};
 		this.timeoutsRemainingText = {};
 		this.subtractTimeoutButtons = {};
+		this.useTimeouts = initParams.options.numTimeouts > 0;
 		if (initParams.options.lengthOfSecond) {
 			this.lengthOfSecond = initParams.options.lengthOfSecond;
 		}
@@ -66,8 +66,43 @@ export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTi
 		return "timerTemplate";
 	}
 
+	private initKeyboardShortcuts() {
+		window.addEventListener("keydown", event => {
+			switch (event.code) {
+				case "KeyZ":
+					// Toggle yellow timer
+					this.sendPhaseTransition("toggle-thinking", { team: "Yellow" });
+					event.preventDefault();
+					break;
+				case "KeyQ":
+					// Toggle red timer
+					this.sendPhaseTransition("toggle-thinking", { team: "Red" });
+					event.preventDefault();
+					break;
+				case "KeyC":
+					// Cancel whatever is happening
+					this.sendPhaseTransition("cancel-timer");
+					event.preventDefault();
+					break;
+				case "F1":
+					// Between end break
+					this.sendPhaseTransition("end-end");
+					event.preventDefault();
+					break;
+				case "F5":
+					// Mid-game break
+					this.sendPhaseTransition("begin-midgame-break");
+					event.preventDefault();
+					break;
+			}
+		});
+	}
+
 	public initUI() {
 		super.initUI();
+
+		// set up keyboard shortcuts - temporary for now!
+		this.initKeyboardShortcuts();
 
 		for (const teamId of Object.keys(this.thinkingButtons)) {
 			this.thinkingButtons[teamId].addEventListener("click", () => {
@@ -105,8 +140,7 @@ export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTi
 		});
 
 		this.travelTimeCancelButton.addEventListener("click", () => {
-			const travelTime =
-				(this.state.end || 0) % 2 === 0 ? this.options.travelTime["away"] : this.options.travelTime["home"];
+			const travelTime = (this.state.end || 0) % 2 === 0 ? this.options.travelTime["away"] : this.options.travelTime["home"];
 			if (this.travelTimeCancelButton.textContent === "Undo") {
 				this.travelTimeCancelButton.textContent = "No coach";
 				this.travelTimeCancelButton.dataset["data"] = JSON.stringify({ value: -1 * travelTime });
@@ -169,6 +203,10 @@ export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTi
 			}
 		});
 
+		if (!this.useTimeouts) {
+			this.timeoutsRemainingContainerElement.classList.add("irrelevant");
+		}
+
 		this.setNewState(this.state);
 	}
 
@@ -176,7 +214,7 @@ export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTi
 		return { ...this.state };
 	}
 
-	public dispose() { }
+	public dispose() {}
 
 	public setNewState(state: CurlingMachineState) {
 		invalidateScaledText();
@@ -191,6 +229,12 @@ export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTi
 				elem.disabled = true;
 			}
 		});
+
+		if (this.options.warmupTime <= 0) {
+			this.beginWarmupButton.classList.add("irrelevant");
+		} else {
+			this.beginWarmupButton.classList.remove("irrelevant");
+		}
 
 		// Title, root class changes
 		this.titleElement.textContent = this.state.timerName;
@@ -223,6 +267,13 @@ export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTi
 			}
 			if (this.state.phase === "thinking") {
 				const thinkingTeam = this.state.phaseData["team"];
+
+				if (this.state.timeoutsRemaining[thinkingTeam] > 0) {
+					this.beginTimeoutButton.disabled = false;
+				} else {
+					this.beginTimeoutButton.disabled = true;
+				}
+
 				if (thinkingTeam === teamId) {
 					this.thinkingButtons[teamId].disabled = true;
 
@@ -231,10 +282,7 @@ export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTi
 					mainTimer.every(
 						this.lengthOfSecond / 10,
 						() => {
-							setTimeToElem(
-								this.thinkingTimeText[teamId],
-								mainTimer.getTimeRemaining() / this.lengthOfSecond,
-							);
+							setTimeToElem(this.thinkingTimeText[teamId], mainTimer.getTimeRemaining() / this.lengthOfSecond);
 						},
 						false,
 					);
@@ -249,8 +297,7 @@ export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTi
 						() => {
 							setTimeToElem(
 								this.elapsedThinkingTime[teamId],
-								(stoneTimer.elapsedTime() + (this.state.currentTimerRunningTime || 0)) /
-								this.lengthOfSecond,
+								(stoneTimer.elapsedTime() + (this.state.currentTimerRunningTime || 0)) / this.lengthOfSecond,
 							);
 						},
 						false,
@@ -308,21 +355,16 @@ export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTi
 
 		if (this.state.phase === "timeout") {
 			this.elements["timeout-time-container"][0].classList.remove("irrelevant");
-			const scheduledTravelTime =
-				(this.state.end || 0) % 2 === 0 ? this.options.travelTime["away"] : this.options.travelTime["home"];
+			const scheduledTravelTime = (this.state.end || 0) % 2 === 0 ? this.options.travelTime["away"] : this.options.travelTime["home"];
 
 			// timeoutTimeRemaining includes travel time
 			const travelTime = Math.max(0, this.state.timeoutTimeRemaining - this.options.timeoutTime);
 
-			const timeoutTimer = new TimeMinder(
-				(this.state.timeoutTimeRemaining - travelTime) * this.lengthOfSecond,
-				undefined,
-				() => {
-					this.travelTimeCancelButton.textContent = "No coach";
-					this.travelTimeCancelButton.dataset["data"] = JSON.stringify({ value: -1 * scheduledTravelTime });
-					this.travelTimeContainer.classList.remove("irrelevant");
-				},
-			);
+			const timeoutTimer = new TimeMinder((this.state.timeoutTimeRemaining - travelTime) * this.lengthOfSecond, undefined, () => {
+				this.travelTimeCancelButton.textContent = "No coach";
+				this.travelTimeCancelButton.dataset["data"] = JSON.stringify({ value: -1 * scheduledTravelTime });
+				this.travelTimeContainer.classList.remove("irrelevant");
+			});
 			timeoutTimer.every(
 				this.lengthOfSecond / 10,
 				(isImmediateInvocation: boolean) => {
@@ -390,7 +432,7 @@ export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTi
 		}
 
 		// Hide timeouts remaining box between ends, etc.
-		if (["thinking", "stone-moving"].indexOf(this.state.phase) >= 0) {
+		if (["thinking", "stone-moving"].indexOf(this.state.phase) >= 0 && this.useTimeouts) {
 			this.timeoutsRemainingContainerElement.classList.remove("irrelevant");
 		} else if (this.state.phase !== "technical") {
 			this.timeoutsRemainingContainerElement.classList.add("irrelevant");
@@ -523,7 +565,13 @@ export class StandardTimerUI extends TimerUIBase<CurlingMachineState, StandardTi
 		if (this.elements["travel-time-value"] && this.elements["travel-time-value"][0]) {
 			this.travelTimeValue = this.elements["travel-time-value"][0] as HTMLElement;
 		}
+		if (this.elements["begin-timeout"] && this.elements["begin-timeout"][0]) {
+			this.beginTimeoutButton = this.elements["begin-timeout"][0] as HTMLButtonElement;
+		}
+		if (this.elements["game-start-warmup"] && this.elements["game-start-warmup"][0]) {
+			this.beginWarmupButton = this.elements["game-start-warmup"][0] as HTMLButtonElement;
+		}
 	}
 }
 
-registerTimerType(StandardTimerUI, cm => cm.type === StandardTimerUI.timerType);
+registerTimerType(<any>StandardTimerUI, cm => cm.type === StandardTimerUI.timerType);

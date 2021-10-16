@@ -65,11 +65,11 @@ export const TimerPresets: TimerPreset[] = [
 		type: TimerType.Standard,
 	},
 	{
-		id: "1.5-hour",
-		name: "1½ Hours (6 Ends)",
+		id: "dbls-1.5-hour",
+		name: "Doubles - 1½ Hours (8 Ends)",
 		options: {
 			...SimpleBaseOptions,
-			numEnds: 6,
+			numEnds: 8,
 			totalTime: 90 * 60,
 		} as SimpleTimerOptions,
 		type: TimerType.Simple,

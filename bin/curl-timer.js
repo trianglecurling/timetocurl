@@ -28,7 +28,7 @@ var defaultSimpleTimerOptions = {
     warningTime: 15 * 60,
 };
 var MACHINE_ID_SEED = Math.floor(Math.random() * 10000 + 10001);
-var SimpleTimerMachine = /** @class */ (function () {
+var SimpleTimerMachine = (function () {
     function SimpleTimerMachine(options, onStateChange) {
         this.options = Object.assign({}, defaultSimpleTimerOptions, options);
         this.lengthOfSecond = this.options.lengthOfSecond;
@@ -97,7 +97,7 @@ var SimpleTimerMachine = /** @class */ (function () {
  * it also serves as the name of the node in an FSM - with phase transitions being defined by the
  * name of the transition.
  */
-var CurlingMachine = /** @class */ (function () {
+var CurlingMachine = (function () {
     function CurlingMachine(options, onStateChange) {
         this.options = Object.assign({}, defaultOptions, options);
         this.lengthOfSecond = this.options.lengthOfSecond;
@@ -149,6 +149,8 @@ var CurlingMachine = /** @class */ (function () {
             timeoutsRemaining[team] = this.options.numTimeouts;
             currentStone[team] = 0;
         }
+        // If there is no warmup time defined, go directly into the main timer phase
+        var initialPhase = this.options.warmupTime === 0 ? "stone-moving" : "pregame";
         return {
             betweenEndTimeRemaining: this.options.betweenEndTime,
             currentlyRunningTimeout: null,
@@ -158,8 +160,8 @@ var CurlingMachine = /** @class */ (function () {
             end: null,
             extraEnd: null,
             id: this.id,
-            legalActions: this.getLegalActions("pregame"),
-            phase: "pregame",
+            legalActions: this.getLegalActions(initialPhase),
+            phase: initialPhase,
             phaseData: {},
             timeoutsRemaining: timeoutsRemaining,
             timeRemaining: timeRemaining,

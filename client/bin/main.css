@@ -68,11 +68,13 @@ header {
     color: #fff;
     height: 28px;
     margin-right: 3px; }
-    header button.create-timer:hover {
+    header button.create-timer:hover:not(:disabled) {
       background-color: #3a8a3d; }
     header button.create-timer:active, header button.create-timer:focus {
       background-color: #347c37;
       outline: 0; }
+    header button.create-timer:disabled {
+      opacity: 0.5; }
   header button.customize-settings {
     font-size: 18px;
     width: 28px;

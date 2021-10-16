@@ -92,13 +92,16 @@ header {
 		height: 28px;
 		margin-right: 3px;
 
-		&:hover {
+		&:hover:not(:disabled) {
 			background-color: darken($button-color, 6%);
 		}
 		&:active,
 		&:focus {
 			background-color: darken($button-color, 10%);
 			outline: 0;
+		}
+		&:disabled {
+			opacity: 0.5;
 		}
 	}
 

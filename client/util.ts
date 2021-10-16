@@ -97,7 +97,7 @@ export function secondsToStr(seconds: number, allowNegative: boolean = false) {
 	const m = Math.floor((clampedSeconds - 3600 * h) / 60);
 	const s = Math.floor(clampedSeconds - h * 3600 - m * 60);
 	const slz = s < 10 ? "0" + String(s) : String(s);
-	const mlz = h > 0 && m < 10 ? "0" + String(m) : String(m);
+	const mlz = /*h > 0 &&*/ m < 10 ? "0" + String(m) : String(m);
 	const hwcolon = h > 0 ? String(h) + ":" : "";
 	return `${isNegative ? "-" : ""}${hwcolon}${mlz}:${slz}`;
 }
@@ -119,8 +119,8 @@ export function strToSeconds(str: string) {
 	const verbose = sanitized
 		.replace(",", "")
 		.match(
-			/^(?:(\d+)\s*(?:(?:h|hr|hrs|hour|hours)\.?))?\s*(?:(\d+)\s*(?:(?:m|min|mins|minute|minutes)\.?))?\s*(?:(\d+)\s*(?:(?:s|sec|secs|second|seconds)\.?))?$/,
-		);
+		/^(?:(\d+)\s*(?:(?:h|hr|hrs|hour|hours)\.?))?\s*(?:(\d+)\s*(?:(?:m|min|mins|minute|minutes)\.?))?\s*(?:(\d+)\s*(?:(?:s|sec|secs|second|seconds)\.?))?$/,
+	);
 	if (verbose && verbose.length >= 4) {
 		// In the format of hh hours mm minutes ss seconds, e.g.
 		// 2h3m1s, 3 hours, 1 hour, 2 minutes, 3 seconds, etc.
@@ -135,14 +135,14 @@ export function setTimeToElem(elem: HTMLElement, seconds: number, allowNegative:
 }
 
 const scaledElements = new Set();
-(function() {
+(function () {
 	window.addEventListener("resize", resizeThrottler);
 
 	let resizeTimeout: number | null = null;
 	function resizeThrottler() {
 		// ignore resize events as long as an actualResizeHandler execution is in the queue
 		if (!resizeTimeout) {
-			resizeTimeout = setTimeout(function() {
+			resizeTimeout = setTimeout(function () {
 				resizeTimeout = null;
 				actualResizeHandler();
 

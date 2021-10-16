@@ -97,7 +97,7 @@ class SimpleTimerMachine {
  * is used to refer to an object that represents every piece of information needed to explain to
  * a client how to display the current situation in a curling game. The word 'phase' is used to
  * refer to the more traditional meaning of the word 'state' as part of a finite state machine.
- * 
+ *
  * State includes things like time remaining, the current end, timeouts, etc. Phase is simply a
  * name for the current set of actions that are being taken (e.g. running a certain clock), but
  * it also serves as the name of the node in an FSM - with phase transitions being defined by the
@@ -164,6 +164,10 @@ class CurlingMachine {
 			timeoutsRemaining[team] = this.options.numTimeouts;
 			currentStone[team] = 0;
 		}
+
+		// If there is no warmup time defined, go directly into the main timer phase
+		const initialPhase = this.options.warmupTime === 0 ? "stone-moving" : "pregame";
+
 		return {
 			betweenEndTimeRemaining: this.options.betweenEndTime,
 			currentlyRunningTimeout: null,
@@ -173,8 +177,8 @@ class CurlingMachine {
 			end: null,
 			extraEnd: null,
 			id: this.id,
-			legalActions: this.getLegalActions("pregame"),
-			phase: "pregame",
+			legalActions: this.getLegalActions(initialPhase),
+			phase: initialPhase,
 			phaseData: {},
 			timeoutsRemaining,
 			timeRemaining,

@@ -1,5 +1,5 @@
 "use strict";
-var ManagedTimer = /** @class */ (function () {
+var ManagedTimer = (function () {
     function ManagedTimer(callback, ms, recurring, st, ct, si, ci) {
         this.callback = callback;
         this.recurring = recurring;
@@ -63,7 +63,7 @@ var ManagedTimer = /** @class */ (function () {
     };
     return ManagedTimer;
 }());
-var Stopwatch = /** @class */ (function () {
+var Stopwatch = (function () {
     function Stopwatch() {
         this.splits = [];
         this.intervals = [];
@@ -151,7 +151,7 @@ var Stopwatch = /** @class */ (function () {
     };
     return Stopwatch;
 }());
-var TimeMinder = /** @class */ (function () {
+var TimeMinder = (function () {
     function TimeMinder(totalTime, onComplete) {
         this.totalTime = totalTime;
         this.intervals = [];

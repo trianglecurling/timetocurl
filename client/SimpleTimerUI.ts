@@ -48,8 +48,15 @@ export class SimpleTimerUI extends TimerUIBase<SimpleTimerState, SimpleTimerOpti
 
 		const mainTimer = new TimeMinder(this.state.timeRemaining * this.lengthOfSecond, () => {
 			if (this.options.sounds.end) {
-				new Audio(this.options.sounds.end).play();
+				try {
+					new Audio(this.options.sounds.end).play();
+				} catch (e) {
+					console.warn("Error playing audio.");
+				}
 			}
+			this.timerContainerElement.classList.remove("warning", "pregame");
+			this.timerContainerElement.classList.add("no-more-ends");
+			this.pacingElement.classList.add("invisible");
 		});
 
 		mainTimer.every(

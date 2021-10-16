@@ -10,6 +10,8 @@ import {
 	SocketAction,
 	StateAndOptions,
 	TimerDecider,
+	TimerOptions,
+	TimerPreset,
 	TimerUI,
 	TimerUIConstructor,
 } from "./interfaces";
@@ -30,8 +32,9 @@ export class TimeToCurl {
 	private nextStandardTimerOptions: StandardTimerOptions;
 	private nextTimerType: TimerType;
 	private timerPresetsDropdown: HTMLSelectElement;
+	private allPresets: TimerPreset[];
 
-	public init() {
+	public async init() {
 		this.setUpEvents();
 		this.socket = io();
 		this.requests = {};
@@ -75,7 +78,19 @@ export class TimeToCurl {
 			}
 		});
 
-		this.loadTimers(getDisplayedTimers());
+		// Combine presets with those from plugins
+		this.allPresets = TimerPresets.concat(
+			(window as any).ttcPlugins
+				.filter((p: any) => !!p.presets)
+				.map((p: any) => p.presets)
+
+				// flatten array
+				.reduce((a: any, b: any) => {
+					return a.concat(b);
+				}, []),
+		);
+
+		await this.loadTimers(getDisplayedTimers());
 	}
 
 	private async loadTimers(ids: string[]) {
@@ -103,7 +118,7 @@ export class TimeToCurl {
 		const standardGroup = document.createElement("optgroup");
 		standardGroup.setAttribute("label", "Full timers");
 
-		for (const preset of TimerPresets) {
+		for (const preset of this.allPresets) {
 			const option = document.createElement("option");
 			option.value = preset.id;
 			option.textContent = preset.name;
@@ -211,7 +226,7 @@ export class TimeToCurl {
 	}
 
 	private evaluatePresetDropdown() {
-		for (const preset of TimerPresets) {
+		for (const preset of this.allPresets) {
 			if (this.nextTimerType === TimerType.Standard && isEqual(preset.options, this.nextStandardTimerOptions)) {
 				this.timerPresetsDropdown.value = preset.id;
 				return;
@@ -415,9 +430,9 @@ export class TimeToCurl {
 				standardOptions.midGameBreakTime = valMidGameBreakTime || prevStandardSettings.midGameBreakTime;
 
 				simpleOptions.totalTime = valTotalTime || prevSimpleSettings.totalTime;
-				simpleOptions.noMoreEndsTime = valEndTime || prevSimpleSettings.noMoreEndsTime;
-				simpleOptions.warningTime = valWarningTime || prevSimpleSettings.warningTime;
-				simpleOptions.preGameTime = valPreGameTime || prevSimpleSettings.preGameTime;
+				simpleOptions.noMoreEndsTime = valEndTime == null ? prevSimpleSettings.noMoreEndsTime : valEndTime;
+				simpleOptions.warningTime = valWarningTime == null ? prevSimpleSettings.warningTime : valWarningTime;
+				simpleOptions.preGameTime = valPreGameTime == null ? prevSimpleSettings.preGameTime : valPreGameTime;
 				simpleOptions.allowableAdditionalEnds = isNaN(valAdditionalEnds)
 					? prevSimpleSettings.allowableAdditionalEnds
 					: valAdditionalEnds;
@@ -457,7 +472,7 @@ export class TimeToCurl {
 
 	private setNextTimerOptionsFromDropdown() {
 		const dropdownValue = this.timerPresetsDropdown.value;
-		const matchedPreset = TimerPresets.filter(p => p.id === dropdownValue)[0];
+		const matchedPreset = this.allPresets.filter(p => p.id === dropdownValue)[0];
 		if (matchedPreset) {
 			if (matchedPreset.type === TimerType.Simple) {
 				this.nextSimpleTimerOptions = cloneDeep(matchedPreset).options as SimpleTimerOptions;
@@ -493,7 +508,7 @@ export class TimeToCurl {
 					>>{
 						request: "CREATE_TIMER",
 						clientId: clientId,
-						options: {
+						options: <any>{
 							...this.nextTimerType === TimerType.Simple ? this.nextSimpleTimerOptions : this.nextStandardTimerOptions,
 							lengthOfSecond: this.speedyClocks ? 100 : 1000,
 							timerName: (document.getElementById("timerName")! as HTMLInputElement).value.trim() || null,
@@ -526,6 +541,13 @@ export class TimeToCurl {
 			this.onThemeChanged();
 			this.onDebugToggled();
 			this.onSpeedyClocksToggled();
+
+			// Tell all plugins we're done loading
+			for (const plugin of (window as any).ttcPlugins) {
+				if (typeof plugin.onAppLoaded === "function") {
+					plugin.onAppLoaded.call(this);
+				}
+			}
 		});
 	}
 
